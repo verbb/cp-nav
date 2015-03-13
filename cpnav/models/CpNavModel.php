@@ -7,7 +7,7 @@ class CpNavModel extends BaseModel
 	{
 		return array(
 			'id'			=> array(AttributeType::Number),
-			'userGroupId'	=> array(AttributeType::Number),
+			//'userGroupId'	=> array(AttributeType::Number),
 			'handle'		=> array(AttributeType::Handle),
 			'prevLabel'		=> array(AttributeType::String),
 			'currLabel'		=> array(AttributeType::String),

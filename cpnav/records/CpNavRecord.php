@@ -22,7 +22,7 @@ class CpNavRecord extends BaseRecord
 	public function defineRelations()
 	{
 		return array(
-			'userGroup' => array(static::BELONGS_TO, 'UserGroupRecord', 'onDelete' => static::CASCADE),
+			//'userGroup' => array(static::BELONGS_TO, 'UserGroupRecord', 'onDelete' => static::CASCADE),
 		);
 	}
 
