@@ -1,0 +1,44 @@
+{% import "_includes/forms" as forms %}
+
+{% includeCssResource 'cpnav/css/cpnav.css' %}
+{% includeJsResource 'cpnav/js/cpnav.js' %}
+
+{% set navItems = craft.cpNav.navItems %}
+
+<div class="tableview">
+    <table id="navItems" class="data fullwidth collapsible">
+        <thead>
+            <th></th>
+            <th scope="col">{{ "Label"|t }}</th>
+        </thead>
+        <tbody>
+            {% if navItems|length > 0 %}
+                {% for nav in navItems %}
+                    <tr class="nav-item" data-id="{{ nav.id }}" data-currLabel="{{ nav.currLabel }}">
+                        <td class="thin">
+                            {{ forms.lightswitchField({
+                                name: 'navEnabled',
+                                on: nav.enabled,
+                            }) }}
+                        </td>
+
+                        <td data-title="{{ nav.currLabel }}">
+                            <a class="move icon" title="{{ 'Reorder'|t }}" role="button"></a>
+                            <a class="edit-nav">{{ nav.currLabel }}</a>
+                            <span class="original-nav">({{ nav.prevLabel }})</span>
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+{% set js %}
+    new Craft.AdminTable({
+        tableSelector: '#settings-navItems',
+        sortable: true,
+        reorderAction: 'cpNav/reorderNav',
+    });
+{% endset %}
+{% includeJs js %}

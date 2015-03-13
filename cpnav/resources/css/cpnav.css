@@ -1,0 +1,13 @@
+a.edit-nav {
+	padding-left: 5px;
+}
+
+.original-nav {
+	padding-left: 3px;
+	color: #999;
+	font-size: 90%;
+}
+
+.content .buttons .btn.submit {
+	display: none;
+}

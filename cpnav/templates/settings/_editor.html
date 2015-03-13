@@ -1,0 +1,14 @@
+{% import "_includes/forms" as forms %}
+
+{{ forms.textField({
+    label: "Label"|t,
+    instructions: 'Choose what you want this menu item to be called'|t,
+    id: 'currLabel',
+    name: 'currLabel',
+    required: true,
+    autofocus: true,
+    value: nav.currLabel,
+}) }}
+
+<input type="hidden" name="id" value="{{ nav.id }}" style="display: none;" />
+
