@@ -49,6 +49,7 @@ class CpNavPlugin extends BasePlugin
     public function onAfterInstall()
     {   
         // Only the 2640 build of Craft supports 'modifyCpNav()'
+        /*
         $minBuild = '2640';
 
         if (craft()->getBuild() < $minBuild) {
@@ -60,12 +61,7 @@ class CpNavPlugin extends BasePlugin
                 'plugin' => $this->getName(),
                 'build' => $minBuild,
             )));
-        }
-    }
-
-    public function prepSettings($settings)
-    {
-        return $settings;
+        }*/
     }
 
 
