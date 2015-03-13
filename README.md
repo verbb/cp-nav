@@ -23,6 +23,7 @@ This plugin allows you to rename, reorder, or toggle visibility on menu items fo
 
 - Cleanup stale menu items when removing other plugins.
 - Create menu configurations for user groups.
+- Allow custom menu item creation. Useful for external links.
 
 Have a suggestion? We'd love to hear about it! [Make a suggestion](https://github.com/engram-design/CPNav/issues)
 
