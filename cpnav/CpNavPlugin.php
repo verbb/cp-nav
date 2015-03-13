@@ -14,7 +14,7 @@ class CpNavPlugin extends BasePlugin
 
     public function getVersion()
     {
-        return '1.0';
+        return '1.1';
     }
 
     public function getDeveloper()
@@ -84,7 +84,10 @@ class CpNavPlugin extends BasePlugin
 
             foreach ($allNavs as $newNav) {
                 if ($newNav->enabled) {
-                    $nav[$newNav->handle] = $newNav->currLabel;
+                    $nav[$newNav->handle] = array(
+                        'label' => $newNav->currLabel,
+                        'url'   => $newNav->url,
+                    );
                 }
             }
         }

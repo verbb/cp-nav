@@ -13,6 +13,7 @@ class CpNavModel extends BaseModel
 			'currLabel'		=> array(AttributeType::String),
 			'enabled'		=> array(AttributeType::Bool),
             'order'			=> array(AttributeType::Number),
+            'url'			=> array(AttributeType::String),
 		);
 	}
 }

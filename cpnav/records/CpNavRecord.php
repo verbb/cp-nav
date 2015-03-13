@@ -16,6 +16,7 @@ class CpNavRecord extends BaseRecord
 			'currLabel'		=> array(AttributeType::String),
 			'enabled'		=> array(AttributeType::Bool, 'default' => true),
             'order'			=> array(AttributeType::Number, 'default' => 0),
+            'url'			=> array(AttributeType::String),
 		);
 	}
 

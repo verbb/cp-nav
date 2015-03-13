@@ -25,12 +25,13 @@ class CpNavService extends BaseApplicationComponent
 		$i = 0;
 		foreach ($nav as $key => $value) {
 			$navRecord = new CpNavRecord();
-			
+
 			$navRecord->handle = $key;
 			$navRecord->currLabel = $value['label'];
 			$navRecord->prevLabel = $value['label'];
 			$navRecord->enabled = '1';
 			$navRecord->order = $i;
+			$navRecord->url = (array_key_exists('url', $value)) ? $value['url'] : $key;
 
 			$navRecord->save();
 			$i++;
