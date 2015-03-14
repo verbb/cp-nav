@@ -34,7 +34,7 @@ It should also be noted that some plugins already provide a method for changing 
 
 Have a suggestion? We'd love to hear about it! [Make a suggestion](https://github.com/engram-design/CPNav/issues)
 
-
+<!---
 ## Troubleshooting
 
 While every effort is made to ensure this plugin is error free, if an error can happen, it likely will. Murphy's law and all that. When it does, we want you to know exactly how to fix it.
@@ -49,7 +49,7 @@ To manually uninstall the plugin, you can do one of the following:
 To remove MySQL data, locate the `craft_cpnav` table and delete (drop) it. Next, find the `craft_plugins` table, find the row that contains `CpNav` for the `class` column value and delete it. After this, please immediately [submit an issue](https://github.com/engram-design/CPNav/issues).
 
 If the above scares you into thinking this plugin is dangerous - there's no need to. Control Panel Nav doesn't effect and other database tables other than its own. It's even used on several live sites right now. We simply want to provide the above instructions so you're well informed.
-
+-->
 
 ### Changelog
 
