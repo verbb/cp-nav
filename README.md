@@ -4,7 +4,7 @@ Control Panel Nav is a Craft CMS plugin to help manage your Control Panel naviga
 
 **Please note:** this plugin requires a minimum of Craft 2.3.2640.
 
-<img src="https://raw.githubusercontent.com/engram-design/CPNav/master/screenshots/main.png" />
+<img src="https://raw.githubusercontent.com/engram-design/CPNav/master/screenshots/main-new.png" />
 
 
 ## Install
@@ -18,7 +18,7 @@ Control Panel Nav is a Craft CMS plugin to help manage your Control Panel naviga
 
 This plugin allows you to rename, reorder, or toggle visibility on menu items for the Control Panel.
 
-You can also create your own menu items to link to either pages inside the control panel, or external links. This might be helpful if you have a specific entry for your client's to easily access, or any other sort of page you want to add. If creating an internal link to pages in the control panel, you should be provide a relative link, rather than the full URL to your control panel (ie: http://my.craft.dev/admin/`entries/pages/somepage`).
+You can also create your own menu items to link to either pages inside the control panel, or external links. This might be helpful if you have a specific entry for your client's to easily access, or any other sort of page you want to add. If creating an internal link to pages in the control panel, you should be provide a relative link, rather than the full URL to your control panel (ie: `http://my.craft.dev/admin/**entries/pages/somepage**`).
 
 An external link might be helpful if you offer support via a third-party website, or through your agencies own website. These should be provided as absolute URLs, complete with protocal (http/https). Or maybe you want people to Google something first before asking for support.
 
