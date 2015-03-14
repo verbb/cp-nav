@@ -1,5 +1,16 @@
 $(function() {
 
+	$(document).on('keyup', '#settings-url', function() {
+		var pattern = new RegExp("^(https?)");
+
+		if (pattern.test($(this).val())) {
+			$('.eg-url').hide();
+		} else {
+			$('.eg-url').show();
+		}
+
+		$('.example-url').html($(this).val());
+	});
 
 	$(document).on('change', '.lightswitch', function() {
 		var row = $(this).parents('tr.nav-item')

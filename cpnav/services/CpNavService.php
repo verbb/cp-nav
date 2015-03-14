@@ -32,6 +32,7 @@ class CpNavService extends BaseApplicationComponent
 			$navRecord->enabled = '1';
 			$navRecord->order = $i;
 			$navRecord->url = (array_key_exists('url', $value)) ? $value['url'] : $key;
+			$navRecord->prevUrl = $navRecord->url;
 
 			$navRecord->save();
 			$i++;
@@ -90,6 +91,8 @@ class CpNavService extends BaseApplicationComponent
 	{
 		$navRecord = CpNavRecord::model()->findById($nav->id);
 		$navRecord->currLabel = $nav->currLabel;
+		$navRecord->prevUrl = ($nav->prevUrl) ? $nav->prevUrl : $nav->url;
+		$navRecord->url = $nav->url;
 		$navRecord->save();
 
 		$nav->currLabel = $navRecord->getAttribute('currLabel');
@@ -97,8 +100,26 @@ class CpNavService extends BaseApplicationComponent
 		return $nav;
 	}
 
+	// Clears out the DB - refreshed on next page load however. Used when restoring to defaults
+	public function emptyTable()
+	{
+		$query = craft()->db->createCommand()->delete('cpnav');
+	}
 
+	public function createNav($value)
+	{
+		$navRecord = new CpNavRecord();
 
+		$navRecord->handle = $value['handle'];
+		$navRecord->currLabel = $value['label'];
+		$navRecord->prevLabel = $value['label'];
+		$navRecord->enabled = '1';
+		$navRecord->url = $value['url'];
+		$navRecord->prevUrl = $value['url'];
+		$navRecord->order = '99';
+
+		$navRecord->save();
+	}
 
 
 

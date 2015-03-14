@@ -27,7 +27,9 @@ class CpNavController extends BaseController
 
         $navId = craft()->request->getRequiredPost('id');
         $nav = craft()->cpNav->getNavById($navId);
+
         $nav->currLabel = craft()->request->getRequiredPost('currLabel');
+        $nav->url = craft()->request->getRequiredPost('url');
 
         $nav = craft()->cpNav->saveNav($nav);
 
@@ -55,6 +57,37 @@ class CpNavController extends BaseController
         craft()->cpNav->toggleNav($navId, $toggle);
 
         $this->returnJson(array('success' => true));
+    }
+
+    public function actionRestore()
+    {
+        $this->requirePostRequest();
+
+        craft()->cpNav->emptyTable();
+
+        $this->redirectToPostedUrl();
+    }
+
+    public function actionNew()
+    {
+        $this->requirePostRequest();
+
+        $settings = craft()->request->getRequiredPost('settings');
+        $label = $settings['label'];
+        $handle = $settings['handle'];
+        $url = $settings['url'];
+
+        $variables = array(
+            'label' => $label,
+            'handle' => strtolower($label),
+            'url' => $url,
+        );
+
+        $nav = craft()->cpNav->createNav($variables);
+
+        craft()->userSession->setNotice(Craft::t('Menu item added.'));
+
+        $this->redirectToPostedUrl();
     }
 
 

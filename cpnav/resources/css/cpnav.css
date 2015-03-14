@@ -1,3 +1,12 @@
+
+/* override default settings layout */
+#main > .grid > .item > .pane {
+	background: transparent;
+	padding: 0;
+	margin: 0;
+	box-shadow: none;
+}
+
 a.edit-nav {
 	padding-left: 5px;
 }
@@ -8,6 +17,11 @@ a.edit-nav {
 	font-size: 90%;
 }
 
-.content .buttons .btn.submit {
+.content .body form > .buttons .btn.submit {
 	display: none;
+}
+
+button.btn.submit {
+	font-family: inherit;
+	font-size: inherit;
 }

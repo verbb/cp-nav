@@ -1,44 +1,122 @@
 {% import "_includes/forms" as forms %}
 
-{% includeCssResource 'cpnav/css/cpnav.css' %}
-{% includeJsResource 'cpnav/js/cpnav.js' %}
+{# without this, will override styles/scripts on /settings/plugins page (and for any other plugin) #}
+{% if craft.request.lastSegment == 'cpnav' %}
+    {% includeCssResource 'cpnav/css/cpnav.css' %}
+    {% includeJsResource 'cpnav/js/cpnav.js' %}
+{% endif %}
 
 {% set navItems = craft.cpNav.navItems %}
 
-<div class="tableview">
-    <table id="navItems" class="data fullwidth collapsible">
-        <thead>
-            <th></th>
-            <th scope="col">{{ "Label"|t }}</th>
-        </thead>
-        <tbody>
-            {% if navItems|length > 0 %}
-                {% for nav in navItems %}
-                    <tr class="nav-item" data-id="{{ nav.id }}" data-currLabel="{{ nav.currLabel }}">
-                        <td class="thin">
-                            {{ forms.lightswitchField({
-                                name: 'navEnabled',
-                                on: nav.enabled,
-                            }) }}
-                        </td>
+<div class="grid first">
+    <div class="item first" data-position="left" data-min-colspan="2" data-max-colspan="3">
+        <div class="pane first tableview">
+            <table id="navItems" class="data fullwidth collapsible">
+                <thead>
+                    <th scope="col">{{ "Visible"|t }}</th>
+                    <th scope="col">{{ "Label"|t }}</th>
+                    <th scope="col">{{ "URL"|t }}</th>
+                </thead>
+                <tbody>
+                    {% if navItems|length > 0 %}
+                        {% for nav in navItems %}
+                            <tr class="nav-item" data-id="{{ nav.id }}" data-currLabel="{{ nav.currLabel }}">
+                                <td class="thin">
+                                    {{ forms.lightswitchField({
+                                        name: 'navEnabled',
+                                        on: nav.enabled,
+                                    }) }}
+                                </td>
 
-                        <td data-title="{{ nav.currLabel }}">
-                            <a class="move icon" title="{{ 'Reorder'|t }}" role="button"></a>
-                            <a class="edit-nav">{{ nav.currLabel }}</a>
-                            <span class="original-nav">({{ nav.prevLabel }})</span>
-                        </td>
-                    </tr>
-                {% endfor %}
-            {% endif %}
-        </tbody>
-    </table>
+                                <td data-title="{{ nav.currLabel }}">
+                                    <a class="move icon" title="{{ 'Reorder'|t }}" role="button"></a>
+                                    <a class="edit-nav">{{ nav.currLabel }}</a>
+                                    <span class="original-nav">({{ nav.prevLabel }})</span>
+                                </td>
+
+                                <td data-title="{{ nav.currLabel }}">
+                                    <span class="original-nav">{{ nav.url }}</span>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="item" data-position="right" data-colspan="1">
+        <div class="pane first">
+            <div class="field first">
+                <div class="heading">
+                    <label>Add new menu item</label>
+                    <div class="instructions"><p>Create your own navigation link to be shown in the CP navigation. Useful for an external link, or direct access to a page.</p></div>
+                </div>
+            </div>
+
+            <input type="hidden" id="handle" name="handle" />
+
+            {{ forms.textField({
+                label: "Label"|t,
+                id: 'label',
+                name: 'label',
+                first: true,
+                required: true,
+                instructions: 'What the label of this page should be.'|t
+            }) }}
+
+            {% set siteUrl = craft.app.getSiteUrl() %}
+            {% set siteTrigger = (craft.config.cpTrigger) ? craft.config.cpTrigger : 'admin' %}
+            {% set cpUrl = siteUrl ~ siteTrigger ~ '/' %}
+
+            {{ forms.textField({
+                label: "URL"|t,
+                id: 'url',
+                name: 'url',
+                required: true,
+                instructions: 'The URL of this menu item. Can be a relative URL, or external.<br>eg. <span class="eg-url">'~cpUrl~'</span><span class="example-url"></span>'|t
+            }) }}
+
+            <div id="newNavItem" class="buttons">
+                <button type="submit" class="btn submit add icon formsubmit" data-action="cpNav/new" data-redirect="settings/plugins/cpnav">{{ 'Add menu item'|t }}</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="item" data-position="right" data-colspan="1">
+        <div class="pane first">
+            <div class="field first">
+                <div class="heading">
+                    <label>Restore default navigation</label>
+                    <div class="instructions"><p>Revert your navigation back to the original unaltered layout. This will reset the order, label, url and visibilty of each menu item.</p></div>
+                </div>
+            </div>
+
+            <div class="left">
+                <div class="field first">
+                    <div class="heading">
+                        <div class="instructions"><p><strong>Note:</strong> This cannot be undone.</p></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="right">
+                <input type="button" class="btn small formsubmit" value="{{ 'Restore defaults'|t }}" data-action="cpNav/restore" data-confirm="Are you sure you want to restore the CP navigation to the default? This cannot be undone." data-redirect="settings/plugins/cpnav">
+            </div>
+        </div>
+    </div>
+
 </div>
 
 {% set js %}
     new Craft.AdminTable({
         tableSelector: '#settings-navItems',
+        newObjectBtnSelector: '#newNavItem',
         sortable: true,
         reorderAction: 'cpNav/reorderNav',
     });
 {% endset %}
 {% includeJs js %}
+
+{% includeJs "new Craft.HandleGenerator('#settings-label', '#settings-handle');" %}
+

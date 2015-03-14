@@ -10,5 +10,17 @@
     value: nav.currLabel,
 }) }}
 
+{% set prevUrl = (nav.prevUrl) ? nav.prevUrl : nav.url %}
+
+{{ forms.textField({
+    label: "URL"|t,
+    instructions: 'Choose the relative URL this menu points to.<br><strong>Default:</strong> ' ~ prevUrl |t,
+    id: 'url',
+    name: 'url',
+    required: true,
+    autofocus: true,
+    value: nav.url,
+}) }}
+
 <input type="hidden" name="id" value="{{ nav.id }}" style="display: none;" />
 
