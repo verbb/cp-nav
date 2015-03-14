@@ -3,10 +3,10 @@ namespace Craft;
 
 class CpNavService extends BaseApplicationComponent
 {
-	public function getAllNavs()
+	public function getAllNavs($indexBy = null)
 	{
 		$navRecords = CpNavRecord::model()->ordered()->findAll();
-		return CpNavModel::populateModels($navRecords);
+		return CpNavModel::populateModels($navRecords, $indexBy);
 	}
 
 	public function getNavById($navId)
@@ -20,9 +20,9 @@ class CpNavService extends BaseApplicationComponent
 
 	// This only happens once - pretty much as soon as the plugin is installed.
 	// Populates the DB table with the original, untouched nav items
-	public function populateInitially($nav)
+	public function populateInitially($nav, $order = null)
 	{
-		$i = 0;
+		$i = (!$order) ? 0 : $order;
 		foreach ($nav as $key => $value) {
 			$navRecord = new CpNavRecord();
 
@@ -136,6 +136,51 @@ class CpNavService extends BaseApplicationComponent
 		$navRecord->delete();
 
 		return $this->getAllNavs();
+    }
+
+
+    // Determines if there are any new CP menu items (from a plugin install or Craft)
+    // And likewise determines if a plugin has been removed - no need to keep menu item.
+    public function checkForNewAndOld($allNavs, $navs) {
+
+    	// firstly, a quick size check between the default nav and our copy (manual links not included)
+    	// will tell us if we need to look at whats been added or missing
+
+    	// Get all records that are not manually created by user
+    	$manualNav = CpNavRecord::model()->findAll(array('condition' => 'manualNav IS NULL OR manualNav <> 1', 'index' => 'handle'));
+
+    	// if not equal, looks like something has changed!
+    	if (count($manualNav) != count($navs)) {
+    		if (count($manualNav) < count($navs)) {
+    			// There are new menu items that have been added
+
+    			foreach ($navs as $key => $value) {
+    				if (!array_key_exists($key, $manualNav)) {
+    					// This is the menu item to add to our DB
+
+    					$this->populateInitially(array($key => $value), '99');
+
+    					$allNavs = craft()->cpNav->getAllNavs();
+    				}
+    			}
+    		} else {
+    			// Some menu items have been deleted, we need to as well
+
+    			foreach ($manualNav as $nav) {
+    				if (!array_key_exists($nav->handle, $navs)) {
+    					// This is the menu item to delete from our DB
+    					$navModel = $this->getNavById($nav->id);
+
+    					// remove from DB
+    					$this->deleteNav($navModel);
+
+    					$allNavs = craft()->cpNav->getAllNavs();
+    				}
+    			}
+    		}
+    	}
+
+    	return $allNavs;
     }
 
 

@@ -14,7 +14,7 @@ class CpNavPlugin extends BasePlugin
 
     public function getVersion()
     {
-        return '1.3';
+        return '1.4';
     }
 
     public function getDeveloper()
@@ -78,6 +78,9 @@ class CpNavPlugin extends BasePlugin
             craft()->cpNav->populateInitially($nav);
         } else {
             // If we have records, print them out instead of the regular CP Nav
+
+            // Important to compare the current Nav to the one stored. What if a new menu has been added by a plugin?
+            $allNavs = craft()->cpNav->checkForNewAndOld($allNavs, $nav);
 
             // Overriding this allows us to reorder items, otherwise they're stuck in instantiated order - Scary...
             $nav = array();

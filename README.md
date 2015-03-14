@@ -24,18 +24,34 @@ An internal link might be helpful if you have a specific entry you want to easil
 
 An external link might be helpful for a variety of different reasons. These should be provided as absolute URLs, complete with protocol (http/https).
 
+It should also be noted that some plugins already provide a method for changing the Plugin name. While Control Panel Nav is active, it's settings will override any defined in other installed plugins.
+
 
 ## Roadmap
 
-- Cleanup stale menu items when removing other plugins.
 - Create menu configurations for user groups.
 - Support import/export (although maybe not useful).
-- Support some way of updating our collection when a new plugin (or Craft) adds a new nav item.
 
 Have a suggestion? We'd love to hear about it! [Make a suggestion](https://github.com/engram-design/CPNav/issues)
 
 
+## Troubleshooting
+
+While every effort is made to ensure this plugin is error free, if an error can happen, it likely will. Murphy's law and all that. When it does, we want you to know exactly how to fix it.
+
+Because of the way the `modifyCpNav()` hook works, this plugin's code will fire on every single page of the CP. This means that if something were to go wrong, access to the CP would be lost - blocking you from even uninstalling the plugin.
+
+To manually uninstall the plugin, you'll need direct access to the MySQL database. From there, locate the `craft_cpnav` table and delete (drop) it. Next, find the `craft_plugins` table, find the row that contains `CpNav` for the `class` column value and delete it. After this, please immediately [Submit an issue](https://github.com/engram-design/CPNav/issues).
+
+If the above scares you into thinking this plugin is dangerous - there's no need to. Control Panel Nav doesn't effect and other database tables other than its own. It's even used on several live sites right now. We simply want to provide the above instructions so you're well informed.
+
+
 ### Changelog
+
+#### 1.4
+
+- Performs checks when plugins are installed/uninstalled or enabled/disabled to determine if menu item should be removed or added.
+- Performs checks when Craft adds a new page (Globals, Categories, Assets, etc) to add/remove from the navigation.
 
 #### 1.3
 
