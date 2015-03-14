@@ -15,6 +15,7 @@ class CpNavModel extends BaseModel
             'order'			=> array(AttributeType::Number),
             'prevUrl'		=> array(AttributeType::String),
             'url'			=> array(AttributeType::String),
+            'manualNav'		=> array(AttributeType::Bool),
 		);
 	}
 }

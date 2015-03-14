@@ -20,31 +20,15 @@ class CpNavController extends BaseController
         $this->returnJson($returnData);
     }
 
-    public function actionSaveNav()
-    {
-        $this->requirePostRequest();
-        $this->requireAjaxRequest();
-
-        $navId = craft()->request->getRequiredPost('id');
-        $nav = craft()->cpNav->getNavById($navId);
-
-        $nav->currLabel = craft()->request->getRequiredPost('currLabel');
-        $nav->url = craft()->request->getRequiredPost('url');
-
-        $nav = craft()->cpNav->saveNav($nav);
-
-        $this->returnJson(array('success' => true, 'nav' => $nav));
-    }
-
     public function actionReorderNav()
     {
         $this->requirePostRequest();
         $this->requireAjaxRequest();
 
         $navIds = JsonHelper::decode(craft()->request->getRequiredPost('ids'));
-        craft()->cpNav->reorderNav($navIds);
+        $navs = craft()->cpNav->reorderNav($navIds);
 
-        $this->returnJson(array('success' => true));
+        $this->returnJson(array('success' => true, 'navs' => $navs));
     }
 
     public function actionToggleNav()
@@ -54,18 +38,9 @@ class CpNavController extends BaseController
 
         $toggle = craft()->request->getRequiredPost('value');
         $navId = craft()->request->getRequiredPost('id');
-        craft()->cpNav->toggleNav($navId, $toggle);
+        $navs = craft()->cpNav->toggleNav($navId, $toggle);
 
-        $this->returnJson(array('success' => true));
-    }
-
-    public function actionRestore()
-    {
-        $this->requirePostRequest();
-
-        craft()->cpNav->emptyTable();
-
-        $this->redirectToPostedUrl();
+        $this->returnJson(array('success' => true, 'navs' => $navs));
     }
 
     public function actionNew()
@@ -90,6 +65,42 @@ class CpNavController extends BaseController
         $this->redirectToPostedUrl();
     }
 
+    public function actionDeleteNav()
+    {
+        $this->requirePostRequest();
+        $this->requireAjaxRequest();
 
+        $navId = craft()->request->getRequiredPost('id');
+        $nav = craft()->cpNav->getNavById($navId);
+
+        $navs = craft()->cpNav->deleteNav($nav);
+
+        $this->returnJson(array('success' => true, 'navs' => $navs));
+    }
+
+    public function actionSaveNav()
+    {
+        $this->requirePostRequest();
+        $this->requireAjaxRequest();
+
+        $navId = craft()->request->getRequiredPost('id');
+        $nav = craft()->cpNav->getNavById($navId);
+
+        $nav->currLabel = craft()->request->getRequiredPost('currLabel');
+        $nav->url = craft()->request->getRequiredPost('url');
+
+        $nav = craft()->cpNav->saveNav($nav);
+
+        $this->returnJson(array('success' => true, 'nav' => $nav));
+    }
+
+    public function actionRestore()
+    {
+        $this->requirePostRequest();
+
+        craft()->cpNav->emptyTable();
+
+        $this->redirectToPostedUrl();
+    }
 
 }

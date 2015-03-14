@@ -1,5 +1,9 @@
 $(function() {
 
+    // ----------------------------------------
+    // UPDATE URL NOTE WHEN TYPING IN URL INPUT
+    // ----------------------------------------
+
 	$(document).on('keyup', '#settings-url', function() {
 		var pattern = new RegExp("^(https?)");
 
@@ -11,6 +15,12 @@ $(function() {
 
 		$('.example-url').html($(this).val());
 	});
+
+
+
+    // ----------------------------------------
+    // WHEN TOGGLING A LIGHTSWITCH, TRIGGER REQUEST
+    // ----------------------------------------
 
 	$(document).on('change', '.lightswitch', function() {
 		var row = $(this).parents('tr.nav-item')
@@ -25,16 +35,27 @@ $(function() {
 		Craft.postActionRequest('cpNav/toggleNav', data, $.proxy(function(response, textStatus) {
             if (textStatus == 'success' && response.success) {
             	Craft.cp.displayNotice('Status saved.');
+
+            	updateAllNav(response.navs);
             }
 		}));
 	});
 
 
 
+    // ----------------------------------------
+    // WHEN CLICKING ON A MENU ITEM, ALLOW HUD TO EDIT
+    // ----------------------------------------
+
 	$('tr.nav-item .edit-nav').on('click', function(e) {
     	new Craft.EditNavItem($(this), $(this).parents('tr.nav-item'));
     });
 
+
+
+    // ----------------------------------------
+    // HUD FOR EDITING MENU
+    // ----------------------------------------
 
 	Craft.EditNavItem = Garnish.Base.extend({
 	    $element: null,
@@ -109,8 +130,11 @@ $(function() {
 
                 if (textStatus == 'success' && response.success) {
                 	this.$element.html(response.nav.currLabel);
+                	this.$element.parents('tr.nav-item').find('.original-nav-link').html(response.nav.url);
 
 	            	Craft.cp.displayNotice('Menu saved.');
+
+					updateNav(response.nav);
 
                     this.closeHud();
                 } else {
@@ -124,6 +148,105 @@ $(function() {
 	        delete this.hud;
 	    }
 	});
+
+
+
+    // ----------------------------------------
+    // EXTEND BUILT-IN ADMINTABLE TO ALLOW US TO HOOK INTO REORDEROBJECTS
+    // ----------------------------------------
+
+	// Kinda annoying, but there's no other way to hook into the success of the re-ordering
+	Craft.AlternateAdminTable = Craft.AdminTable.extend({
+
+		// override the default reorderObjects function so we can update cp nav
+		reorderObjects: function() {
+			var ids = [];
+
+			for (var i = 0; i < this.sorter.$items.length; i++) {
+				var id = $(this.sorter.$items[i]).attr(this.settings.idAttribute);
+				ids.push(id);
+			}
+
+			var data = {
+				ids: JSON.stringify(ids)
+			};
+
+			Craft.postActionRequest('cpNav/reorderNav', data, $.proxy(function(response, textStatus) {
+				if (textStatus == 'success') {
+					if (response.success) {
+						Craft.cp.displayNotice(Craft.t(this.settings.reorderSuccessMessage));
+
+						updateAllNav(response.navs);
+					} else {
+						Craft.cp.displayError(Craft.t(this.settings.reorderFailMessage));
+					}
+				}
+			}, this));
+		},
+
+		// override the default handleDeleteObjectResponse function so we can update cp nav
+		handleDeleteObjectResponse: function(response, $row)
+		{
+			var id = this.getObjectId($row),
+				name = this.getObjectName($row);
+
+			if (response.success) {
+				$row.remove();
+				this.totalObjects--;
+				this.updateUI();
+				this.onDeleteObject(id);
+
+				Craft.cp.displayNotice(Craft.t(this.settings.deleteSuccessMessage, { name: name }));
+
+				updateAllNav(response.navs);
+			} else {
+				Craft.cp.displayError(Craft.t(this.settings.deleteFailMessage, { name: name }));
+			}
+		},
+	});
+
+
+
+    // ----------------------------------------
+    // CREATE THE ADMIN TABLE
+    // ----------------------------------------
+
+    var AdminTable = new Craft.AlternateAdminTable({
+        tableSelector: '#settings-navItems',
+        newObjectBtnSelector: '#newNavItem',
+        sortable: true,
+        deleteAction: 'cpNav/deleteNav',
+        confirmDeleteMessage: 'Are you sure you want to delete “{name}”?',
+    });
+
+
+
+
+    // ----------------------------------------
+    // FUNCTIONS TO ASSIST WITH UPDATING THE CP NAV CLIENT-SIDE
+    // ----------------------------------------
+
+	var updateNav = function(nav) {
+		var $navItem = $('header#header nav ul#nav li[id="nav-'+nav.handle+'"] a');
+
+		$navItem.html(nav.currLabel);
+		$navItem.attr('href', nav.url);
+	}
+
+	var updateAllNav = function(navs) {
+		$('header#header nav ul#nav').empty();
+
+		var navItems = '';
+		$.each(navs, function(index, nav) {
+			if (nav.enabled == '1') {
+				var url = Craft.getUrl(nav.url);
+
+				navItems += '<li id="nav-'+nav.handle+'"><a href="'+url+'">'+nav.currLabel+'</a></li>';
+			}
+		});
+
+		$('header#header nav ul#nav').append(navItems);
+	}
 
 
 });

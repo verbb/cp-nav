@@ -29,14 +29,18 @@ An external link might be helpful if you offer support via a third-party website
 
 - Cleanup stale menu items when removing other plugins.
 - Create menu configurations for user groups.
-- Support live-refreshing the CP navigation whenever a change is made.
-- Support deleting user-added menu items.
 - Support import/export (although maybe not useful).
+- Support some way of updating our collection when a new plugin (or Craft) adds a new nav item.
 
 Have a suggestion? We'd love to hear about it! [Make a suggestion](https://github.com/engram-design/CPNav/issues)
 
 
 ### Changelog
+
+#### 1.3
+
+- Added ability to delete user-created menu items. You cannot delete a core menu item, or a plugin menu item. You can hide these instead.
+- When updating a menu item, it will instantly reflect changed in the CP's navigation without refreshing the page.
 
 #### 1.2
 

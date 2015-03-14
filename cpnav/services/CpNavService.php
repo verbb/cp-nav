@@ -33,6 +33,7 @@ class CpNavService extends BaseApplicationComponent
 			$navRecord->order = $i;
 			$navRecord->url = (array_key_exists('url', $value)) ? $value['url'] : $key;
 			$navRecord->prevUrl = $navRecord->url;
+			$navRecord->manualNav = '0';
 
 			$navRecord->save();
 			$i++;
@@ -45,9 +46,12 @@ class CpNavService extends BaseApplicationComponent
 
 		try {
 			foreach ($navIds as $navOrder => $navId) {
-				$navRecord = CpNavRecord::model()->findById($navId);
+				$navModel = $this->getNavById($navId);
+				$navRecord = CpNavRecord::model()->findById($navModel->id);
 				$navRecord->order = $navOrder+1;
 				$navRecord->save();
+
+				$navModel->order = $navRecord->order;
 			}
 
 			if ($transaction !== null) {
@@ -61,17 +65,20 @@ class CpNavService extends BaseApplicationComponent
 			throw $e;
 		}
 
-		return true;
+		return $this->getAllNavs();
 	}
 
 	public function toggleNav($navId, $toggle)
 	{
+		$navModel = $this->getNavById($navId);
 		$transaction = craft()->db->getCurrentTransaction() === null ? craft()->db->beginTransaction() : null;
 
 		try {
-			$navRecord = CpNavRecord::model()->findById($navId);
+			$navRecord = CpNavRecord::model()->findById($navModel->id);
 			$navRecord->enabled = $toggle;
 			$navRecord->save();
+
+			$navModel->enabled = $navRecord->enabled;
 
 			if ($transaction !== null) {
 				$transaction->commit();
@@ -84,7 +91,7 @@ class CpNavService extends BaseApplicationComponent
 			throw $e;
 		}
 
-		return true;
+		return $this->getAllNavs();
 	}
 
 	public function saveNav(CpNavModel $nav)
@@ -117,9 +124,19 @@ class CpNavService extends BaseApplicationComponent
 		$navRecord->url = $value['url'];
 		$navRecord->prevUrl = $value['url'];
 		$navRecord->order = '99';
+		$navRecord->manualNav = '1';
 
 		$navRecord->save();
 	}
+
+    public function deleteNav(CpNavModel $nav)
+    {
+		$navRecord = CpNavRecord::model()->findById($nav->id);
+
+		$navRecord->delete();
+
+		return $this->getAllNavs();
+    }
 
 
 

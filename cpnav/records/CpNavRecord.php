@@ -18,6 +18,7 @@ class CpNavRecord extends BaseRecord
             'order'			=> array(AttributeType::Number, 'default' => 0),
             'prevUrl'		=> array(AttributeType::String),
             'url'			=> array(AttributeType::String),
+            'manualNav'		=> array(AttributeType::Bool),
 		);
 	}
 

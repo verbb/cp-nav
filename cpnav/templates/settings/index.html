@@ -16,11 +16,12 @@
                     <th scope="col">{{ "Visible"|t }}</th>
                     <th scope="col">{{ "Label"|t }}</th>
                     <th scope="col">{{ "URL"|t }}</th>
+                    <th></th>
                 </thead>
                 <tbody>
                     {% if navItems|length > 0 %}
                         {% for nav in navItems %}
-                            <tr class="nav-item" data-id="{{ nav.id }}" data-currLabel="{{ nav.currLabel }}">
+                            <tr class="nav-item" data-id="{{ nav.id }}" data-currLabel="{{ nav.currLabel }}" data-name="{{ nav.currLabel }}">
                                 <td class="thin">
                                     {{ forms.lightswitchField({
                                         name: 'navEnabled',
@@ -35,7 +36,13 @@
                                 </td>
 
                                 <td data-title="{{ nav.currLabel }}">
-                                    <span class="original-nav">{{ nav.url }}</span>
+                                    <span class="original-nav-link">{{ nav.url }}</span>
+                                </td>
+
+                                <td class="thin">
+                                    {% if nav.manualNav %}
+                                        <a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a>
+                                    {% endif %}
                                 </td>
                             </tr>
                         {% endfor %}
@@ -107,16 +114,6 @@
     </div>
 
 </div>
-
-{% set js %}
-    new Craft.AdminTable({
-        tableSelector: '#settings-navItems',
-        newObjectBtnSelector: '#newNavItem',
-        sortable: true,
-        reorderAction: 'cpNav/reorderNav',
-    });
-{% endset %}
-{% includeJs js %}
 
 {% includeJs "new Craft.HandleGenerator('#settings-label', '#settings-handle');" %}
 
