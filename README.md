@@ -41,7 +41,12 @@ While every effort is made to ensure this plugin is error free, if an error can 
 
 Because of the way the `modifyCpNav()` hook works, this plugin's code will fire on every single page of the CP. This means that if something were to go wrong, access to the CP would be lost - blocking you from even uninstalling the plugin.
 
-To manually uninstall the plugin, you'll need direct access to the MySQL database. From there, locate the `craft_cpnav` table and delete (drop) it. Next, find the `craft_plugins` table, find the row that contains `CpNav` for the `class` column value and delete it. After this, please immediately [Submit an issue](https://github.com/engram-design/CPNav/issues).
+To manually uninstall the plugin, you can do one of the following:
+
+- Remove the `cpnav` directory from the `craft/plugins` directory
+- Remove necesarry tables and data from the MySQL database.
+
+To remove MySQL data, locate the `craft_cpnav` table and delete (drop) it. Next, find the `craft_plugins` table, find the row that contains `CpNav` for the `class` column value and delete it. After this, please immediately [submit an issue](https://github.com/engram-design/CPNav/issues).
 
 If the above scares you into thinking this plugin is dangerous - there's no need to. Control Panel Nav doesn't effect and other database tables other than its own. It's even used on several live sites right now. We simply want to provide the above instructions so you're well informed.
 
