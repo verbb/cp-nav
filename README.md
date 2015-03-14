@@ -20,9 +20,9 @@ This plugin allows you to rename, reorder, or toggle visibility on menu items fo
 
 You can also create your own menu items to link to either pages inside the control panel, or external links. 
 
-An internal link might be helpful if you have a specific entry you want to easily access, or any other sort of page you want to add. When creating an internal link, you should be provide a relative link, rather than the full URL to your control panel (ie: `http://my.craft.dev/admin/`**`entries/pages/somepage`**).
+An internal link might be helpful if you have a specific entry you want to easily access, or any other sort of page you want to add. When creating an internal link, you should provide a relative link, rather than including the full URL to your control panel (ie: `http://my.craft.dev/admin/`**`entries/pages/somepage`**).
 
-An external link might be helpful if you offer support via a third-party website, or through your agencies own website. These should be provided as absolute URLs, complete with protocol (http/https). Or maybe you want people to Google something first before asking for support.
+An external link might be helpful for a variety of different reasons. These should be provided as absolute URLs, complete with protocol (http/https).
 
 
 ## Roadmap
