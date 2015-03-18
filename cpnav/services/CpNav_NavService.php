@@ -24,9 +24,14 @@ class CpNav_NavService extends BaseApplicationComponent
 		}
 	}
 
-	public function getDefaultOrUserNavs()
+	public function getDefaultOrUserNavs($forUser = null)
 	{
-        $currentUser = craft()->userSession->getUser();
+		if ($forUser) {
+			$currentUser = craft()->users->getUserById($forUser);
+		} else {
+	        $currentUser = craft()->userSession->getUser();
+		}
+
         $userNav = $currentUser->getContent()->controlPanelLayout;
 
         if ($userNav) {

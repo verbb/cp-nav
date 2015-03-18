@@ -12,7 +12,9 @@ class CpNav_LayoutFieldType extends BaseFieldType
     {
         $layoutId = $this->getSettings()->layoutId;
 
-        $allNavs = craft()->cpNav_nav->getDefaultOrUserNavs();
+        $userId = $this->element->id;
+
+        $allNavs = craft()->cpNav_nav->getDefaultOrUserNavs($userId);
 
         return craft()->templates->render('cpNav/fields/input', array(
             'name'     => $name,
