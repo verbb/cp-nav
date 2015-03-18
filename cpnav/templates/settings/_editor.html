@@ -20,6 +20,7 @@
     required: true,
     autofocus: true,
     value: nav.url,
+    class: (nav.manualNav) ? '' : 'disabled'
 }) }}
 
 <input type="hidden" name="id" value="{{ nav.id }}" style="display: none;" />

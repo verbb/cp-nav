@@ -20,61 +20,40 @@ This plugin allows you to rename, reorder, or toggle visibility on menu items fo
 
 You can also create your own menu items to link to either pages inside the control panel, or external links. 
 
-An internal link might be helpful if you have a specific entry you want to easily access, or any other sort of page you want to add. When creating an internal link, you should provide a relative link, rather than including the full URL to your control panel (ie: ~~`http://my.craft.dev/admin/`~~`entries/pages/somepage`).
+An internal link might be helpful if you have a specific entry you want to easily access. When creating an internal link, you should provide a relative link, rather than including the full URL to your control panel (ie: ~~`http://my.craft.dev/admin/`~~`entries/pages/somepage`).
 
-An external link might be helpful for a variety of different reasons. These should be provided as absolute URLs, complete with protocol (http/https).
+An external link might be helpful for a variety of different reasons. These should be provided as absolute URLs, complete with protocol (http/https). Opening these in a new window/tab is not currently supported.
 
 It should also be noted that some plugins already provide a method for changing the Plugin name. While Control Panel Nav is active, it's settings will override any defined in other installed plugins.
 
 
-## Layouts
+## User Layout
 
-Layouts allow you to tailor the CP navigation on a per-user basis. Essential for having one menu for Admin accounts, while others for your Client, Members, etc.
+For Craft Pro sites, where multiple users exist, a user will automatically have a special fieldype available to them on their Profile page. This will provide the user a table to reorder, or hide any menu item set by the Admin under the plugin settings. The default navigation layout will be used if a user decides not to manipulate their navigation.
 
-Because Craft allows Users to be assigned to more than a single User Group, we cannot effectively define layouts based on User Groups. Instead we can define Layouts, and we selectively choose what users are assigned to a layout.
+<img src="https://raw.githubusercontent.com/engram-design/CPNav/master/screenshots/profile.png" />
 
-A typical setup will have the following layouts as a guide:
+Users cannot rename menu items, this can only be done through the plugin settings. Any menu item hidden globally will not be accessible to the user.
 
-- Default (what regular members will see)
-- Client (for your client, or lower-admin)
-- Admin (what you'll see)
-
-You'll always have a `Default` Layout, which you should use to define what new users will encounter. This way, you won't have to assign a user to a layout whenever a new user is created with CP access.
-
-You can create as many layouts as you need, and assign users to these layouts. Simply click on the Layout tab.
+Thanks to [@lukeholder](https://github.com/lukeholder) for this suggestion.
 
 
 ## Roadmap
 
-- Create menu configurations for user groups.
-- Support import/export (although maybe not useful).
+- Pontentially allow manual menu items to open in new window. Could get js hacky.
+- Better support for user-allocation of layouts (especially for Craft Client/Personal).
 
 Have a suggestion? We'd love to hear about it! [Make a suggestion](https://github.com/engram-design/CPNav/issues)
 
-<!---
-## Troubleshooting
-
-While every effort is made to ensure this plugin is error free, if an error can happen, it likely will. Murphy's law and all that. When it does, we want you to know exactly how to fix it.
-
-Because of the way the `modifyCpNav()` hook works, this plugin's code will fire on every single page of the CP. This means that if something were to go wrong, access to the CP would be lost - blocking you from even uninstalling the plugin.
-
-To manually uninstall the plugin, you can do one of the following:
-
-- Remove the `cpnav` directory from the `craft/plugins` directory
-- Remove necesarry tables and data from the MySQL database.
-
-To remove MySQL data, locate the `craft_cpnav` table and delete (drop) it. Next, find the `craft_plugins` table, find the row that contains `CpNav` for the `class` column value and delete it. After this, please immediately [submit an issue](https://github.com/engram-design/CPNav/issues).
-
-If the above scares you into thinking this plugin is dangerous - there's no need to. Control Panel Nav doesn't effect and other database tables other than its own. It's even used on several live sites right now. We simply want to provide the above instructions so you're well informed.
--->
 
 ### Changelog
 
 #### 1.5
 
 - Major refactoring codebase and database structure.
-- Introducing Layouts to maintain a collection of menu items for...
-- User support. You can assign users to use a layout, along with have a default layout that will be used.
+- Introducing Layouts to maintain a collection of menu items. Currently a single layout is available.
+- New fieldtype.
+- Craft Pro sites will allow their users to be able to modify their navigation on a per-user basis (see docs).
 
 #### 1.4
 

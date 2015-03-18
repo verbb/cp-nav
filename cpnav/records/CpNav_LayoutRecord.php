@@ -19,7 +19,7 @@ class CpNav_LayoutRecord extends BaseRecord
 	public function defineRelations()
 	{
 		return array(
-			'user' => array(static::HAS_MANY, 'CpNav_UserRecord', 'userId'),
+			//'user' => array(static::HAS_MANY, 'CpNav_UserRecord', 'userId'),
 			'nav' => array(static::HAS_MANY, 'CpNav_NavRecord', 'navId'),
 		);
 	}

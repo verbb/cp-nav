@@ -5,31 +5,36 @@ class m150314_144615_cpNav_layouts extends BaseMigration
 {
     public function safeUp()
     {
+        // Create the Layouts table
         craft()->db->createCommand()->createTable('cpnav_layouts', array(
             'name'      => array('column' => ColumnType::Varchar),
             'isDefault' => array('column' => ColumnType::TinyInt),
         ), null, true);
 
-        // Create default record
-        craft()->cpNav_layouts->createDefaultLayout();
+        // Create default layout
+        $layoutsRecord = new CpNav_LayoutRecord();
 
+        $layoutsRecord->id = '1';
+        $layoutsRecord->name = 'Default';
+        $layoutsRecord->isDefault = '1';
+
+        $layoutsRecord->save();
+
+
+
+        // Rename the old table
+        craft()->db->createCommand()->renameTable('cpnav', 'cpnav_navs');
 
         // Add LayoutId column to main table
-    	craft()->db->createCommand()->addColumnAfter('cpnav', 'layoutId', ColumnType::Int, 'id');
+    	craft()->db->createCommand()->addColumnAfter('cpnav_navs', 'layoutId', ColumnType::Int, 'id');
 
-        craft()->db->createCommand()->addForeignKey('cpnav', 'layoutId', 'cpnav_layouts', 'id', 'SET NULL', null);
+        craft()->db->createCommand()->addForeignKey('cpnav_navs', 'layoutId', 'cpnav_layouts', 'id', 'SET NULL', null);
 
-        // Assign all current nav items to the default layout
-        craft()->cpNav->assignToDefaultLayout();
+        // Populate each nav with the default layoutId for now
+        craft()->db->createCommand()->update('cpnav_navs', array('layoutId' => '1'));
 
 
 
-        craft()->db->createCommand()->createTable('cpnav_users', array(
-
-        ), null, true);
-
-        craft()->db->createCommand()->addForeignKey('cpnav_users', 'layoutId', 'cpnav_layouts', 'id', 'SET NULL', null);
-        craft()->db->createCommand()->addForeignKey('cpnav_users', 'userId', 'users', 'id', 'SET NULL', null);
 
 
 

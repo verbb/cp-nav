@@ -18,29 +18,6 @@ class CpNav_LayoutService extends BaseApplicationComponent
 		}
 	}
 
-	public function getLayoutForUser()
-	{
-        $currentUser = craft()->userSession->getUser();
-        $userNav = $currentUser->getContent()->controlPanelLayout;
-
-
-        //$user = craft()->userSession->getUser();
-		//$user->setContent(['initialCredits' => $initialCredits]);
-		//craft()->users->saveUser($user);
-
-
-		//var_dump($currentUser->getContent()->controlPanelLayout);
-		//var_dump(count($userNav));
-
-        if ($userNav) {
-        	// There's a user-specific layout - that needs to be shown
-        	return $this->getDefaultLayout();
-        } else {
-        	// No user-specific layout set - return the default
-        	return $this->getDefaultLayout();
-        }
-	}
-
 	public function getDefaultLayout()
 	{
 		$layoutRecord = CpNav_LayoutRecord::model()->ordered()->findByAttributes(array('isDefault' => '1'));

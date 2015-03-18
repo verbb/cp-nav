@@ -6,7 +6,10 @@ class CpNavVariable
 	public function defaultNavItems()
 	{
 		$layout = craft()->cpNav_layout->getDefaultLayout();
-		return craft()->cpNav_nav->getNavsByLayoutId($layout->id);
+		
+		if ($layout) {
+			return craft()->cpNav_nav->getNavsByLayoutId($layout->id);
+		}
 	}
 
 	public function navLayouts()

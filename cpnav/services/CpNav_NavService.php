@@ -32,23 +32,38 @@ class CpNav_NavService extends BaseApplicationComponent
 	        $currentUser = craft()->userSession->getUser();
 		}
 
-		//var_dump($currentUser);
-		if (property_exists($currentUser->getContent(), 'controlPanelLayout')) {
-	        $userNav = $currentUser->getContent()->controlPanelLayout;
+		// Check if a CPNav field is attached to the users profile. This doesn't happen on Craft Personal
+		if (isset($currentUser->controlPanelLayout)) {
+	        $userNavs = $currentUser->controlPanelLayout;
 		} else {
-	        $userNav = null;
+	        $userNavs = null;
 		}
 
-        if ($userNav) {
+        if ($userNavs) {
             // There's a user-specific layout - that needs to be shown
             $allNavs = array();
 
-            foreach ($userNav as $uNav) {
-                $globalNav = craft()->cpNav_nav->getNavById($uNav['id']);
-                $globalNav->enabled = $uNav['enabled'];
-                
-                $allNavs[] = $globalNav;
+            $globalNavs = craft()->cpNav_nav->getNavsByLayoutId('1');
+
+            // Grab the global navs, so we ensure we get the most uptodate list of available navs
+            // but also helps to protect managing fields that're disabled globally
+            foreach ($globalNavs as $globalNav) {
+            	if ($globalNav->enabled) {
+            		if (array_key_exists($globalNav->handle, $userNavs)) {
+	            		$userNav = $userNavs[$globalNav->handle];
+
+			            // This allows us to preserve user-defined order
+	            		$order = array_search($globalNav->handle, array_keys($userNavs));
+
+	            		$globalNav->enabled = $userNav['enabled'];
+            		}
+
+            		$allNavs[$order] = $globalNav;
+            	}
             }
+
+            // finish up for sorting correctly by key - keeps user order
+            ksort($allNavs);
         } else {
             // No user-specific layout set - return the default
             $allNavs = craft()->cpNav_nav->getNavsByLayoutId('1');
@@ -157,29 +172,6 @@ class CpNav_NavService extends BaseApplicationComponent
 	public function restoreDefaults($layoutId)
 	{
     	$navRecords = CpNav_NavRecord::model()->deleteAll('layoutId = :layoutId', array('layoutId' => $layoutId));
-
-    	//$navRecords->delete();
-		//$query = craft()->db->createCommand()->delete('cpnav_navs');
 	}
 
-
-
-    // Used for migration
-    /*public function assignToDefaultLayout() {
-    	$navs = $this->getAllNavs();
-
-		foreach ($navs as $navModel) {
-			$navRecord = CpNav_NavRecord::model()->findById($navModel->id);
-
-			$navRecord->layoutId = '1';
-			$navRecord->save();
-		}
-    }*/
-
 }
-
-
-
-
-
-

@@ -6,8 +6,15 @@ class CpNavService extends BaseApplicationComponent
     // Triggered after we've installed the plugin, but there's no stored data yet - load up some defaults
     public function setupDefaults($navs) {
         // Create a new layout called 'Default'
-        $layoutsRecord = new CpNav_LayoutRecord();
+        $defaultLayout = CpNav_LayoutRecord::model()->findById('1');
 
+        if ($defaultLayout) {
+            $layoutsRecord = $defaultLayout;
+        } else {
+            $layoutsRecord = new CpNav_LayoutRecord();
+        }
+
+        //$layoutsRecord->id = '1';
         $layoutsRecord->name = 'Default';
         $layoutsRecord->isDefault = '1';
 
@@ -18,7 +25,7 @@ class CpNavService extends BaseApplicationComponent
         foreach ($navs as $key => $value) {
             $navRecord = new CpNav_NavRecord();
 
-            $navRecord->layoutId = $layoutsRecord->id;
+            $navRecord->layoutId = '1';
             $navRecord->handle = $key;
             $navRecord->currLabel = $value['label'];
             $navRecord->prevLabel = $value['label'];
@@ -31,24 +38,14 @@ class CpNavService extends BaseApplicationComponent
             $navRecord->save();
             $i++;
         }
-
-        // We also should create a user entry
-        /*$userSessionService = craft()->userSession;
-        $currentUser = $userSessionService->getUser();
-
-        $userRecord = new CpNav_UserRecord();
-        $userRecord->userId = $currentUser->id;
-        $userRecord->layoutId = $layoutsRecord->id;
-
-        $userRecord->save();*/
-
     }
 
 
 
     // Determines if there are any new CP menu items (from a plugin install or Craft)
     // And likewise determines if a plugin has been removed - no need to keep menu item.
-    public function checkIfUpdateNeeded($layoutId, $allNavs, $navs) {
+    public function checkIfUpdateNeeded($allNavs, $navs) {
+        $layoutId = '1';
 
         // We're actually looping through each layout in our system, but only returning the one we asked for!
         // That way, we can easily handle re-generating all layouts
@@ -110,54 +107,4 @@ class CpNavService extends BaseApplicationComponent
         return $allNavs;
     }
 
-
-
-
-
-
-
-/*
-	// This only happens once - pretty much as soon as the plugin is installed.
-	// Populates the DB table with the original, untouched nav items
-	public function populateInitially($nav, $order = null)
-	{
-		$i = (!$order) ? 0 : $order;
-		foreach ($nav as $key => $value) {
-			$navRecord = new CpNav_NavRecord();
-
-			$navRecord->layoutId = '1';
-			$navRecord->handle = $key;
-			$navRecord->currLabel = $value['label'];
-			$navRecord->prevLabel = $value['label'];
-			$navRecord->enabled = '1';
-			$navRecord->order = $i;
-			$navRecord->url = (array_key_exists('url', $value)) ? $value['url'] : $key;
-			$navRecord->prevUrl = $navRecord->url;
-			$navRecord->manualNav = '0';
-
-			$navRecord->save();
-			$i++;
-		}
-	}
-	
-
-	// Clears out the DB - refreshed on next page load however. Used when restoring to defaults
-	public function restoreDefaults()
-	{
-		$query = craft()->db->createCommand()->delete('cpnav_navs');
-	}
-
-
-    
-
-
-*/
-
-
 }
-
-
-
-
-
-

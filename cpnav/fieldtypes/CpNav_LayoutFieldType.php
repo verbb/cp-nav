@@ -8,6 +8,11 @@ class CpNav_LayoutFieldType extends BaseFieldType
         return Craft::t('Control Panel Layout');
     }
 
+    public function isSelectable()
+    {
+        return false;
+    }
+
     public function getInputHtml($name, $value)
     {
         $layoutId = $this->getSettings()->layoutId;
