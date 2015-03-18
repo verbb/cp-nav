@@ -55,29 +55,68 @@ class CpNavPlugin extends BasePlugin
             )));
         }
 
-/*
 
 
-$thirdPartyField = new FieldModel();
-        $thirdPartyField->groupId      = 1;
-        $thirdPartyField->name         = Craft::t('Third Party');
-        $thirdPartyField->handle       = 'thirdParty';
-        $thirdPartyField->translatable = false;
-        $thirdPartyField->type         = 'PlainText';
+    }
 
-        craft()->fields->saveField($thirdPartyField);
+
+
+    public function addFieldToUserProfile()
+    {
+        $existingField = craft()->fields->getFieldbyHandle('controlPanelLayout');
+
+        if ($existingField) {
+            $thirdPartyField = $existingField;
+        } else {
+            $thirdPartyField = new FieldModel();
+            $thirdPartyField->groupId      = 1;
+            $thirdPartyField->name         = Craft::t('Control Panel Layout');
+            $thirdPartyField->handle       = 'controlPanelLayout';
+            $thirdPartyField->translatable = false;
+            $thirdPartyField->type         = 'CpNav_Layout';
+
+            craft()->fields->saveField($thirdPartyField);
+        }
+
 
         // Create the new user field layout
-
         $fieldLayout = craft()->fields->getLayoutByType(ElementType::User);
         $fieldsIds = $fieldLayout->getFieldIds();
         $fieldsIds[] = $thirdPartyField->id;
 
         craft()->fields->deleteLayoutsByType(ElementType::User);
+    
+        $fieldLayout = craft()->fields->assembleLayout(
+            array(
+                Craft::t('Control Panel') => $fieldsIds,
+            ),
+            array(),
+            false
+        );
+
+        $fieldLayout->type = ElementType::User;
+        
+
+        craft()->fields->saveLayout($fieldLayout, false);
+    }
+
+
+
+    public function removeFieldToUserProfile()
+    {
+        // Get third party field
+        $thirdPartyField = craft()->fields->getFieldByHandle('controlPanelLayout');
+
+        // Remove field from layout
+        $fieldLayout = craft()->fields->getLayoutByType(ElementType::User);
+        $fieldsIds = $fieldLayout->getFieldIds();
+        $fieldsIds = array_diff($fieldsIds, array($thirdPartyField->id));
+
+        craft()->fields->deleteLayoutsByType(ElementType::User);
 
         $fieldLayout = craft()->fields->assembleLayout(
             array(
-                Craft::t('Profile') => $fieldsIds,
+                Craft::t('Control Panel') => $fieldsIds,
             ),
             array(),
             false
@@ -86,19 +125,13 @@ $thirdPartyField = new FieldModel();
 
         craft()->fields->saveLayout($fieldLayout, false);
 
-        */
+        // Delete field
+        craft()->fields->deleteField($thirdPartyField);
+    }
 
-
-
-
-
-
-
-
-
-
-
-
+    public function init() {
+        //$this->removeFieldToUserProfile();
+        //$this->addFieldToUserProfile();
     }
 
 
@@ -109,16 +142,27 @@ $thirdPartyField = new FieldModel();
     
     public function modifyCpNav(&$nav)
     {
+
+
+
+        // Get either the default nav, or the user-defined nav
         $allNavs = craft()->cpNav_nav->getDefaultOrUserNavs();
 
-        $nav = array();
+        if (!$allNavs) {
+            // This means there are no user-defined layouts OR default ones. Time to create them.
+            craft()->cpNav->setupDefaults($nav);
+        } else {
 
-        foreach ($allNavs as $newNav) {
-            if ($newNav->enabled) {
-                $nav[$newNav->handle] = array(
-                    'label' => $newNav->currLabel,
-                    'url'   => $newNav->url,
-                );
+
+            $nav = array();
+
+            foreach ($allNavs as $newNav) {
+                if ($newNav->enabled) {
+                    $nav[$newNav->handle] = array(
+                        'label' => $newNav->currLabel,
+                        'url'   => $newNav->url,
+                    );
+                }
             }
         }
 

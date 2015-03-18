@@ -32,7 +32,12 @@ class CpNav_NavService extends BaseApplicationComponent
 	        $currentUser = craft()->userSession->getUser();
 		}
 
-        $userNav = $currentUser->getContent()->controlPanelLayout;
+		//var_dump($currentUser);
+		if (property_exists($currentUser->getContent(), 'controlPanelLayout')) {
+	        $userNav = $currentUser->getContent()->controlPanelLayout;
+		} else {
+	        $userNav = null;
+		}
 
         if ($userNav) {
             // There's a user-specific layout - that needs to be shown
