@@ -1,11 +1,11 @@
 <?php
 namespace Craft;
 
-class CpNavRecord extends BaseRecord
+class CpNav_NavRecord extends BaseRecord
 {
 	public function getTableName()
 	{
-		return 'cpnav';
+		return 'cpnav_navs';
 	}
 
 	protected function defineAttributes()
@@ -25,7 +25,8 @@ class CpNavRecord extends BaseRecord
 	public function defineRelations()
 	{
 		return array(
-			//'userGroup' => array(static::BELONGS_TO, 'UserGroupRecord', 'onDelete' => static::CASCADE),
+            'layout'  => array(static::BELONGS_TO, 'CpNav_LayoutRecord'),
+			//'layout' => array(static::BELONGS_TO, 'CpNav_Layout', 'onDelete' => static::CASCADE),
 		);
 	}
 

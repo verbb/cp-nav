@@ -1,0 +1,44 @@
+{% import "_includes/forms" as forms %}
+
+<table id="navItems" class="data fullwidth collapsible">
+    <thead>
+        <th scope="col">{{ "Visible"|t }}</th>
+        <th scope="col">{{ "Label"|t }}</th>
+    </thead>
+    <tbody>
+        {% if navItems|length > 0 %}
+            {% for nav in navItems %}
+                {% set fieldName = name ~ '['~nav.handle~']' %}
+                <tr class="nav-item">
+                    <td class="thin">
+                        {{ forms.lightswitchField({
+                            name: fieldName~'[enabled]',
+                            on: nav.enabled,
+                        }) }}
+                    </td>
+
+                    <input type="hidden" name="{{ fieldName~'[id]' }}" value="{{ nav.id }}" />
+
+                    <td>
+                        <a class="move icon" title="{{ 'Reorder'|t }}" role="button"></a>
+                        <span class="edit-nav">{{ nav.currLabel }}</span>
+                    </td>
+                </tr>
+            {% endfor %}
+        {% endif %}
+    </tbody>
+</table>
+
+{% set js %}
+    Craft.StaticAdminTable = Craft.AdminTable.extend({
+        reorderObjects: function() {
+            return false;
+        }
+    });
+
+    new Craft.StaticAdminTable({
+        tableSelector: '#fields-navItems',
+        sortable: true,
+    });
+{% endset %}
+{% includeJs js %}

@@ -1,0 +1,17 @@
+{% import "_includes/forms" as forms %}
+
+{% set layout = (layout) ? layout : {'name': '', 'id': ''} %}
+
+{{ forms.textField({
+    label: "Name"|t,
+    instructions: 'Choose what you want this layout to be called'|t,
+    id: 'name',
+    name: 'name',
+    required: true,
+    autofocus: true,
+    value: layout.name,
+}) }}
+
+<input type="hidden" name="id" value="{{ layout.id }}" style="display: none;" />
+
+

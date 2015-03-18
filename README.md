@@ -20,11 +20,28 @@ This plugin allows you to rename, reorder, or toggle visibility on menu items fo
 
 You can also create your own menu items to link to either pages inside the control panel, or external links. 
 
-An internal link might be helpful if you have a specific entry you want to easily access, or any other sort of page you want to add. When creating an internal link, you should provide a relative link, rather than including the full URL to your control panel (ie: `http://my.craft.dev/admin/`**`entries/pages/somepage`**).
+An internal link might be helpful if you have a specific entry you want to easily access, or any other sort of page you want to add. When creating an internal link, you should provide a relative link, rather than including the full URL to your control panel (ie: ~~`http://my.craft.dev/admin/`~~`entries/pages/somepage`).
 
 An external link might be helpful for a variety of different reasons. These should be provided as absolute URLs, complete with protocol (http/https).
 
 It should also be noted that some plugins already provide a method for changing the Plugin name. While Control Panel Nav is active, it's settings will override any defined in other installed plugins.
+
+
+## Layouts
+
+Layouts allow you to tailor the CP navigation on a per-user basis. Essential for having one menu for Admin accounts, while others for your Client, Members, etc.
+
+Because Craft allows Users to be assigned to more than a single User Group, we cannot effectively define layouts based on User Groups. Instead we can define Layouts, and we selectively choose what users are assigned to a layout.
+
+A typical setup will have the following layouts as a guide:
+
+- Default (what regular members will see)
+- Client (for your client, or lower-admin)
+- Admin (what you'll see)
+
+You'll always have a `Default` Layout, which you should use to define what new users will encounter. This way, you won't have to assign a user to a layout whenever a new user is created with CP access.
+
+You can create as many layouts as you need, and assign users to these layouts. Simply click on the Layout tab.
 
 
 ## Roadmap
@@ -52,6 +69,12 @@ If the above scares you into thinking this plugin is dangerous - there's no need
 -->
 
 ### Changelog
+
+#### 1.5
+
+- Major refactoring codebase and database structure.
+- Introducing Layouts to maintain a collection of menu items for...
+- User support. You can assign users to use a layout, along with have a default layout that will be used.
 
 #### 1.4
 

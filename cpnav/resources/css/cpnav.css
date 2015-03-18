@@ -26,7 +26,11 @@ a.edit-nav {
 	display: none;
 }
 
-button.btn.submit {
+button.btn.formsubmit {
 	font-family: inherit;
 	font-size: inherit;
+}
+
+button.btn.small.formsubmit {
+	font-size: 11px;
 }

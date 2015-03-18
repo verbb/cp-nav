@@ -1,0 +1,44 @@
+{% import "_includes/forms" as forms %}
+
+{% set namespace = (namespace is defined) ? namespace : '' %}
+
+{% namespace namespace %}
+    <table id="navItems" class="data fullwidth collapsible">
+        <thead>
+            <th scope="col">{{ "Visible"|t }}</th>
+            <th scope="col">{{ "Label"|t }}</th>
+            <th scope="col">{{ "URL"|t }}</th>
+            <th></th>
+        </thead>
+        <tbody>
+            {% if navItems|length > 0 %}
+                {% for nav in navItems %}
+                    <tr class="nav-item" data-id="{{ nav.id }}" data-currLabel="{{ nav.currLabel }}" data-name="{{ nav.currLabel }}">
+                        <td class="thin">
+                            {{ forms.lightswitchField({
+                                name: 'navEnabled',
+                                on: nav.enabled,
+                            }) }}
+                        </td>
+
+                        <td data-title="{{ nav.currLabel }}">
+                            <a class="move icon" title="{{ 'Reorder'|t }}" role="button"></a>
+                            <a class="edit-nav">{{ nav.currLabel }}</a>
+                            <span class="original-nav">({{ nav.prevLabel }})</span>
+                        </td>
+
+                        <td data-title="{{ nav.currLabel }}">
+                            <span class="original-nav-link">{{ nav.url }}</span>
+                        </td>
+
+                        <td class="thin">
+                            {% if nav.manualNav %}
+                                <a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% endif %}
+        </tbody>
+    </table>
+{% endnamespace %}

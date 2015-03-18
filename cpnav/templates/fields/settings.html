@@ -1,0 +1,19 @@
+{% import "_includes/forms" as forms %}
+
+{% set layoutItems = craft.cpNav.navLayouts %}
+
+{% set layouts = [] %}
+{% for layout in layoutItems %}
+    {% set layouts = layouts|merge([{ label: layout.name, value: layout.id }]) %}
+{% endfor %}
+
+{{ forms.selectField({
+    first: true,
+    label: "Layout"|t,
+    instructions: "Choose which layout to allow users to edit."|t,
+    id: 'layoutId',
+    name: 'layoutId',
+    options: layouts,
+    value: settings.layoutId,
+}) }}
+

@@ -1,13 +1,13 @@
 <?php
 namespace Craft;
 
-class CpNavModel extends BaseModel
+class CpNav_NavModel extends BaseModel
 {
 	protected function defineAttributes()
 	{
 		return array(
 			'id'			=> array(AttributeType::Number),
-			//'userGroupId'	=> array(AttributeType::Number),
+			'layoutId'		=> array(AttributeType::Number),
 			'handle'		=> array(AttributeType::Handle),
 			'prevLabel'		=> array(AttributeType::String),
 			'currLabel'		=> array(AttributeType::String),

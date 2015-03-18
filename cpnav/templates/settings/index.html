@@ -6,49 +6,121 @@
     {% includeJsResource 'cpnav/js/cpnav.js' %}
 {% endif %}
 
-{% set navItems = craft.cpNav.navItems %}
+{% set navItems = craft.cpNav.defaultNavItems %}
+{% set layoutItems = craft.cpNav.navLayouts %}
+{% set userItems = craft.users %}
+
+{% set layouts = [] %}
+{% for layout in layoutItems %}
+    {% set layouts = layouts|merge([{ label: layout.name, value: layout.id }]) %}
+{% endfor %}
+
+
+{% set tabs = {
+    navigation: { 
+      label: "Navigation"|t, 
+      url: '#settings-navigation'
+    },
+    layouts: { 
+      label: "Layouts"|t, 
+      url: '#settings-layouts'
+    },
+    users: { 
+      label: "Users"|t, 
+      url: '#settings-users'
+    },
+} %}
 
 <div class="grid first">
     <div class="item first" data-position="left" data-min-colspan="2" data-max-colspan="3">
         <div class="pane first tableview">
-            <table id="navItems" class="data fullwidth collapsible">
-                <thead>
-                    <th scope="col">{{ "Visible"|t }}</th>
-                    <th scope="col">{{ "Label"|t }}</th>
-                    <th scope="col">{{ "URL"|t }}</th>
-                    <th></th>
-                </thead>
-                <tbody>
-                    {% if navItems|length > 0 %}
-                        {% for nav in navItems %}
-                            <tr class="nav-item" data-id="{{ nav.id }}" data-currLabel="{{ nav.currLabel }}" data-name="{{ nav.currLabel }}">
-                                <td class="thin">
-                                    {{ forms.lightswitchField({
-                                        name: 'navEnabled',
-                                        on: nav.enabled,
-                                    }) }}
-                                </td>
 
-                                <td data-title="{{ nav.currLabel }}">
-                                    <a class="move icon" title="{{ 'Reorder'|t }}" role="button"></a>
-                                    <a class="edit-nav">{{ nav.currLabel }}</a>
-                                    <span class="original-nav">({{ nav.prevLabel }})</span>
-                                </td>
+            {% if tabs is defined and tabs %}
+                {% include "_includes/tabs" %}
+            {% endif %}
 
-                                <td data-title="{{ nav.currLabel }}">
-                                    <span class="original-nav-link">{{ nav.url }}</span>
-                                </td>
+            <div id="navigation" class="hidden">
 
-                                <td class="thin">
-                                    {% if nav.manualNav %}
-                                        <a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    {% endif %}
-                </tbody>
-            </table>
+                {{ forms.selectField({
+                    first: true,
+                    label: "Layout"|t,
+                    instructions: "Choose which layout to edit."|t,
+                    id: 'layoutId',
+                    name: 'layoutId',
+                    options: layouts,
+                }) }}
+
+                {% include "cpNav/settings/table" %}
+            </div>
+
+            <div id="layouts" class="hidden">
+                <table id="layoutItems" class="data fullwidth collapsible">
+                    <thead>
+                        <th scope="col">{{ "Name"|t }}</th>
+                        <th></th>
+                    </thead>
+                    <tbody>
+                        {% if layoutItems|length > 0 %}
+                            {% for layout in layoutItems %}
+                                <tr class="layout-item" data-id="{{ layout.id }}" data-name="{{ layout.name }}">
+                                    <td>
+                                        {% if layout.name != 'Default' %}
+                                            <a class="edit-layout">{{ layout.name }}</a>
+                                        {% else %}
+                                            <span class="edit-layout">{{ layout.name }}</span>
+                                        {% endif %}
+                                    </td>
+
+                                    <td class="thin">
+                                        {% if layout.name != 'Default' %}
+                                            <a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% endif %}
+                    </tbody>
+                </table>
+
+                <div class="buttons">
+                    <a href="#" class="btn submit add icon">{{ 'Add new layout'|t }}</a>
+                </div>
+
+            </div>
+
+            <div id="users">
+                <table id="userItems" class="data fullwidth collapsible">
+                    <thead>
+                        <th scope="col">{{ "User"|t }}</th>
+                        <th scope="col">{{ "Layout"|t }}</th>
+                    </thead>
+                    <tbody>
+                        {% if userItems|length > 0 %}
+                            {% for user in userItems %}
+                                {% set fieldName = 'userLayouts['~user.id~']' %}
+
+                                <tr>
+                                    <td>
+                                        {{ user.name }}
+                                        <input type="hidden" name="{{ fieldName }}[userId]" value="{{ user.id }}" />
+                                    </td>
+
+                                    <td>
+                                        {{ forms.selectField({
+                                            first: true,
+                                            id: 'layoutId',
+                                            name: fieldName ~ '[layoutId]',
+                                            options: layouts,
+                                        }) }}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% endif %}
+                    </tbody>
+                </table>
+
+            </div>
+
         </div>
     </div>
 
@@ -95,7 +167,7 @@
             <div class="field first">
                 <div class="heading">
                     <label>Restore default navigation</label>
-                    <div class="instructions"><p>Revert your navigation back to the original unaltered layout. This will reset the order, label, url and visibilty of each menu item.</p></div>
+                    <div class="instructions"><p>Revert the navigation back to the original, default layout. This will reset the order, label, url and visibilty of each menu in this layout.</p></div>
                 </div>
             </div>
 
@@ -108,7 +180,7 @@
             </div>
 
             <div class="right">
-                <input type="button" class="btn small formsubmit" value="{{ 'Restore defaults'|t }}" data-action="cpNav/restore" data-confirm="Are you sure you want to restore the CP navigation to the default? This cannot be undone." data-redirect="settings/plugins/cpnav">
+                <button type="submit" class="btn small formsubmit" data-action="cpNav/restore" data-confirm="Are you sure you want to restore this layout back to its default? This cannot be undone." data-redirect="settings/plugins/cpnav">{{ 'Restore defaults'|t }}</button>
             </div>
         </div>
     </div>
