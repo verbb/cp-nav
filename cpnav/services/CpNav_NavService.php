@@ -156,7 +156,11 @@ class CpNav_NavService extends BaseApplicationComponent
 		$navRecord->order = array_key_exists('order', $value) ? $value['order'] : '99';
 		$navRecord->manualNav = $manual;
 
-		$navRecord->save();
+		if ($navRecord->save()) {
+			return array('success' => true);
+		} else {
+			return array('success' => false, 'error' => $navRecord->getErrors());
+		}
 	}
 
     public function deleteNav(CpNav_NavModel $nav)

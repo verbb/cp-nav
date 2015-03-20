@@ -72,14 +72,18 @@ class CpNavController extends BaseController
 
         $variables = array(
             'layoutId' => $layoutId,
-            'handle' => strtolower($label),
+            'handle' => $handle,
             'label' => $label,
             'url' => $url,
         );
 
-        $nav = craft()->cpNav_nav->createNav($variables, true);
+        $result = craft()->cpNav_nav->createNav($variables, true);
 
-        craft()->userSession->setNotice(Craft::t('Menu item added.'));
+        if ($result['success']) {
+            craft()->userSession->setNotice(Craft::t('Menu item added.'));
+        } else {
+            craft()->userSession->setError(Craft::t('Could not create menu item.'));
+        }
 
         $this->redirectToPostedUrl();
     }
