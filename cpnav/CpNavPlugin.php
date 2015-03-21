@@ -152,10 +152,14 @@ class CpNavPlugin extends BasePlugin
             $nav = array();
 
             foreach ($allNavs as $newNav) {
+
+                // Allow Enviroment Variables to be used in the URL
+                $url = craft()->config->parseEnvironmentString(trim($newNav->url));
+
                 if ($newNav->enabled) {
                     $nav[$newNav->handle] = array(
                         'label' => $newNav->currLabel,
-                        'url'   => $newNav->url,
+                        'url'   => $url,
                     );
                 }
             }

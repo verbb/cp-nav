@@ -42,6 +42,7 @@ Thanks to [@lukeholder](https://github.com/lukeholder) for this suggestion.
 
 - Pontentially allow manual menu items to open in new window. Could get js hacky.
 - Better support for user-allocation of layouts (especially for Craft Client/Personal).
+- Handle menu items with the same name.
 
 Have a suggestion? We'd love to hear about it! [Make a suggestion](https://github.com/engram-design/CPNav/issues)
 
