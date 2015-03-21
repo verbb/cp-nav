@@ -145,6 +145,7 @@ class CpNav_NavService extends BaseApplicationComponent
 		$navRecord->save();
 
 		$nav->currLabel = $navRecord->getAttribute('currLabel');
+        $nav->url = craft()->config->parseEnvironmentString(trim($nav->url));
 
 		return $nav;
 	}
@@ -162,7 +163,7 @@ class CpNav_NavService extends BaseApplicationComponent
 		$navRecord->prevUrl = $value['url'];
 		$navRecord->order = array_key_exists('order', $value) ? $value['order'] : '99';
 		$navRecord->manualNav = array_key_exists('manual', $value) ? true : false;
-        $navRecord->newWindow = array_key_exists('newWindow', $value) ? true : false;
+        $navRecord->newWindow = array_key_exists('newWindow', $value) ? $value['newWindow'] : false;
 
 		if ($navRecord->save()) {
 			return array('success' => true);
