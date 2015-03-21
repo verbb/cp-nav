@@ -77,12 +77,16 @@ class CpNavController extends BaseController
             'url' => $url,
         );
 
-        $result = craft()->cpNav_nav->createNav($variables, true);
+        if ($label && $url) {
+            $result = craft()->cpNav_nav->createNav($variables, true);
 
-        if ($result['success']) {
-            craft()->userSession->setNotice(Craft::t('Menu item added.'));
+            if ($result['success']) {
+                craft()->userSession->setNotice(Craft::t('Menu item added.'));
+            } else {
+                craft()->userSession->setError(Craft::t('Could not create menu item.'));
+            }
         } else {
-            craft()->userSession->setError(Craft::t('Could not create menu item.'));
+            craft()->userSession->setError(Craft::t('Label and URL are required.'));
         }
 
         $this->redirectToPostedUrl();
