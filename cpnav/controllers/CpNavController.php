@@ -69,16 +69,19 @@ class CpNavController extends BaseController
         $label = $settings['label'];
         $handle = $settings['handle'];
         $url = $settings['url'];
+        $newWindow = (bool)$settings['newWindow'];
 
         $variables = array(
             'layoutId' => $layoutId,
             'handle' => $handle,
             'label' => $label,
             'url' => $url,
+            'manual' => true,
+            'newWindow' => $newWindow,
         );
 
         if ($label && $url) {
-            $result = craft()->cpNav_nav->createNav($variables, true);
+            $result = craft()->cpNav_nav->createNav($variables);
 
             if ($result['success']) {
                 craft()->userSession->setNotice(Craft::t('Menu item added.'));
@@ -115,6 +118,7 @@ class CpNavController extends BaseController
 
         $nav->currLabel = craft()->request->getRequiredPost('currLabel');
         $nav->url = craft()->request->getRequiredPost('url');
+        $nav->newWindow = craft()->request->getPost('newWindow');
 
         $nav = craft()->cpNav_nav->saveNav($nav);
 

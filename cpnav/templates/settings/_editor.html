@@ -23,5 +23,14 @@
     class: (nav.manualNav) ? '' : 'disabled'
 }) }}
 
+{% if nav.manualNav %}
+    {{ forms.lightswitchField({
+        label: "New window"|t,
+        instructions: 'Whether to open this page in a new window.'|t,
+        name: 'newWindow',
+        on: nav.newWindow,
+    }) }}
+{% endif %}
+
 <input type="hidden" name="id" value="{{ nav.id }}" style="display: none;" />
 

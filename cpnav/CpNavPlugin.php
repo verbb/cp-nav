@@ -14,7 +14,7 @@ class CpNavPlugin extends BasePlugin
 
     public function getVersion()
     {
-        return '1.5';
+        return '1.6';
     }
 
     public function getDeveloper()
@@ -55,16 +55,51 @@ class CpNavPlugin extends BasePlugin
             )));
         }
 
-        $this->addFieldToUserProfile();
+        //$this->addFieldToUserProfile();
 
     }
 
     public function onBeforeUninstall()
     {
-        $this->removeFieldToUserProfile();
+        //$this->removeFieldToUserProfile();
+    }
+
+    public function init()
+    {
+        parent::init();
+
+        if (craft()->request->isCpRequest()) {
+            $allNavs = craft()->cpNav_nav->getDefaultOrUserNavs();
+
+            if ($allNavs) {
+                foreach ($allNavs as $nav) {
+
+                    // Allow links to be opened in new window - insert some small JS
+                    if ($nav->newWindow) {
+                        $navElement = '#header #nav li#nav-' . $nav->handle . ' a';
+                        $js = '$(function() { $("'.$navElement.'").attr("target", "_blank"); });';
+                        craft()->templates->includeJs($js);
+                    }
+
+                    // Check to ensure this page is enabled - otherwise simply redirect to first available menu item
+                    if (craft()->request->path == $nav->url) {
+                        if (!$nav->enabled) {
+                            $enabledNavs = craft()->cpNav_nav->getAllNavsByAttributes(array('enabled' => true));
+
+                            // We're on a page that's disabled - redirect to the first enabled one!
+                            craft()->request->redirect(UrlHelper::getUrl($enabledNavs[0]->url));
+                        }
+                    }
+                }
+            }
+        }
     }
 
 
+    /* --------------------------------------------------------------
+    * FUNCTIONS
+    * ------------------------------------------------------------ */
+    
     public function addFieldToUserProfile()
     {
         $existingField = craft()->fields->getFieldbyHandle('controlPanelLayout');
@@ -137,30 +172,33 @@ class CpNavPlugin extends BasePlugin
     
     public function modifyCpNav(&$nav)
     {
-        // Get either the default nav, or the user-defined nav
-        $allNavs = craft()->cpNav_nav->getDefaultOrUserNavs();
+        if (craft()->request->isCpRequest()) {
 
-        if (!$allNavs) {
-            // This means there are no user-defined layouts OR default ones. Time to create them.
-            craft()->cpNav->setupDefaults($nav);
-        } else {
+            // Get either the default nav, or the user-defined nav
+            $allNavs = craft()->cpNav_nav->getDefaultOrUserNavs();
 
-            // Important to compare the current Nav to the one stored. What if a new menu has been added by a plugin?
-            $allNavs = craft()->cpNav->checkIfUpdateNeeded($allNavs, $nav);
+            if (!$allNavs) {
+                // This means there are no user-defined layouts OR default ones. Time to create them.
+                craft()->cpNav->setupDefaults($nav);
+            } else {
 
-            // Overriding this allows us to reorder items, otherwise they're stuck in instantiated order - Scary...
-            $nav = array();
+                // Important to compare the current Nav to the one stored. What if a new menu has been added by a plugin?
+                $allNavs = craft()->cpNav->checkIfUpdateNeeded($allNavs, $nav);
 
-            foreach ($allNavs as $newNav) {
+                // Overriding this allows us to reorder items, otherwise they're stuck in instantiated order - Scary...
+                $nav = array();
 
-                // Allow Enviroment Variables to be used in the URL
-                $url = craft()->config->parseEnvironmentString(trim($newNav->url));
+                foreach ($allNavs as $newNav) {
 
-                if ($newNav->enabled) {
-                    $nav[$newNav->handle] = array(
-                        'label' => $newNav->currLabel,
-                        'url'   => $url,
-                    );
+                    // Allow Enviroment Variables to be used in the URL
+                    $url = craft()->config->parseEnvironmentString(trim($newNav->url));
+
+                    if ($newNav->enabled) {
+                        $nav[$newNav->handle] = array(
+                            'label' => $newNav->currLabel,
+                            'url'   => $url,
+                        );
+                    }
                 }
             }
         }

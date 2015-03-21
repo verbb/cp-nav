@@ -9,6 +9,12 @@ class CpNav_NavService extends BaseApplicationComponent
 		return CpNav_NavModel::populateModels($navRecords, $indexBy);
 	}
 	
+	public function getAllNavsByAttributes($attributes = array(), $indexBy = null)
+	{
+		$navRecords = CpNav_NavRecord::model()->ordered()->findAllByAttributes($attributes);
+		return CpNav_NavModel::populateModels($navRecords, $indexBy);
+	}
+	
 	public function getNavsByLayoutId($layoutId, $indexBy = null)
 	{
     	$navRecords = CpNav_NavRecord::model()->ordered()->findAllByAttributes(array('layoutId' => $layoutId));
@@ -134,6 +140,7 @@ class CpNav_NavService extends BaseApplicationComponent
 		$navRecord->currLabel = $nav->currLabel;
 		$navRecord->prevUrl = ($nav->prevUrl) ? $nav->prevUrl : $nav->url;
 		$navRecord->url = $nav->url;
+		$navRecord->newWindow = $nav->newWindow;
 
 		$navRecord->save();
 
@@ -142,7 +149,7 @@ class CpNav_NavService extends BaseApplicationComponent
 		return $nav;
 	}
 
-	public function createNav($value, $manual = false)
+	public function createNav($value)
 	{
 		$navRecord = new CpNav_NavRecord();
 
@@ -154,7 +161,8 @@ class CpNav_NavService extends BaseApplicationComponent
 		$navRecord->url = $value['url'];
 		$navRecord->prevUrl = $value['url'];
 		$navRecord->order = array_key_exists('order', $value) ? $value['order'] : '99';
-		$navRecord->manualNav = $manual;
+		$navRecord->manualNav = array_key_exists('manual', $value) ? true : false;
+        $navRecord->newWindow = array_key_exists('newWindow', $value) ? true : false;
 
 		if ($navRecord->save()) {
 			return array('success' => true);

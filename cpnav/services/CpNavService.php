@@ -34,6 +34,7 @@ class CpNavService extends BaseApplicationComponent
             $navRecord->url = (array_key_exists('url', $value)) ? $value['url'] : $key;
             $navRecord->prevUrl = $navRecord->url;
             $navRecord->manualNav = '0';
+            $navRecord->newWindow = '0';
 
             $navRecord->save();
             $i++;

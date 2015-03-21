@@ -49,6 +49,11 @@ Have a suggestion? We'd love to hear about it! [Make a suggestion](https://githu
 
 ### Changelog
 
+#### 1.6
+
+- Added the option to open manually created menu items in new tab/window. Thanks to [@lindseydiloreto](https://github.com/darylknight) via [#6](https://github.com/engram-design/CPNav/issues/6).
+- Automatically redirect to first enabled menu item when accessing a hidden menu item. Thanks to [@darylknight](https://github.com/darylknight) via [#3](https://github.com/engram-design/CPNav/issues/3).
+
 #### 1.5
 
 - Major refactoring codebase and database structure.

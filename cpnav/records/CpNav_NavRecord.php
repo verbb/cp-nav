@@ -19,6 +19,7 @@ class CpNav_NavRecord extends BaseRecord
             'prevUrl'		=> array(AttributeType::String),
             'url'			=> array(AttributeType::String),
             'manualNav'		=> array(AttributeType::Bool),
+            'newWindow'		=> array(AttributeType::Bool),
 		);
 	}
 

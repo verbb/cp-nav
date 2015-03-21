@@ -69,6 +69,12 @@
                 instructions: 'The URL of this menu item. Can be a relative URL, or external.<br>eg. <span class="eg-url">'~cpUrl~'</span><span class="example-url"></span>'|t
             }) }}
 
+            {{ forms.lightswitchField({
+                label: "New window"|t,
+                instructions: 'Whether to open this page in a new window.'|t,
+                name: 'newWindow',
+            }) }}
+
             <div id="newNavItem" class="buttons">
                 <button type="submit" class="btn submit add icon formsubmit" data-action="cpNav/new" data-redirect="settings/plugins/cpnav">{{ 'Add menu item'|t }}</button>
             </div>
