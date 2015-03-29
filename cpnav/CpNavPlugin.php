@@ -89,6 +89,17 @@ class CpNavPlugin extends BasePlugin
                             // We're on a page that's disabled - redirect to the first enabled one!
                             craft()->request->redirect(UrlHelper::getUrl($enabledNavs[0]->url));
                         }
+                    } else if (craft()->request->path ==
+                        preg_replace(
+                            sprintf('/^(https?:\/\/)?(%s)?\/?%s\//', preg_quote(craft()->getSiteUrl(''), '/'), preg_quote(craft()->config->get('cpTrigger')), '/'),
+                            '',
+                            $nav->url
+                        ) && $nav-> enabled && $nav->manualNav) {
+
+                        // Add some JavaScript to correct the selected nav item for manually added navigation items.
+                        // Have to do this with JavaScript for now as the nav item selection is made after the modifyCpNav hook.
+                        $js = '$(function() { $("#nav a").removeClass("sel"); $("#nav li#nav-' . $nav->handle . ' a").addClass("sel"); });';
+                        craft()->templates->includeJs($js);
                     }
                 }
             }
