@@ -22,7 +22,7 @@ You can also create your own menu items to link to either pages inside the contr
 
 An internal link might be helpful if you have a specific entry you want to easily access. When creating an internal link, you should provide a relative link, rather than including the full URL to your control panel (ie: ~~`http://my.craft.dev/admin/`~~`entries/pages/somepage`).
 
-An external link might be helpful for a variety of different reasons. These should be provided as absolute URLs, complete with protocol (http/https). Opening these in a new window/tab is not currently supported.
+An external link might be helpful for a variety of different reasons. These should be provided as absolute URLs, complete with protocol (http/https).
 
 It should also be noted that some plugins already provide a method for changing the Plugin name. While Control Panel Nav is active, it's settings will override any defined in other installed plugins.
 
