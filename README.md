@@ -27,15 +27,15 @@ An external link might be helpful for a variety of different reasons. These shou
 It should also be noted that some plugins already provide a method for changing the Plugin name. While Control Panel Nav is active, it's settings will override any defined in other installed plugins.
 
 
-## User Layout
+## Quick-Add menu
 
-For Craft Pro sites, where multiple users exist, a user will automatically have a special fieldype available to them on their Profile page. This will provide the user a table to reorder, or hide any menu item set by the Admin under the plugin settings. The default navigation layout will be used if a user decides not to manipulate their navigation.
+In the Settings tab, you'll find the option to 'Show Quick-Add Menu'. If switched on, a small '+' button will appear on the right-hand side of the CP, next to the Settings icon. Clicking this will show a tooltip where you can enter details for a new menu item.
 
-<img src="https://raw.githubusercontent.com/engram-design/CPNav/master/screenshots/profile.png" />
+This button can be turned off globally, or restricted to certain users through permissions.
 
-Users cannot rename menu items, this can only be done through the plugin settings. Any menu item hidden globally will not be accessible to the user.
+A button also provides a shortcut to the main settings page.
 
-Thanks to [@lukeholder](https://github.com/lukeholder) for this suggestion.
+<img src="https://raw.githubusercontent.com/engram-design/CPNav/master/screenshots/quick-add.png" />
 
 
 ## Roadmap
@@ -47,6 +47,10 @@ Have a suggestion? We'd love to hear about it! [Make a suggestion](https://githu
 
 
 ### Changelog
+
+#### 1.6.1
+
+- Added Quick-Add menu button to right-hand utilities area of CP navigation. Can be turned off globally, or restricted via user permissions.
 
 #### 1.6
 

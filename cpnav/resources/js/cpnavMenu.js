@@ -56,6 +56,9 @@ Craft.AddMenuItemHUD = Garnish.Base.extend({
 
             this.$spinner = $('<div class="spinner hidden"/>').appendTo($buttonsOuterContainer);
 
+            var $buttonsContainer2 = $('<div class="buttons left"/>').appendTo($buttonsOuterContainer);
+            $settingsBtn = $('<div class="btn icon settings"></div>').appendTo($buttonsContainer2);
+
             var $buttonsContainer = $('<div class="buttons right"/>').appendTo($buttonsOuterContainer);
             $cancelBtn = $('<div class="btn">'+Craft.t('Cancel')+'</div>').appendTo($buttonsContainer);
             $saveBtn = $('<input class="btn submit" type="submit" value="'+Craft.t('Save')+'"/>').appendTo($buttonsContainer);
@@ -74,6 +77,10 @@ Craft.AddMenuItemHUD = Garnish.Base.extend({
             this.addListener(this.$form, 'submit', 'saveGroupField');
             this.addListener($cancelBtn, 'click', function() {
                 this.hud.hide()
+            });
+
+            this.addListener($settingsBtn, 'click', function() {
+                location.href = Craft.getUrl('settings/plugins/cpnav');
             });
         }
     },

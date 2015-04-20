@@ -17,6 +17,11 @@
 .hud .addnewmenuitem .footer {
 	padding: 7px 2px;
 }
+
 .hud .addnewmenuitem .footer .buttons {
 	display: block !important;
+}
+
+.hud .addnewmenuitem .footer .buttons.left .btn {
+	margin: 5px 0 0 5px;
 }
