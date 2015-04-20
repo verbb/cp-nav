@@ -1,0 +1,11 @@
+{% import "_includes/forms" as forms %}
+
+{{ forms.lightswitchField({
+	first: true,
+	label: 'Show Quick-Add Menu',
+	instructions: 'Shows an icon in the top-right of the CP nav (next to the settings icon) for users to add menu items. Use User Permissions to further configure this.'|t,
+	name: 'showQuickAddMenu',
+	on: settings.showQuickAddMenu,
+}) }}
+
+<hr>

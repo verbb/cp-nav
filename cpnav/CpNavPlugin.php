@@ -14,7 +14,7 @@ class CpNavPlugin extends BasePlugin
 
     public function getVersion()
     {
-        return '1.6';
+        return '1.6.1';
     }
 
     public function getDeveloper()
@@ -37,6 +37,13 @@ class CpNavPlugin extends BasePlugin
         return craft()->templates->render('cpnav/settings', array(
             'settings' => $this->getSettings(),
         ));
+    }
+
+    protected function defineSettings()
+    {
+        return array(
+            'showQuickAddMenu'  => array( AttributeType::Bool, 'default' => false ),
+        );
     }
 
     public function onAfterInstall()
@@ -68,17 +75,21 @@ class CpNavPlugin extends BasePlugin
     {
         parent::init();
 
+        $user = craft()->userSession->getUser();
+
         if (craft()->request->isCpRequest()) {
             $allNavs = craft()->cpNav_nav->getDefaultOrUserNavs();
+
+            if ($this->getSettings()->showQuickAddMenu && $user->can('quickAddMenu')) {
+                $this->insertJsForQuickMenuAdd($allNavs);
+            }
 
             if ($allNavs) {
                 foreach ($allNavs as $nav) {
 
                     // Allow links to be opened in new window - insert some small JS
                     if ($nav->newWindow) {
-                        $navElement = '#header #nav li#nav-' . $nav->handle . ' a';
-                        $js = '$(function() { $("'.$navElement.'").attr("target", "_blank"); });';
-                        craft()->templates->includeJs($js);
+                        $this->insertJsForNewWindow($nav);
                     }
 
                     // Check to ensure this page is enabled - otherwise simply redirect to first available menu item
@@ -89,17 +100,11 @@ class CpNavPlugin extends BasePlugin
                             // We're on a page that's disabled - redirect to the first enabled one!
                             craft()->request->redirect(UrlHelper::getUrl($enabledNavs[0]->url));
                         }
-                    } else if (craft()->request->path ==
-                        preg_replace(
-                            sprintf('/^(https?:\/\/)?(%s)?\/?%s\//', preg_quote(craft()->getSiteUrl(''), '/'), preg_quote(craft()->config->get('cpTrigger')), '/'),
-                            '',
-                            $nav->url
-                        ) && $nav-> enabled && $nav->manualNav) {
+                    } else if (craft()->request->path == preg_replace(sprintf('/^(https?:\/\/)?(%s)?\/?%s\//', preg_quote(craft()->getSiteUrl(''), '/'), preg_quote(craft()->config->get('cpTrigger')), '/'), '', $nav->url) && $nav->enabled && $nav->manualNav) {
 
                         // Add some JavaScript to correct the selected nav item for manually added navigation items.
                         // Have to do this with JavaScript for now as the nav item selection is made after the modifyCpNav hook.
-                        $js = '$(function() { $("#nav a").removeClass("sel"); $("#nav li#nav-' . $nav->handle . ' a").addClass("sel"); });';
-                        craft()->templates->includeJs($js);
+                        $this->insertJsForManualNavSelection($nav);
                     }
                 }
             }
@@ -108,10 +113,38 @@ class CpNavPlugin extends BasePlugin
 
 
     /* --------------------------------------------------------------
+    * JS FUNCTIONS
+    * ------------------------------------------------------------ */
+
+    public function insertJsForNewWindow($nav)
+    {
+        $navElement = '#header #nav li#nav-' . $nav->handle . ' a';
+        $js = '$(function() { $("'.$navElement.'").attr("target", "_blank"); });';
+        craft()->templates->includeJs($js);
+    }
+
+    public function insertJsForQuickMenuAdd($navs)
+    {
+        $js = "$('#header-actions').prepend('<li><a class=\"add-new-menu-item menubtn icon add\" href=\"#\" data-id=\"".$navs[0]->layoutId."\" title=\"Add Menu Item\"></a></li>');";
+        craft()->templates->includeJs($js);
+
+        craft()->templates->includeCssResource('cpnav/css/cpnavMenu.css');
+        craft()->templates->includeJsResource('cpnav/js/cpnavMenu.js');
+    }
+
+    public function insertJsForManualNavSelection($nav)
+    {
+        $js = '$(function() { $("#nav a").removeClass("sel"); $("#nav li#nav-' . $nav->handle . ' a").addClass("sel"); });';
+        craft()->templates->includeJs($js);
+    }
+
+
+
+    /* --------------------------------------------------------------
     * FUNCTIONS
     * ------------------------------------------------------------ */
     
-    public function addFieldToUserProfile()
+    /*public function addFieldToUserProfile()
     {
         $existingField = craft()->fields->getFieldbyHandle('controlPanelLayout');
 
@@ -173,7 +206,7 @@ class CpNavPlugin extends BasePlugin
 
         // Delete field
         craft()->fields->deleteField($thirdPartyField);
-    }
+    }*/
 
 
 
@@ -213,7 +246,13 @@ class CpNavPlugin extends BasePlugin
                 }
             }
         }
+    }
 
+    function registerUserPermissions()
+    {
+        return array(
+            'quickAddMenu' => array('label' => Craft::t('Show Quick-Add Menu'))
+        );
     }
 }
 

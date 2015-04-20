@@ -20,7 +20,8 @@
     required: true,
     autofocus: true,
     value: nav.url,
-    class: (nav.manualNav) ? '' : 'disabled'
+    disabled: not nav.manualNav,
+    class: (nav.manualNav) ? '' : 'disabled',
 }) }}
 
 {% if nav.manualNav %}

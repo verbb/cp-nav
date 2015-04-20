@@ -18,6 +18,7 @@ class CpNav_NavService extends BaseApplicationComponent
 	public function getNavsByLayoutId($layoutId, $indexBy = null)
 	{
     	$navRecords = CpNav_NavRecord::model()->ordered()->findAllByAttributes(array('layoutId' => $layoutId));
+
 		return CpNav_NavModel::populateModels($navRecords, $indexBy);
 	}
 
@@ -32,7 +33,7 @@ class CpNav_NavService extends BaseApplicationComponent
 
 	public function getDefaultOrUserNavs($forUser = null)
 	{
-		if ($forUser) {
+		/*if ($forUser) {
 			$currentUser = craft()->users->getUserById($forUser);
 		} else {
 	        $currentUser = craft()->userSession->getUser();
@@ -45,7 +46,7 @@ class CpNav_NavService extends BaseApplicationComponent
 	        $userNavs = null;
 		}
 
-        if ($userNavs) {
+		if ($userNavs) {
             // There's a user-specific layout - that needs to be shown
             $allNavs = array();
 
@@ -72,8 +73,10 @@ class CpNav_NavService extends BaseApplicationComponent
             ksort($allNavs);
         } else {
             // No user-specific layout set - return the default
-            $allNavs = craft()->cpNav_nav->getNavsByLayoutId('1');
-        }
+            //$allNavs = craft()->cpNav_nav->getAllNavsByAttributes(array('layoutId' => '1'));
+        }*/
+
+        $allNavs = craft()->cpNav_nav->getNavsByLayoutId('1');
 
         return $allNavs;
 	}
@@ -135,7 +138,11 @@ class CpNav_NavService extends BaseApplicationComponent
 
 	public function saveNav(CpNav_NavModel $nav)
 	{
-		$navRecord = CpNav_NavRecord::model()->findById($nav->id);
+		if (!$nav->id) {
+			$navRecord = new CpNav_NavRecord();
+		} else {
+			$navRecord = CpNav_NavRecord::model()->findById($nav->id);
+		}
 
 		$navRecord->currLabel = $nav->currLabel;
 		$navRecord->prevUrl = ($nav->prevUrl) ? $nav->prevUrl : $nav->url;
@@ -166,7 +173,8 @@ class CpNav_NavService extends BaseApplicationComponent
         $navRecord->newWindow = array_key_exists('newWindow', $value) ? $value['newWindow'] : false;
 
 		if ($navRecord->save()) {
-			return array('success' => true);
+			$nav = CpNav_NavModel::populateModel($navRecord);
+			return array('success' => true, 'nav' => $nav);
 		} else {
 			return array('success' => false, 'error' => $navRecord->getErrors());
 		}

@@ -25,14 +25,23 @@ class CpNavController extends BaseController
         $this->requirePostRequest();
         $this->requireAjaxRequest();
 
-        $navId = craft()->request->getRequiredPost('id');
-        $nav = craft()->cpNav_nav->getNavById($navId);
+        $navId = craft()->request->getPost('id');
+
+        if ($navId) {
+            $nav = craft()->cpNav_nav->getNavById($navId);
+        } else {
+            $nav = new CpNav_NavModel();
+            $nav->layoutId = craft()->request->getPost('layoutId');
+            $nav->manualNav = true;
+        }
 
         $variables = array(
             'nav' => $nav,
         );
 
-        $returnData['html'] = $this->renderTemplate('cpnav/settings/_editor', $variables, true);
+        $template = craft()->request->getPost('template', 'cpnav/settings/_editor');
+
+        $returnData['html'] = $this->renderTemplate($template, $variables, true);
 
         $this->returnJson($returnData);
     }
@@ -92,7 +101,11 @@ class CpNavController extends BaseController
             craft()->userSession->setError(Craft::t('Label and URL are required.'));
         }
 
-        $this->redirectToPostedUrl();
+        if (craft()->request->isAjaxRequest()) {
+            $this->returnJson(array('success' => true, 'nav' => $result['nav']));
+        } else {
+            $this->redirectToPostedUrl();
+        }
     }
 
     public function actionDeleteNav()
@@ -113,9 +126,9 @@ class CpNavController extends BaseController
         $this->requirePostRequest();
         $this->requireAjaxRequest();
 
-        $navId = craft()->request->getRequiredPost('id');
+        $navId = craft()->request->getPost('id');
         $nav = craft()->cpNav_nav->getNavById($navId);
-
+    
         $nav->currLabel = craft()->request->getRequiredPost('currLabel');
         $nav->url = craft()->request->getRequiredPost('url');
         $nav->newWindow = craft()->request->getPost('newWindow');

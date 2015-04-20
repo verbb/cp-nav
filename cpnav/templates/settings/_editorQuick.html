@@ -1,0 +1,31 @@
+{% import "_includes/forms" as forms %}
+
+{% namespace 'settings' %}
+
+{{ forms.textField({
+    label: "Label"|t,
+    instructions: 'Choose what you want this menu item to be called'|t,
+    id: 'currLabelQuickAdd',
+    name: 'label',
+    required: true,
+    autofocus: true,
+}) }}
+
+{{ forms.textField({
+    label: "URL"|t,
+    instructions: 'Choose the relative URL this menu points to.'|t,
+    id: 'urlQuickAdd',
+    name: 'url',
+    required: true,
+}) }}
+
+{{ forms.lightswitchField({
+    label: "New window"|t,
+    instructions: 'Whether to open this page in a new window.'|t,
+    name: 'newWindow',
+}) }}
+
+<input type="hidden" id="layoutId" name="layoutId" value="{{ nav.layoutId }}" style="display: none;" />
+<input type="hidden" id="handleQuickAdd" name="handle" value="" style="display: none;" />
+
+{% endnamespace %}

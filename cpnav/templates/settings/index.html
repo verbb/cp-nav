@@ -13,6 +13,10 @@
       label: "Navigation"|t, 
       url: '#settings-navigation'
     },
+    settings: { 
+      label: "Settings"|t, 
+      url: '#settings-settings'
+    },
 } %}
 
 <input type="hidden" name="layoutId" value="1" />
@@ -33,6 +37,14 @@
                 </div>
 
                 {% include "cpNav/settings/table" %}
+            </div>
+
+            <div id="settings" class="hidden">
+                {% include "cpNav/settings/settings" %}
+
+                <div class="buttons">
+                    <input class="btn submit" type="submit" value="{{ 'Save'|t }}">
+                </div>
             </div>
         </div>
     </div>
