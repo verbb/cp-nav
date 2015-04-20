@@ -50,6 +50,9 @@ Craft.AddMenuItemHUD = Garnish.Base.extend({
             $fieldsContainer.html(response.html)
             Craft.initUiElements($fieldsContainer);
 
+            var relativeUrl = location.href.replace(Craft.getUrl(), '').substr('1');
+            $fieldsContainer.find('#settings-urlQuickAdd').val(relativeUrl);
+
             new Craft.HandleGenerator($fieldsContainer.find('#settings-currLabelQuickAdd')[0], $fieldsContainer.find('#settings-handleQuickAdd')[0]);
 
             var $buttonsOuterContainer = $('<div class="footer"/>').appendTo(this.$form);
