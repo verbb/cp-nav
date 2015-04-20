@@ -35,7 +35,7 @@ This button can be turned off globally, or restricted to certain users through p
 
 A button also provides a shortcut to the main settings page.
 
-[[ https://raw.githubusercontent.com/engram-design/CPNav/master/screenshots/quick-add.png | width = 300px ]]
+<img src="https://raw.githubusercontent.com/engram-design/CPNav/master/screenshots/quick-add.png" width="250" />
 
 
 ## Roadmap
