@@ -80,8 +80,10 @@ class CpNavPlugin extends BasePlugin
         if (craft()->request->isCpRequest()) {
             $allNavs = craft()->cpNav_nav->getDefaultOrUserNavs();
 
-            if ($this->getSettings()->showQuickAddMenu && $user->can('quickAddMenu')) {
-                $this->insertJsForQuickMenuAdd($allNavs);
+            if ($user) {
+                if ($this->getSettings()->showQuickAddMenu && $user->can('quickAddMenu')) {
+                    $this->insertJsForQuickMenuAdd($allNavs);
+                }
             }
 
             if ($allNavs) {
