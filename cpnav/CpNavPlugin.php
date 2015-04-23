@@ -120,28 +120,35 @@ class CpNavPlugin extends BasePlugin
 
     public function insertJsForNewWindow($nav)
     {
-        $navElement = '#header #nav li#nav-' . $nav->handle . ' a';
-        $js = '$(function() { $("'.$navElement.'").attr("target", "_blank"); });';
-        craft()->templates->includeJs($js);
+        // Prevent this from loading when opening a modal window
+        if (!craft()->request->isAjaxRequest()) {
+            $navElement = '#header #nav li#nav-' . $nav->handle . ' a';
+            $js = '$(function() { $("'.$navElement.'").attr("target", "_blank"); });';
+            craft()->templates->includeJs($js);
+        }
     }
 
     public function insertJsForQuickMenuAdd($navs)
     {
-        $js = "$(function() {" .
-            "if ($('#header-actions .cpnav-quick-menu').length == 0) {" .
-                "$('#header-actions').prepend('<li class=\"cpnav-quick-menu\"><a class=\"add-new-menu-item menubtn icon add\" href=\"#\" data-id=\"".$navs[0]->layoutId."\" title=\"Add Menu Item\"></a></li>');" . 
-            "}" .
-            "});";
-        craft()->templates->includeJs($js);
+        // Prevent this from loading when opening a modal window
+        if (!craft()->request->isAjaxRequest()) {
+            $js = "$(function() {" .
+                    "$('#header-actions').prepend('<li class=\"cpnav-quick-menu\"><a class=\"add-new-menu-item menubtn icon add\" href=\"#\" data-id=\"".$navs[0]->layoutId."\" title=\"Add Menu Item\"></a></li>');" . 
+                "});";
+            craft()->templates->includeJs($js);
 
-        craft()->templates->includeCssResource('cpnav/css/cpnavMenu.css');
-        craft()->templates->includeJsResource('cpnav/js/cpnavMenu.js');
+            craft()->templates->includeCssResource('cpnav/css/cpnavMenu.css');
+            craft()->templates->includeJsResource('cpnav/js/cpnavMenu.js');
+        }
     }
 
     public function insertJsForManualNavSelection($nav)
     {
-        $js = '$(function() { $("#nav a").removeClass("sel"); $("#nav li#nav-' . $nav->handle . ' a").addClass("sel"); });';
-        craft()->templates->includeJs($js);
+        // Prevent this from loading when opening a modal window
+        if (!craft()->request->isAjaxRequest()) {
+            $js = '$(function() { $("#nav a").removeClass("sel"); $("#nav li#nav-' . $nav->handle . ' a").addClass("sel"); });';
+            craft()->templates->includeJs($js);
+        }
     }
 
 

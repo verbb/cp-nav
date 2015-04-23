@@ -4,7 +4,8 @@ $(function() {
 // RIGHT-HAND UTIL BUTTON FOR ADDING MENU ITEM
 // ----------------------------------------
 
-$('#header-actions .add-new-menu-item').on('click', function(e) {
+
+$(document).on('click', '#header-actions .add-new-menu-item', function(e) {
 	e.preventDefault();
 
 	new Craft.AddMenuItemHUD($(this), $(this).data('id'));
