@@ -127,7 +127,11 @@ class CpNavPlugin extends BasePlugin
 
     public function insertJsForQuickMenuAdd($navs)
     {
-        $js = "$('#header-actions').prepend('<li><a class=\"add-new-menu-item menubtn icon add\" href=\"#\" data-id=\"".$navs[0]->layoutId."\" title=\"Add Menu Item\"></a></li>');";
+        $js = "$(function() {" .
+            "if ($('#header-actions .cpnav-quick-menu').length == 0) {" .
+                "$('#header-actions').prepend('<li class=\"cpnav-quick-menu\"><a class=\"add-new-menu-item menubtn icon add\" href=\"#\" data-id=\"".$navs[0]->layoutId."\" title=\"Add Menu Item\"></a></li>');" . 
+            "}" .
+            "});";
         craft()->templates->includeJs($js);
 
         craft()->templates->includeCssResource('cpnav/css/cpnavMenu.css');
