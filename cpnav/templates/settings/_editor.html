@@ -24,6 +24,10 @@
     class: (nav.manualNav) ? '' : 'disabled',
 }) }}
 
+{% if not nav.manualNav %}
+    <input type="hidden" name="url" value="{{ nav.url }}" style="display: none;" />
+{% endif %}
+
 {% if nav.manualNav %}
     {{ forms.lightswitchField({
         label: "New window"|t,

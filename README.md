@@ -48,6 +48,10 @@ Have a suggestion? We'd love to hear about it! [Make a suggestion](https://githu
 
 ### Changelog
 
+#### 1.6.2
+
+- Minor fix when editing non-manual nav items. URL field is disabled - therefore not passed to controller.
+
 #### 1.6.1
 
 - Added Quick-Add menu button to right-hand utilities area of CP navigation. Can be turned off globally, or restricted via user permissions.
