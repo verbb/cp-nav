@@ -119,6 +119,7 @@ Craft.AddMenuItemHUD = Garnish.Base.extend({
 
 
 var updateNav = function(nav) {
+	nav.url = Craft.getUrl(nav.url);
 	var navItem = '<li id="nav-'+nav.handle+'"><a href="'+nav.url+'">'+nav.currLabel+'</a></li>';
 	$('header#header nav ul#nav').append(navItem);
 }
