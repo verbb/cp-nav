@@ -1,11 +1,15 @@
 {
-    "name": "engram-design/CPNav",
+    "name": "engram-design/cpnav",
     "description": "A Craft CMS plugin to help manage your Control Panel navigation.",
+    "homepage": "https://github.com/engram-design/CPNav",
+    "type": "craft-plugin",
+    "keywords": ["craft","plugin"],
+    "license": "MIT",
     "authors": [{
         "name": "S. Group",
         "email": "joshua@sgroup.com.au"
+        "homepage": "http://sgroup.com.au/",
 	}],
-    "type": "craft-plugin",
     "require": {
         "composer/installers": "~1.0"
     }
