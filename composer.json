@@ -1,0 +1,12 @@
+{
+    "name": "engram-design/CPNav",
+    "description": "A Craft CMS plugin to help manage your Control Panel navigation.",
+    "authors": [{
+        "name": "S. Group",
+        "email": "joshua@sgroup.com.au"
+	}],
+    "type": "craft-plugin",
+    "require": {
+        "composer/installers": "~1.0"
+    }
+}
