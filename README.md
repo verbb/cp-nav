@@ -4,12 +4,13 @@ Control Panel Nav is a Craft CMS plugin to help manage your Control Panel naviga
 
 **Please note:** this plugin requires a minimum of Craft 2.3.2640.
 
-<img src="https://raw.githubusercontent.com/engram-design/CPNav/master/screenshots/main-new.png" />
-
 
 ## Craft 2.5 Compatibility
 
 Control Panel Nav is not yet compatible with Craft 2.5. Please uninstall the plugin for sites running this version. We're working hard on getting it updated!
+
+
+<img src="https://raw.githubusercontent.com/engram-design/CPNav/master/screenshots/main-new.png" />
 
 
 ## Install
