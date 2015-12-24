@@ -1,0 +1,65 @@
+{% extends "cpnav/_layouts/cp" %}
+
+{% includeJsResource 'cpnav/js/CPNavLayout.js' %}
+
+{% set crumbs = [
+    { label: "Control Panel Nav" | t, url: url('cpnav') },
+    { label: "Layouts" | t, url: url('cpnav/layouts') }
+] %}
+
+{% set selectedTab = 'layouts' %}
+
+{% set extraPageHeaderHtml %}
+    <div class="buttons right">
+        <a class="btn submit add icon add-new-layout">{{ "New layout" | t }}</a>
+    </div>
+{% endset %}
+
+{% block main %}
+
+<div class="grid first">
+    <div class="item">
+        <div id="fields" class="pane">
+            {% include "_includes/tabs" %}
+
+            <table id="layoutItems" class="data fullwidth collapsible">
+                <thead>
+                    <th scope="col">{{ "Name" | t }}</th>
+                    <th></th>
+                </thead>
+                <tbody>
+                    {#{{ forms.selectField({
+                        first: true,
+                        label: "Default Layout"|t,
+                        instructions: "Choose which layout to use for new users who aren't assigned a specific layout below."|t,
+                        id: 'layoutId',
+                        name: 'layoutId',
+                    }) }}#}
+
+                    {% if layouts | length > 0 %}
+                        {% for layout in layouts %}
+                            <tr class="layout-item" data-id="{{ layout.id }}" data-name="{{ layout.name }}">
+                                <td>
+                                    {% if not layout.isDefault %}
+                                        <a class="edit-layout"><strong>{{ layout.name }}</strong></a>
+                                    {% else %}
+                                        <span class="edit-layout"><strong>{{ layout.name }}</strong></span>
+                                    {% endif %}
+                                </td>
+
+                                <td class="thin">
+                                    {% if not layout.isDefault %}
+                                        <a class="delete icon" title="{{ 'Delete' | t }}" role="button"></a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% endif %}
+                </tbody>
+            </table>
+            
+        </div>
+    </div>
+</div>
+
+{% endblock %}

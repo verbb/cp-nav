@@ -1,0 +1,13 @@
+[
+    {
+        "version": "1.7.0",
+        "downloadUrl": "https://github.com/engram-design/CPNav/archive/1.7.0.zip",
+        "date": "2015-12-24 00:00:00",
+        "notes": [
+            "[Added] Craft 2.5 support, including release feed and icons.",
+            "[Added] Added Layouts - set different navigations and assign to user groups. Great for creating client-specific navigation, without changing navigation for other users.",
+            "[Improved] Completely re-written from the ground up for better performance and tidiness.",
+            "Removed Quick-Add menu for the moment.",
+        ]
+    }
+]

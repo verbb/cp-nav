@@ -13,13 +13,13 @@ class CpNav_LayoutRecord extends BaseRecord
 		return array(
 			'name'			=> array(AttributeType::String),
 			'isDefault'		=> array(AttributeType::Bool),
+			'permissions'    => array(AttributeType::Mixed),
 		);
 	}
 
 	public function defineRelations()
 	{
 		return array(
-			//'user' => array(static::HAS_MANY, 'CpNav_UserRecord', 'userId'),
 			'nav' => array(static::HAS_MANY, 'CpNav_NavRecord', 'navId'),
 		);
 	}

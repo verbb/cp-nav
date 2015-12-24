@@ -3,112 +3,197 @@ namespace Craft;
 
 class CpNavService extends BaseApplicationComponent
 {
-    // Triggered after we've installed the plugin, but there's no stored data yet - load up some defaults
-    public function setupDefaults($navs) {
-        // Create a new layout called 'Default'
-        $defaultLayout = CpNav_LayoutRecord::model()->findById('1');
+    // Public Methods
+    // =========================================================================
 
-        if ($defaultLayout) {
-            $layoutsRecord = $defaultLayout;
-        } else {
-            $layoutsRecord = new CpNav_LayoutRecord();
-        }
-
-        //$layoutsRecord->id = '1';
-        $layoutsRecord->name = 'Default';
-        $layoutsRecord->isDefault = '1';
-
-        $layoutsRecord->save();
-
-        // With this new layout in mind, populate the nav table with items from the default cp nav
-        $i = 0;
-        foreach ($navs as $key => $value) {
-            $navRecord = new CpNav_NavRecord();
-
-            $navRecord->layoutId = '1';
-            $navRecord->handle = $key;
-            $navRecord->currLabel = $value['label'];
-            $navRecord->prevLabel = $value['label'];
-            $navRecord->enabled = '1';
-            $navRecord->order = $i;
-            $navRecord->url = (array_key_exists('url', $value)) ? $value['url'] : $key;
-            $navRecord->prevUrl = $navRecord->url;
-            $navRecord->manualNav = '0';
-            $navRecord->newWindow = '0';
-
-            $navRecord->save();
-            $i++;
-        }
+    public function getPlugin()
+    {
+        return craft()->plugins->getPlugin('CpNav');
     }
 
+    public function getSettings()
+    {
+        return $this->getPlugin()->getSettings();
+    }
 
+    //
+    // Main hook for modifying control panel navigation
+    //
 
-    // Determines if there are any new CP menu items (from a plugin install or Craft)
-    // And likewise determines if a plugin has been removed - no need to keep menu item.
-    public function checkIfUpdateNeeded($allNavs, $navs) {
-        $layoutId = '1';
+    public function modifyCpNav(&$nav)
+    {
+        $layout = craft()->cpNav_layout->getByUserId();
 
-        // We're actually looping through each layout in our system, but only returning the one we asked for!
-        // That way, we can easily handle re-generating all layouts
-        $allLayouts = craft()->cpNav_layout->getAllLayouts();
-        foreach ($allLayouts as $layout) {
+        // If we're passing in a layoutId param, we're likely on the CP Nav settings page
+        // so we want to force the particular layout we're on to the selected one
+        if (craft()->request->getParam('layoutId')) {
+            $layout = craft()->cpNav_layout->getById(craft()->request->getParam('layoutId'));
+        }
 
-            // Firstly, a quick size check between the default nav and our copy (manual links not included)
-            // will tell us if we need to look at whats been added or missing
+        // Its pretty annoying, but each load of the CP, we need to check if the stored
+        // menu items are different to the generated ones. Make sure this is lightweight!
+        $allNavs = craft()->cpNav_nav->getByLayoutId($layout->id, 'handle');
 
-            // Get all records that are not manually created by user
-            $manualNav = CpNav_NavRecord::model()->findAll(array('condition' => 'layoutId = '.$layout->id.' AND (manualNav IS NULL OR manualNav <> 1)', 'index' => 'handle'));
+        // No nav items? Create them now
+        if ($allNavs) {
 
-            // If not equal, looks like something has changed!
-            if (count($manualNav) != count($navs)) {
-                if (count($manualNav) < count($navs)) {
-                    // There are new menu items that have been added
+            // Get all records that are not manually created by user - easy way to check for changes
+            $manualNavs = craft()->cpNav_nav->getAllManual($layout->id, 'handle');
 
-                    $i = 0;
-                    foreach ($navs as $key => $value) {
-                        if (!array_key_exists($key, $manualNav)) {
-                            // This is the menu item to add to our DB
+            // Something has changed - either added or deleted. Re-generate the menu
+            if (count($nav) != count($manualNavs)) {
+                $this->regenerateNav($layout->id, $manualNavs, $nav);
 
-                            // Create new menu item
-                            craft()->cpNav_nav->createNav(array(
-                                'layoutId' => $layout->id,
-                                'handle' => $key,
-                                'label' => $value['label'],
-                                'url' => array_key_exists('url', $value) ? $value['url'] : $key,
-                                'order' => $i,
-                            ));
+                // We've either deleted/removed an element = fetch again
+                $allNavs = craft()->cpNav_nav->getByLayoutId($layout->id, 'handle');
+            }
 
-                            if ($layoutId == $layout->id) {
-                                $allNavs = craft()->cpNav_nav->getNavsByLayoutId($layoutId);
-                            }
-                        }
+            // Re-create the nav in our user-defined order
+            $nav = array();
 
-                        $i++;
+            foreach ($allNavs as $newNav) {
+
+                // Allow links to be opened in new window - insert some small JS
+                if ($newNav->newWindow) {
+                    $this->_insertJsForNewWindow($newNav);
+                }
+
+                // Do some extra work on the url if needed
+                $url = $this->_processUrl($newNav);
+
+                if ($newNav->enabled) {
+                    $nav[$newNav->handle] = array(
+                        'label' => $newNav->currLabel,
+                        'url' => $newNav->url,
+                    );
+
+                    // Check for placeholder icons - we need to fetch from the plugin
+                    if ($newNav->pluginIcon) {
+                        $nav[$newNav->handle]['iconSvg'] = $newNav->pluginIcon;
                     }
-                } else {
-                    // Some menu items have been deleted, we need to as well
 
-                    foreach ($manualNav as $nav) {
-                        if (!array_key_exists($nav->handle, $navs)) {
-                            // This is the menu item to delete from our DB
-                            $navModel = craft()->cpNav_nav->getNavById($nav->id);
-
-                            // Remove from DB
-                            craft()->cpNav_nav->deleteNav($navModel);
-
-                            if ($layoutId == $layout->id) {
-                                $allNavs = craft()->cpNav_nav->getNavsByLayoutId($layoutId);
-                            }
-                        }
+                    if ($newNav->craftIcon) {
+                        $nav[$newNav->handle]['icon'] = $newNav->icon;
                     }
                 }
             }
         }
-
-        return $allNavs;
     }
 
-    public function processUrl($newNav)
+    //
+    // Initial seed data - setup default layout, add in current cp nav
+    //
+
+    public function setupDefaults($layoutId = 1)
+    {
+        // Create the default Layout after plugin is installed
+        if (!craft()->cpNav_layout->getById($layoutId)) {
+            $layout = new CpNav_LayoutRecord();
+
+            $layout->id = $layoutId;
+            $layout->name = 'Default';
+            $layout->isDefault = true;
+            $layout->save();
+        }
+
+        // Populate navs with 'stock' navigation
+        $defaultNavs = new CpVariable();
+
+        $order = 0;
+        foreach ($defaultNavs->nav() as $key => $nav) {
+            if (!craft()->cpNav_nav->getByHandle($layoutId, $key)) {
+
+                // Handleball off to the main menu regeneration function - no need to duplicate code
+                $this->regenerateNav($layoutId, null, $defaultNavs->nav());
+            }
+
+            $order++;
+        }
+    }
+
+    //
+    // Creates or deletes records when the menu is updated by plugins
+    //
+
+    public function regenerateNav($layoutId, $generatedNav, $currentNav)
+    {
+        // Find the extra or missing menu item
+        if (count($generatedNav) < count($currentNav)) {
+            $order = 0;
+
+            // A menu item exists in the menu, but not in our records - add
+            foreach ($currentNav as $key => $value) {
+                if (!isset($generatedNav[$key])) {
+
+                    if (isset($value['url'])) {
+                        // Some cases we call CpVariable directly, which contains the full url - strip that out
+                        $url = str_replace(UrlHelper::getUrl() . '/', '', $value['url']);
+                    } else {
+                        $url = $key;
+                    }
+
+                    // Get the icon class if core, for plugins, we store a placeholder (iconSvg-pluginHandle), and fetch
+                    // the plugin icon later because we don't really want to store the actual SVG icon in our db...
+                    if (isset($value['icon'])) {
+                        $icon = $value['icon'];
+                    } else if (isset($value['iconSvg'])) {
+                        $icon = 'iconSvg-' . $key;
+                    } else {
+                        $icon = '';
+                    }
+
+                    $model = $this->_prepareNavModel(array(
+                        'layoutId' => $layoutId,
+                        'handle' => $key,
+                        'label' => $value['label'],
+                        'order' => $order,
+                        'icon' => $icon,
+                        'url' => $url,
+                    ));
+
+                    craft()->cpNav_nav->save($model);
+                }
+
+                $order++;
+            }
+        } else {
+
+            // A menu item exists in our records, but not in the menu - delete
+            foreach ($generatedNav as $key => $value) {
+                if (!isset($currentNav[$value['handle']])) {
+
+                    $navModel = craft()->cpNav_nav->getByHandle($layoutId, $value['handle']);
+
+                    craft()->cpNav_nav->delete($navModel);
+                }
+            }
+        }
+    }
+
+
+    // Private Methods
+    // =========================================================================
+
+    private function _prepareNavModel($attributes)
+    {
+        $model = new CpNav_NavModel();
+
+        $model->layoutId = $attributes['layoutId'];
+        $model->handle = $attributes['handle'];
+        $model->currLabel = $attributes['label'];
+        $model->prevLabel = $attributes['label'];
+        $model->enabled = true;
+        $model->order = $attributes['order'];
+        $model->url = $attributes['url'];
+        $model->prevUrl = $attributes['url'];
+        $model->icon = $attributes['icon'];
+        $model->manualNav = false;
+        $model->newWindow = false;
+
+        return $model;
+    }
+
+    private function _processUrl($newNav)
     {
         // Allow Enviroment Variables to be used in the URL
         $url = craft()->config->parseEnvironmentString(trim($newNav->url));
@@ -122,8 +207,17 @@ class CpNavService extends BaseApplicationComponent
             }
         }
 
-        return $url;
+        return UrlHelper::getUrl($url);
     }
-    
+
+    private function _insertJsForNewWindow($nav)
+    {
+        // Prevent this from loading when opening a modal window
+        if (!craft()->request->isAjaxRequest()) {
+            $navElement = '#global-sidebar #nav li#nav-' . $nav->handle . ' a';
+            $js = '$(function() { $("'.$navElement.'").attr("target", "_blank"); });';
+            craft()->templates->includeJs($js);
+        }
+    }
 
 }

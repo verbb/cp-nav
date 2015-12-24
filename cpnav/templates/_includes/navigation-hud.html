@@ -1,8 +1,8 @@
 {% import "_includes/forms" as forms %}
 
 {{ forms.textField({
-    label: "Label"|t,
-    instructions: 'Choose what you want this menu item to be called'|t,
+    label: "Label" | t,
+    instructions: 'Choose what you want this menu item to be called' | t,
     id: 'currLabel',
     name: 'currLabel',
     required: true,
@@ -13,8 +13,8 @@
 {% set prevUrl = (nav.prevUrl) ? nav.prevUrl : nav.url %}
 
 {{ forms.textField({
-    label: "URL"|t,
-    instructions: 'Choose the relative URL this menu points to.<br><strong>Default:</strong> ' ~ prevUrl |t,
+    label: "URL" | t,
+    instructions: 'Choose the URL this menu points to.' | t,
     id: 'url',
     name: 'url',
     required: true,
@@ -30,12 +30,14 @@
 
 {% if nav.manualNav %}
     {{ forms.lightswitchField({
-        label: "New window"|t,
-        instructions: 'Whether to open this page in a new window.'|t,
+        label: "New window" | t,
+        instructions: 'Whether to open this page in a new window.' | t,
         name: 'newWindow',
         on: nav.newWindow,
     }) }}
 {% endif %}
 
+<input type="hidden" name="layoutId" value="{{ nav.layoutId }}" style="display: none;" />
 <input type="hidden" name="id" value="{{ nav.id }}" style="display: none;" />
+<input type="hidden" id="handle" name="handle" value="{{ nav.handle }}" style="display: none;" />
 

@@ -18,6 +18,7 @@ class CpNav_NavRecord extends BaseRecord
             'order'			=> array(AttributeType::Number, 'default' => 0),
             'prevUrl'		=> array(AttributeType::String),
             'url'			=> array(AttributeType::String),
+            'icon'			=> array(AttributeType::String),
             'manualNav'		=> array(AttributeType::Bool),
             'newWindow'		=> array(AttributeType::Bool),
 		);
@@ -27,7 +28,6 @@ class CpNav_NavRecord extends BaseRecord
 	{
 		return array(
             'layout'  => array(static::BELONGS_TO, 'CpNav_LayoutRecord'),
-			//'layout' => array(static::BELONGS_TO, 'CpNav_Layout', 'onDelete' => static::CASCADE),
 		);
 	}
 
