@@ -1,5 +1,13 @@
 [
     {
+        "version": "1.7.1",
+        "downloadUrl": "https://github.com/engram-design/CPNav/archive/1.7.1.zip",
+        "date": "2016-01-13 18:15:00",
+        "notes": [
+            "[Fixed] Fixed issue with plugin release feed url."
+        ]
+    },
+    {
         "version": "1.7.0",
         "downloadUrl": "https://github.com/engram-design/CPNav/archive/1.7.0.zip",
         "date": "2015-12-24 00:00:00",

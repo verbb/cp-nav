@@ -14,7 +14,7 @@ class CpNavPlugin extends BasePlugin
 
     public function getVersion()
     {
-        return '1.7.0';
+        return '1.7.1';
     }
 
     public function getSchemaVersion()
@@ -44,7 +44,7 @@ class CpNavPlugin extends BasePlugin
 
     public function getReleaseFeedUrl()
     {
-        return $this->getPluginUrl() . '/blob/master/changelog.json';
+        return 'https://raw.githubusercontent.com/engram-design/CPNav/blob/master/changelog.json';
     }
 
     public function getSettingsUrl()
