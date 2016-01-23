@@ -44,7 +44,7 @@ class CpNavPlugin extends BasePlugin
 
     public function getReleaseFeedUrl()
     {
-        return 'https://raw.githubusercontent.com/engram-design/CPNav/blob/master/changelog.json';
+        return 'https://raw.githubusercontent.com/engram-design/CPNav/master/changelog.json';
     }
 
     public function getSettingsUrl()
