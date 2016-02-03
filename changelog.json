@@ -1,5 +1,13 @@
 [
     {
+        "version": "1.7.2",
+        "downloadUrl": "https://github.com/engram-design/CPNav/archive/1.7.2.zip",
+        "date": "2016-02-03 14:46:00",
+        "notes": [
+            "[Fixed] Fixed issue with url's not being properly sanitised and processed."
+        ]
+    },
+    {
         "version": "1.7.1",
         "downloadUrl": "https://github.com/engram-design/CPNav/archive/1.7.1.zip",
         "date": "2016-01-13 18:15:00",

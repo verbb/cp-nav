@@ -64,7 +64,7 @@ class CpNavService extends BaseApplicationComponent
                 if ($newNav->enabled) {
                     $nav[$newNav->handle] = array(
                         'label' => $newNav->currLabel,
-                        'url' => $newNav->url,
+                        'url' => $url,
                     );
 
                     // Check for placeholder icons - we need to fetch from the plugin
