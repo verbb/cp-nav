@@ -14,7 +14,7 @@ class CpNavPlugin extends BasePlugin
 
     public function getVersion()
     {
-        return '1.7.2';
+        return '1.7.3';
     }
 
     public function getSchemaVersion()
