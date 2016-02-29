@@ -1,5 +1,13 @@
 [
     {
+        "version": "1.7.4",
+        "downloadUrl": "https://github.com/engram-design/CPNav/archive/1.7.4.zip",
+        "date": "2016-02-29 17:10:00",
+        "notes": [
+            "[Fixed] Fixed issue with `{siteUrl}` being an array not a string. Thanks to [@slelorrain](https://github.com/slelorrain)."
+        ]
+    },
+    {
         "version": "1.7.3",
         "downloadUrl": "https://github.com/engram-design/CPNav/archive/1.7.3.zip",
         "date": "2016-02-21 13:10:00",
