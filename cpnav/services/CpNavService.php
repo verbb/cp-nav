@@ -199,7 +199,7 @@ class CpNavService extends BaseApplicationComponent
         $url = craft()->config->parseEnvironmentString(trim($newNav->url));
 
         // Support siteUrl
-        $url = str_replace('{siteUrl}', craft()->config->get('siteUrl') . '/', $url);
+        $url = str_replace('{siteUrl}', craft()->getSiteUrl() . '/', $url);
 
         // And a spcial case for global - always direct to first global set
         if ($newNav->handle == 'globals') {
