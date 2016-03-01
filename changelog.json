@@ -2,7 +2,7 @@
     {
         "version": "1.7.4",
         "downloadUrl": "https://github.com/engram-design/CPNav/archive/1.7.4.zip",
-        "date": "2016-02-29 17:10:00",
+        "date": "2016-02-29T17:10:00+10:00",
         "notes": [
             "[Fixed] Fixed issue with `{siteUrl}` being an array not a string. Thanks to [@slelorrain](https://github.com/slelorrain)."
         ]
@@ -10,7 +10,7 @@
     {
         "version": "1.7.3",
         "downloadUrl": "https://github.com/engram-design/CPNav/archive/1.7.3.zip",
-        "date": "2016-02-21 13:10:00",
+        "date": "2016-02-21T13:10:00+10:00",
         "notes": [
             "[Added] Added `{siteUrl}` twig tag when creating nav items."
         ]
@@ -18,7 +18,7 @@
     {
         "version": "1.7.2",
         "downloadUrl": "https://github.com/engram-design/CPNav/archive/1.7.2.zip",
-        "date": "2016-02-03 14:46:00",
+        "date": "2016-02-03T14:46:00+10:00",
         "notes": [
             "[Fixed] Fixed issue with url's not being properly sanitised and processed."
         ]
@@ -26,7 +26,7 @@
     {
         "version": "1.7.1",
         "downloadUrl": "https://github.com/engram-design/CPNav/archive/1.7.1.zip",
-        "date": "2016-01-13 18:15:00",
+        "date": "2016-01-13T18:15:00+10:00",
         "notes": [
             "[Fixed] Fixed issue with plugin release feed url."
         ]
@@ -34,7 +34,7 @@
     {
         "version": "1.7.0",
         "downloadUrl": "https://github.com/engram-design/CPNav/archive/1.7.0.zip",
-        "date": "2015-12-24 00:00:00",
+        "date": "2015-12-24T00:00:00+10:00",
         "notes": [
             "[Added] Craft 2.5 support, including release feed and icons.",
             "[Added] Added Layouts - set different navigations and assign to user groups. Great for creating client-specific navigation, without changing navigation for other users.",
