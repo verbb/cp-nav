@@ -6,11 +6,11 @@ $(function() {
     // FETCH NAVS FOR LAYOUT WHEN CHANGING SELECT
     // ----------------------------------------
 
-	$(document).on('change', 'select#layoutId', function() {
+    $(document).on('change', 'select#layoutId', function() {
         $(this).addClass('loading');
 
-		window.location.href = Craft.getUrl('cpnav?layoutId=' + $(this).val());
-	});
+        window.location.href = Craft.getUrl('cpnav?layoutId=' + $(this).val());
+    });
 
 
 
@@ -157,26 +157,26 @@ $(function() {
     // ----------------------------------------
 
     var handleNavLightswitch = function() {
-		var row = $(this).parents('tr.nav-item')
-		var val = $(this).find('input:first').val();
-		val = (!val) ? 0 : 1;
+        var row = $(this).parents('tr.nav-item')
+        var val = $(this).find('input:first').val();
+        val = (!val) ? 0 : 1;
 
-		var data = {
-			value: val,
-			id: row.data('id'),
+        var data = {
+            value: val,
+            id: row.data('id'),
             layoutId: $('select#layoutId').val(),
-		}
+        }
 
-		Craft.postActionRequest('cpNav/nav/toggle', data, $.proxy(function(response, textStatus) {
+        Craft.postActionRequest('cpNav/nav/toggle', data, $.proxy(function(response, textStatus) {
             if (textStatus == 'success' && response.success) {
-            	Craft.cp.displayNotice('Status saved.');
+                Craft.cp.displayNotice('Status saved.');
 
-            	updateAllNav(response.navs);
+                updateAllNav(response.navs);
             }
-		}));
-	}
+        }));
+    }
 
-	$(document).on('change', '#navItems .lightswitch', handleNavLightswitch);
+    $(document).on('change', '#navItems .lightswitch', handleNavLightswitch);
 
 
 
@@ -184,8 +184,8 @@ $(function() {
     // WHEN CLICKING ON A MENU ITEM, ALLOW HUD TO EDIT
     // ----------------------------------------
 
-	$(document).on('click', 'tr.nav-item a.edit-nav', function(e) {
-    	new Craft.EditNavItem($(this), $(this).parents('tr.nav-item'));
+    $(document).on('click', 'tr.nav-item a.edit-nav', function(e) {
+        new Craft.EditNavItem($(this), $(this).parents('tr.nav-item'));
     });
 
 
@@ -194,94 +194,94 @@ $(function() {
     // HUD FOR EDITING MENU
     // ----------------------------------------
 
-	Craft.EditNavItem = Garnish.Base.extend({
-	    $element: null,
-	    data: null,
-	    navId: null,
+    Craft.EditNavItem = Garnish.Base.extend({
+        $element: null,
+        data: null,
+        navId: null,
 
-	    $form: null,
-	    $spinner: null,
+        $form: null,
+        $spinner: null,
 
-	    hud: null,
+        hud: null,
 
-	    init: function($element, $data) {
-	        this.$element = $element;
+        init: function($element, $data) {
+            this.$element = $element;
 
-	        this.data = {
-	        	id: $data.data('id'),
-	        	currLabel: $data.data('currlabel'),
+            this.data = {
+                id: $data.data('id'),
+                currLabel: $data.data('currlabel'),
                 layoutId: $('select#layoutId').val(),
-	        }
+            }
 
-	        this.$element.addClass('loading');
+            this.$element.addClass('loading');
 
-	        Craft.postActionRequest('cpNav/nav/getHudHtml', this.data, $.proxy(this, 'showHud'));
-	    },
+            Craft.postActionRequest('cpNav/nav/getHudHtml', this.data, $.proxy(this, 'showHud'));
+        },
 
-	    showHud: function(response, textStatus) {
-	        this.$element.removeClass('loading');
+        showHud: function(response, textStatus) {
+            this.$element.removeClass('loading');
 
-	        if (textStatus == 'success') {
-	            var $hudContents = $();
+            if (textStatus == 'success') {
+                var $hudContents = $();
 
-	            this.$form = $('<form/>');
-	            $fieldsContainer = $('<div class="fields"/>').appendTo(this.$form);
+                this.$form = $('<form/>');
+                $fieldsContainer = $('<div class="fields"/>').appendTo(this.$form);
 
-	            $fieldsContainer.html(response.html)
-	            Craft.initUiElements($fieldsContainer);
+                $fieldsContainer.html(response.html)
+                Craft.initUiElements($fieldsContainer);
 
-	            var $buttonsOuterContainer = $('<div class="footer"/>').appendTo(this.$form);
+                var $buttonsOuterContainer = $('<div class="footer"/>').appendTo(this.$form);
 
-	            this.$spinner = $('<div class="spinner hidden"/>').appendTo($buttonsOuterContainer);
+                this.$spinner = $('<div class="spinner hidden"/>').appendTo($buttonsOuterContainer);
 
-	            var $buttonsContainer = $('<div class="buttons right"/>').appendTo($buttonsOuterContainer);
-	            $cancelBtn = $('<div class="btn">'+Craft.t('Cancel')+'</div>').appendTo($buttonsContainer);
-	            $saveBtn = $('<input class="btn submit" type="submit" value="'+Craft.t('Save')+'"/>').appendTo($buttonsContainer);
+                var $buttonsContainer = $('<div class="buttons right"/>').appendTo($buttonsOuterContainer);
+                $cancelBtn = $('<div class="btn">'+Craft.t('Cancel')+'</div>').appendTo($buttonsContainer);
+                $saveBtn = $('<input class="btn submit" type="submit" value="'+Craft.t('Save')+'"/>').appendTo($buttonsContainer);
 
-	            $hudContents = $hudContents.add(this.$form);
+                $hudContents = $hudContents.add(this.$form);
 
-	            this.hud = new Garnish.HUD(this.$element, $hudContents, {
-	                bodyClass: 'body',
-	                closeOtherHUDs: false
-	            });
+                this.hud = new Garnish.HUD(this.$element, $hudContents, {
+                    bodyClass: 'body',
+                    closeOtherHUDs: false
+                });
 
                 this.hud.on('hide', $.proxy(this, 'closeHud'));
 
-	            this.addListener($saveBtn, 'click', 'saveGroupField');
-	            this.addListener($cancelBtn, 'click', 'closeHud');
-	        }
-	    },
+                this.addListener($saveBtn, 'click', 'saveGroupField');
+                this.addListener($cancelBtn, 'click', 'closeHud');
+            }
+        },
 
-	    saveGroupField: function(ev) {
-	        ev.preventDefault();
+        saveGroupField: function(ev) {
+            ev.preventDefault();
 
-	        this.$spinner.removeClass('hidden');
+            this.$spinner.removeClass('hidden');
 
-	        var data = this.$form.serialize()
+            var data = this.$form.serialize()
 
-	        Craft.postActionRequest('cpNav/nav/save', data, $.proxy(function(response, textStatus) {
-	            this.$spinner.addClass('hidden');
+            Craft.postActionRequest('cpNav/nav/save', data, $.proxy(function(response, textStatus) {
+                this.$spinner.addClass('hidden');
 
                 if (textStatus == 'success' && response.success) {
-                	this.$element.html(response.nav.currLabel);
-                	this.$element.parents('tr.nav-item').find('.original-nav-link').html(response.nav.url);
+                    this.$element.html(response.nav.currLabel);
+                    this.$element.parents('tr.nav-item').find('.original-nav-link').html(response.nav.url);
 
-	            	Craft.cp.displayNotice('Menu saved.');
+                    Craft.cp.displayNotice('Menu saved.');
 
-					updateNav(response.nav);
+                    updateNav(response.nav);
 
                     this.closeHud();
                 } else {
                     Garnish.shake(this.hud.$hud);
                 }
-	        }, this));
-	    },
+            }, this));
+        },
 
-	    closeHud: function() {
+        closeHud: function() {
             this.hud.$shade.remove();
             this.hud.$hud.remove();
-	    }
-	});
+        }
+    });
 
 
 
@@ -289,37 +289,37 @@ $(function() {
     // EXTEND BUILT-IN ADMINTABLE TO ALLOW US TO HOOK INTO REORDEROBJECTS
     // ----------------------------------------
 
-	// Kinda annoying, but there's no other way to hook into the success of the re-ordering
-	Craft.AlternateAdminTable = Craft.AdminTable.extend({
+    // Kinda annoying, but there's no other way to hook into the success of the re-ordering
+    Craft.AlternateAdminTable = Craft.AdminTable.extend({
 
-		// override the default reorderObjects function so we can update cp nav
-		reorderObjects: function() {
-			var ids = [];
+        // override the default reorderObjects function so we can update cp nav
+        reorderObjects: function() {
+            var ids = [];
 
-			for (var i = 0; i < this.sorter.$items.length; i++) {
-				var id = $(this.sorter.$items[i]).attr(this.settings.idAttribute);
-				ids.push(id);
-			}
+            for (var i = 0; i < this.sorter.$items.length; i++) {
+                var id = $(this.sorter.$items[i]).attr(this.settings.idAttribute);
+                ids.push(id);
+            }
 
-			var data = {
-				ids: JSON.stringify(ids),
+            var data = {
+                ids: JSON.stringify(ids),
                 layoutId: $('select#layoutId').val(),
-			};
+            };
 
-			Craft.postActionRequest('cpNav/nav/reorder', data, $.proxy(function(response, textStatus) {
-				if (textStatus == 'success') {
-					if (response.success) {
-						Craft.cp.displayNotice(Craft.t(this.settings.reorderSuccessMessage));
+            Craft.postActionRequest('cpNav/nav/reorder', data, $.proxy(function(response, textStatus) {
+                if (textStatus == 'success') {
+                    if (response.success) {
+                        Craft.cp.displayNotice(Craft.t(this.settings.reorderSuccessMessage));
 
-						updateAllNav(response.navs);
-					} else {
-						Craft.cp.displayError(Craft.t(this.settings.reorderFailMessage));
-					}
-				}
-			}, this));
-		},
+                        updateAllNav(response.navs);
+                    } else {
+                        Craft.cp.displayError(Craft.t(this.settings.reorderFailMessage));
+                    }
+                }
+            }, this));
+        },
 
-		// override the default handleDeleteObjectResponse function so we can update cp nav
+        // override the default handleDeleteObjectResponse function so we can update cp nav
         handleDeleteObjectResponse: function(response, $row) {
             var id = this.getObjectId($row),
                 name = this.getObjectName($row);
@@ -342,7 +342,7 @@ $(function() {
             }
         },
 
-	});
+    });
 
 
 
@@ -366,8 +366,8 @@ $(function() {
     // FUNCTIONS TO ASSIST WITH UPDATING THE CP NAV CLIENT-SIDE
     // ----------------------------------------
 
-	var updateNav = function(nav) {
-		var $navItem = $('#global-sidebar nav ul#nav li[id="nav-'+nav.handle+'"]');
+    var updateNav = function(nav) {
+        var $navItem = $('#global-sidebar nav ul#nav li[id="nav-'+nav.handle+'"]');
 
         var url = Craft.getUrl(nav.url);
 
@@ -398,13 +398,13 @@ $(function() {
         '</a>');
     }
 
-	var updateAllNav = function(navs) {
-		$('#global-sidebar nav ul#nav').empty();
+    var updateAllNav = function(navs) {
+        $('#global-sidebar nav ul#nav').empty();
 
-		var navItems = '';
-		$.each(navs, function(index, nav) {
-			if (nav.enabled == '1') {
-				var url = Craft.getUrl(nav.url);
+        var navItems = '';
+        $.each(navs, function(index, nav) {
+            if (nav.enabled == '1') {
+                var url = Craft.getUrl(nav.url);
 
                 var iconHtml = '<span class="icon">' +
                     '<svg version="1.1" baseProfile="full" width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">' +
@@ -433,11 +433,11 @@ $(function() {
                         '<span class="label">'+nav.currLabel+'</span>' +
                     '</a>' +
                 '</li>';
-			}
-		});
+            }
+        });
 
-		$('#global-sidebar nav ul#nav').append(navItems);
-	}
+        $('#global-sidebar nav ul#nav').append(navItems);
+    }
 
 });
 

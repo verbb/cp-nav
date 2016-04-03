@@ -26,7 +26,7 @@ class m150314_144615_cpNav_layouts extends BaseMigration
         craft()->db->createCommand()->renameTable('cpnav', 'cpnav_navs');
 
         // Add LayoutId column to main table
-    	craft()->db->createCommand()->addColumnAfter('cpnav_navs', 'layoutId', ColumnType::Int, 'id');
+        craft()->db->createCommand()->addColumnAfter('cpnav_navs', 'layoutId', ColumnType::Int, 'id');
 
         craft()->db->createCommand()->addForeignKey('cpnav_navs', 'layoutId', 'cpnav_layouts', 'id', 'SET NULL', null);
 

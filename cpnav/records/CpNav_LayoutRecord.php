@@ -11,8 +11,8 @@ class CpNav_LayoutRecord extends BaseRecord
 	protected function defineAttributes()
 	{
 		return array(
-			'name'			=> array(AttributeType::String),
-			'isDefault'		=> array(AttributeType::Bool),
+			'name'          => array(AttributeType::String),
+			'isDefault'     => array(AttributeType::Bool),
 			'permissions'    => array(AttributeType::Mixed),
 		);
 	}
