@@ -37,6 +37,26 @@
     }) }}
 {% endif %}
 
+{% set elements = (elements is defined ? elements : []) -%}
+
+{{ forms.elementSelectField({
+    elements: elements,
+    id: 'customIcon',
+    name: 'customIcon',
+    label: 'Icon' | t,
+    instructions: 'Specify an SVG asset for this menu item icon.' | t,
+    elementType: craft.elements.getElementType('Asset'),
+    criteria: {
+        kind: [],
+        localeEnabled: null,
+        locale: null,
+    },
+    sources: sources,
+    jsClass: 'Craft.AssetSelectInput',
+    addButtonLabel: 'Select an Icon' |t,
+    limit: 1,
+}) }}
+
 <input type="hidden" name="layoutId" value="{{ nav.layoutId }}" style="display: none;" />
 <input type="hidden" name="id" value="{{ nav.id }}" style="display: none;" />
 <input type="hidden" id="handle" name="handle" value="{{ nav.handle }}" style="display: none;" />

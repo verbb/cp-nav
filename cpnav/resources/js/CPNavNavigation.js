@@ -81,6 +81,8 @@ $(function() {
 
                 new Craft.HandleGenerator('#currLabel', '#handle');
 
+                Garnish.$bod.append(response.footerJs);
+
                 this.addListener($saveBtn, 'click', 'saveGroupField');
                 this.addListener($cancelBtn, 'click', 'closeHud');
             }
@@ -246,6 +248,8 @@ $(function() {
                 });
 
                 this.hud.on('hide', $.proxy(this, 'closeHud'));
+
+                Garnish.$bod.append(response.footerJs);
 
                 this.addListener($saveBtn, 'click', 'saveGroupField');
                 this.addListener($cancelBtn, 'click', 'closeHud');

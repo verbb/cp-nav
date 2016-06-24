@@ -75,6 +75,21 @@ class CpNavService extends BaseApplicationComponent
                     if ($newNav->craftIcon) {
                         $nav[$newNav->handle]['icon'] = $newNav->icon;
                     }
+
+                    if ($newNav->customIcon) {
+                        try {
+                            $asset = craft()->assets->getFileById($newNav->customIcon);
+                            $path = $asset->getSource()->settings['path'] . $asset->getFolder()->path . $asset->filename;
+
+                            if (IOHelper::fileExists($path)) {
+                                $iconSvg = IOHelper::getFileContents($path);
+                            } else {
+                                $iconSvg = false;
+                            }
+
+                            $nav[$newNav->handle]['iconSvg'] = $iconSvg;
+                        } catch (\Exception $e) {}
+                    }
                 }
             }
         }

@@ -22,6 +22,8 @@ An internal link might be helpful if you have a specific entry you want to easil
 
 An external link might be helpful for a variety of different reasons. These should be provided as absolute URLs, complete with protocol (http/https).
 
+You can also set a custom icon for a menu item. This is uploaded to an existing assets source, and is recommended to be an SVG file for best results.
+
 It should also be noted that some plugins already provide a method for changing the Plugin name. While Control Panel Nav is active, it's settings will override any defined in other installed plugins.
 
 
@@ -40,7 +42,6 @@ Craft Pro installs will be able to assign new layouts to user groups, while Craf
 
 - Handle menu items with the same name, and handle generation.
 - Support for sub-navigation.
-- Support for custom icons.
 
 Have a suggestion? We'd love to hear about it! [Make a suggestion](https://github.com/engram-design/CPNav/issues)
 

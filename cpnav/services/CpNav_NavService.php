@@ -53,6 +53,7 @@ class CpNav_NavService extends BaseApplicationComponent
         $record->url = $model->url;
         $record->prevUrl = $model->prevUrl;
         $record->icon = $model->icon;
+        $record->customIcon = $model->customIcon;
         $record->manualNav = $model->manualNav;
         $record->newWindow = $model->newWindow;
 

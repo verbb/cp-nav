@@ -1,5 +1,14 @@
 [
     {
+        "version": "1.7.5",
+        "downloadUrl": "https://github.com/engram-design/CPNav/archive/1.7.5.zip",
+        "date": "2016-06-25T17:18:00+10:00",
+        "notes": [
+            "[Added] Added support for translations with menu labels.",
+            "[Added] Added ability to upload and set custom icons for menu items."
+        ]
+    },
+    {
         "version": "1.7.4",
         "downloadUrl": "https://github.com/engram-design/CPNav/archive/1.7.4.zip",
         "date": "2016-02-29T17:10:00+10:00",

@@ -74,15 +74,31 @@ class CpNav_NavController extends BaseController
             $nav->manualNav = true;
         }
 
+        $criteria = craft()->elements->getCriteria(ElementType::Asset);
+        $criteria->id = false;
+        $criteria->status = null;
+        $criteria->localeEnabled = null;
+
+        if ($nav->customIcon) {
+            $criteria->id = array('7');
+        }
+
         $variables = array(
             'nav' => $nav,
+            'sources' => craft()->assetSources->getAllSources(),
+            'elements' => $criteria,
         );
 
         $template = craft()->request->getPost('template', 'cpnav/_includes/navigation-hud');
 
-        $returnData['html'] = $this->renderTemplate($template, $variables, true);
+        craft()->templates->startJsBuffer();
+        $bodyHtml = $this->renderTemplate($template, $variables, true);
+        $footHtml = craft()->templates->clearJsBuffer();
 
-        $this->returnJson($returnData);
+        $this->returnJson(array(
+            'html' => $bodyHtml,
+            'footerJs' => $footHtml,
+        ));
     }
 
     public function actionSave()
@@ -96,6 +112,7 @@ class CpNav_NavController extends BaseController
         $nav->currLabel = craft()->request->getPost('currLabel');
         $nav->url = craft()->request->getPost('url');
         $nav->newWindow = craft()->request->getPost('newWindow');
+        $nav->customIcon = craft()->request->getPost('customIcon');
 
         $nav = craft()->cpNav_nav->save($nav);
 
@@ -124,6 +141,7 @@ class CpNav_NavController extends BaseController
         $nav->url = $url;
         $nav->prevUrl = $url;
         $nav->icon = null;
+        $nav->customIcon = null;
         $nav->manualNav = true;
         $nav->newWindow = $newWindow;
 

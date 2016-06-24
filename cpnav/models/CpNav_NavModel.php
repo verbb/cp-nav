@@ -58,6 +58,7 @@ class CpNav_NavModel extends BaseModel
             'prevUrl'       => array(AttributeType::String),
             'url'           => array(AttributeType::String),
             'icon'          => array(AttributeType::String),
+            'customIcon'    => array(AttributeType::Mixed),
             'manualNav'     => array(AttributeType::Bool),
             'newWindow'     => array(AttributeType::Bool),
 
