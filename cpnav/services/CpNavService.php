@@ -63,7 +63,7 @@ class CpNavService extends BaseApplicationComponent
 
                 if ($newNav->enabled) {
                     $nav[$newNav->handle] = array(
-                        'label' => $newNav->currLabel,
+                        'label' => Craft::t($newNav->currLabel),
                         'url' => $url,
                     );
 
