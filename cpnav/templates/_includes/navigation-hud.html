@@ -35,6 +35,8 @@
         name: 'newWindow',
         on: nav.newWindow,
     }) }}
+{% else %}
+    <input type="hidden" name="newWindow" value="{{ nav.newWindow }}" style="display: none;" />
 {% endif %}
 
 {% set elements = (elements is defined ? elements : []) -%}

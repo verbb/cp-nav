@@ -111,10 +111,10 @@ class CpNav_NavController extends BaseController
     
         $nav->currLabel = craft()->request->getPost('currLabel');
         $nav->url = craft()->request->getPost('url');
-        $nav->newWindow = craft()->request->getPost('newWindow');
+        $nav->newWindow = (bool)craft()->request->getPost('newWindow');
         $nav->customIcon = craft()->request->getPost('customIcon');
 
-        $nav = craft()->cpNav_nav->save($nav);
+        craft()->cpNav_nav->save($nav);
 
         $this->returnJson(array('success' => true, 'nav' => $nav));
     }
