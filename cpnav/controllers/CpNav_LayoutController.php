@@ -52,7 +52,7 @@ class CpNav_LayoutController extends BaseController
 
         $layout = new CpNav_LayoutModel();
         $layout->name = craft()->request->getRequiredPost('name');
-        $layout->permissions = craft()->request->getRequiredPost('permissions');
+        $layout->permissions = craft()->request->getPost('permissions');
 
         craft()->cpNav_layout->save($layout);
 
@@ -71,7 +71,7 @@ class CpNav_LayoutController extends BaseController
         $layout = craft()->cpNav_layout->getById($layoutId);
 
         $layout->name = craft()->request->getRequiredPost('name');
-        $layout->permissions = craft()->request->getRequiredPost('permissions');
+        $layout->permissions = craft()->request->getPost('permissions');
 
         $layout = craft()->cpNav_layout->save($layout);
 

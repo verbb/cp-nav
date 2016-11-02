@@ -80,8 +80,8 @@ $(function() {
 
                 Garnish.$bod.append(response.footerJs);
 
-                this.addListener($saveBtn, 'click', 'save');
-                this.addListener($cancelBtn, 'click', 'closeHud');
+                this.addListener(this.$saveBtn, 'click', 'save');
+                this.addListener(this.$cancelBtn, 'click', 'closeHud');
             }
         },
 
@@ -90,7 +90,7 @@ $(function() {
 
             this.$spinner.removeClass('hidden');
 
-            var data = this.$form.serialize()
+            var data = this.hud.$body.serialize();
 
             Craft.postActionRequest('cpNav/layout/save', data, $.proxy(function(response, textStatus) {
                 this.$spinner.addClass('hidden');
@@ -177,8 +177,8 @@ $(function() {
 
                 Garnish.$bod.append(response.footerJs);
 
-                this.addListener($saveBtn, 'click', 'save');
-                this.addListener($cancelBtn, 'click', 'closeHud');
+                this.addListener(this.$saveBtn, 'click', 'save');
+                this.addListener(this.$cancelBtn, 'click', 'closeHud');
             }
         },
 
@@ -187,7 +187,7 @@ $(function() {
 
             this.$spinner.removeClass('hidden');
 
-            var data = this.$form.serialize()
+            var data = this.hud.$body.serialize();
 
             Craft.postActionRequest('cpNav/layout/new', data, $.proxy(function(response, textStatus) {
                 this.$spinner.addClass('hidden');
