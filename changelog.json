@@ -5,7 +5,7 @@
         "date": "2016-11-02T00:00:00+10:00",
         "notes": [
             "[Fixed] Fixed issues when saving nav items in some cases.",
-            "[Fixed] Fixed issue where Persmissions option for layouts was required when saving/editing.",
+            "[Fixed] Fixed issue where Permissions option for layouts was required when saving/editing.",
             "[Fixed] Fixed minor UI issues with HUD when editing nav and layout items."
         ]
     },
