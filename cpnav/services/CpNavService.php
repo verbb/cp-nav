@@ -72,7 +72,7 @@ class CpNavService extends BaseApplicationComponent
                         $nav[$newNav->handle]['iconSvg'] = $newNav->pluginIcon;
                     }
 
-                    if ($newNav->craftIcon) {
+                    if ($newNav->craftIcon && !$newNav->customIcon) {
                         $nav[$newNav->handle]['icon'] = $newNav->icon;
                     }
 
