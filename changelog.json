@@ -1,5 +1,18 @@
 [
     {
+        "version": "1.7.7",
+        "downloadUrl": "https://github.com/engram-design/CPNav/archive/1.7.7.zip",
+        "date": "2017-04-22T00:00:00+10:00",
+        "notes": [
+            "[Added] Support for Craft 2.6.2951.",
+            "[Improved] Now restores original nav if errors are thrown during the nav generation process (PHP7+ only).",
+            "[Improved] Enforce only image selection for custom icon.",
+            "[Improved] Allow custom icons to override default Craft/Plugin icons.",
+            "[Fixed] Fixed selected custom icon not populating asset element select field.",
+            "[Fixed] Check if a custom icon asset exists before trying to apply it to the nav."
+        ]
+    },
+    {
         "version": "1.7.6",
         "downloadUrl": "https://github.com/engram-design/CPNav/archive/1.7.6.zip",
         "date": "2016-11-02T00:00:00+10:00",
