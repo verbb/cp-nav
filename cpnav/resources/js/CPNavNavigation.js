@@ -410,8 +410,6 @@ $(function() {
             if (nav.enabled == '1') {
                 var url = Craft.getUrl(nav.url);
 
-                console.log(nav);
-
                 var iconHtml = '<span class="icon">' +
                     '<svg version="1.1" baseProfile="full" width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">' +
                         '<circle cx="10" cy="10" r="10" fill="#000" fill-opacity="0.35"></circle>' +

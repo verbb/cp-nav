@@ -74,20 +74,19 @@ class CpNav_NavController extends BaseController
             $nav->manualNav = true;
         }
 
-        $criteria = craft()->elements->getCriteria(ElementType::Asset);
-        $criteria->id = false;
-        $criteria->status = null;
-        $criteria->localeEnabled = null;
-
-        if ($nav->customIcon) {
-            $criteria->id = array('7');
-        }
-
         $variables = array(
             'nav' => $nav,
             'sources' => craft()->assetSources->getAllSources(),
-            'elements' => $criteria,
         );
+
+        if ($nav->customIcon) {
+            $criteria = craft()->elements->getCriteria(ElementType::Asset);
+            $criteria->id = $nav->customIcon;
+            $criteria->status = null;
+            $criteria->localeEnabled = null;
+
+            $variables['icons'] = $criteria->find();
+        }
 
         $template = craft()->request->getPost('template', 'cpnav/_includes/navigation-hud');
 

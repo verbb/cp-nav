@@ -39,17 +39,17 @@
     <input type="hidden" name="newWindow" value="{{ nav.newWindow }}" style="display: none;" />
 {% endif %}
 
-{% set elements = (elements is defined ? elements : []) -%}
+{% set icons = (icons is defined ? icons : []) -%}
 
 {{ forms.elementSelectField({
-    elements: elements,
+    elements: icons,
     id: 'customIcon',
     name: 'customIcon',
     label: 'Icon' | t,
     instructions: 'Specify an SVG asset for this menu item icon.' | t,
     elementType: craft.elements.getElementType('Asset'),
     criteria: {
-        kind: [],
+        kind: ['image'],
         localeEnabled: null,
         locale: null,
     },
