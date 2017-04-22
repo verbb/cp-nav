@@ -22,58 +22,61 @@ class CpNavService extends BaseApplicationComponent
 
     public function modifyCpNav(&$nav)
     {
-        $layout = craft()->cpNav_layout->getByUserId();
+        // Keep a temporary copy of the un-altered nav in case things go wrong
+        $originalNav = $nav;
 
-        // If we're passing in a layoutId param, we're likely on the CP Nav settings page
-        // so we want to force the particular layout we're on to the selected one
-        if (craft()->request->getParam('layoutId')) {
-            $layout = craft()->cpNav_layout->getById(craft()->request->getParam('layoutId'));
-        }
+        try {
+            $layout = craft()->cpNav_layout->getByUserId();
 
-        // Its pretty annoying, but each load of the CP, we need to check if the stored
-        // menu items are different to the generated ones. Make sure this is lightweight!
-        $allNavs = craft()->cpNav_nav->getByLayoutId($layout->id, 'handle');
-
-        // No nav items? Create them now
-        if ($allNavs) {
-
-            // Get all records that are not manually created by user - easy way to check for changes
-            $manualNavs = craft()->cpNav_nav->getAllManual($layout->id, 'handle');
-
-            // Something has changed - either added or deleted. Re-generate the menu
-            if (count($nav) != count($manualNavs)) {
-                $this->regenerateNav($layout->id, $manualNavs, $nav);
-
-                // We've either deleted/removed an element = fetch again
-                $allNavs = craft()->cpNav_nav->getByLayoutId($layout->id, 'handle');
+            // If we're passing in a layoutId param, we're likely on the CP Nav settings page
+            // so we want to force the particular layout we're on to the selected one
+            if (craft()->request->getParam('layoutId')) {
+                $layout = craft()->cpNav_layout->getById(craft()->request->getParam('layoutId'));
             }
 
-            // Re-create the nav in our user-defined order
-            $nav = array();
+            // Its pretty annoying, but each load of the CP, we need to check if the stored
+            // menu items are different to the generated ones. Make sure this is lightweight!
+            $allNavs = craft()->cpNav_nav->getByLayoutId($layout->id, 'handle');
 
-            foreach ($allNavs as $newNav) {
+            // No nav items? Create them now
+            if ($allNavs) {
 
-                // Allow links to be opened in new window - insert some small JS
-                if ($newNav->newWindow) {
-                    $this->_insertJsForNewWindow($newNav);
+                // Get all records that are not manually created by user - easy way to check for changes
+                $manualNavs = craft()->cpNav_nav->getAllManual($layout->id, 'handle');
+
+                // Something has changed - either added or deleted. Re-generate the menu
+                if (count($nav) != count($manualNavs)) {
+                    $this->regenerateNav($layout->id, $manualNavs, $nav);
+
+                    // We've either deleted/removed an element = fetch again
+                    $allNavs = craft()->cpNav_nav->getByLayoutId($layout->id, 'handle');
                 }
 
-                // Do some extra work on the url if needed
-                $url = $this->_processUrl($newNav);
+                // Re-create the nav in our user-defined order
+                $nav = array();
 
-                if ($newNav->enabled) {
-                    $nav[$newNav->handle] = array(
-                        'label' => Craft::t($newNav->currLabel),
-                        'url' => $url,
-                    );
+                foreach ($allNavs as $newNav) {
 
-                    // Check for placeholder icons - we need to fetch from the plugin
-                    if ($newNav->pluginIcon) {
-                        $nav[$newNav->handle]['iconSvg'] = $newNav->pluginIcon;
+                    // Allow links to be opened in new window - insert some small JS
+                    if ($newNav->newWindow) {
+                        $this->_insertJsForNewWindow($newNav);
                     }
 
-                    if ($newNav->customIcon) {
-                        try {
+                    // Do some extra work on the url if needed
+                    $url = $this->_processUrl($newNav);
+
+                    if ($newNav->enabled) {
+                        $nav[$newNav->handle] = array(
+                            'label' => Craft::t($newNav->currLabel),
+                            'url' => $url,
+                        );
+
+                        // Check for placeholder icons - we need to fetch from the plugin
+                        if ($newNav->pluginIcon) {
+                            $nav[$newNav->handle]['iconSvg'] = $newNav->pluginIcon;
+                        }
+
+                        if ($newNav->customIcon) {
                             $asset = craft()->assets->getFileById($newNav->customIcon);
 
                             if ($asset) {
@@ -87,14 +90,24 @@ class CpNavService extends BaseApplicationComponent
 
                                 $nav[$newNav->handle]['iconSvg'] = $iconSvg;
                             }
-                        } catch (\Exception $e) {}
-                    }
+                        }
 
-                    if ($newNav->craftIcon && !isset($nav[$newNav->handle]['iconSvg'])) {
-                        $nav[$newNav->handle]['icon'] = $newNav->icon;
+                        if ($newNav->craftIcon && !isset($nav[$newNav->handle]['iconSvg'])) {
+                            $nav[$newNav->handle]['icon'] = $newNav->icon;
+                        }
                     }
                 }
             }
+        } catch (\Throwable $e) {
+            // Something went wrong! Restore the original nav
+            $nav = $originalNav;
+
+            CpNavPlugin::log($e->getMessage(), LogLevel::Error, true);
+        } catch (\Exception $e) {
+            // Something went wrong! Restore the original nav
+            $nav = $originalNav;
+
+            CpNavPlugin::log($e->getMessage(), LogLevel::Error, true);
         }
     }
 
