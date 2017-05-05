@@ -50,7 +50,7 @@ class CpNav_NavModel extends BaseModel
         return array(
             'id'            => array(AttributeType::Number),
             'layoutId'      => array(AttributeType::Number),
-            'handle'        => array(AttributeType::Handle),
+            'handle'        => array(AttributeType::String),
             'prevLabel'     => array(AttributeType::String),
             'currLabel'     => array(AttributeType::String),
             'enabled'       => array(AttributeType::Bool),

@@ -11,7 +11,7 @@ class CpNav_NavRecord extends BaseRecord
     protected function defineAttributes()
     {
         return array(
-            'handle'        => array(AttributeType::Handle),
+            'handle'        => array(AttributeType::String),
             'prevLabel'     => array(AttributeType::String),
             'currLabel'     => array(AttributeType::String),
             'enabled'       => array(AttributeType::Bool, 'default' => true),
