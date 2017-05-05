@@ -115,7 +115,13 @@ class CpNav_NavController extends BaseController
 
         craft()->cpNav_nav->save($nav);
 
-        $this->returnJson(array('success' => true, 'nav' => $nav));
+        $errors = $nav->getAllErrors();
+
+        if (!$errors) {
+            $this->returnJson(array('success' => true, 'nav' => $nav));
+        } else {
+            $this->returnJson(array('error' => $errors[0]));
+        }
     }
 
     public function actionNew()
@@ -146,9 +152,15 @@ class CpNav_NavController extends BaseController
 
         craft()->cpNav_nav->save($nav);
 
-        $navs = craft()->cpNav_nav->getByLayoutId($layoutId);
+        $errors = $nav->getAllErrors();
 
-        $this->returnJson(array('success' => true, 'navs' => $navs));
+        if (!$errors) {
+            $navs = craft()->cpNav_nav->getByLayoutId($layoutId);
+
+            $this->returnJson(array('success' => true, 'navs' => $navs));
+        } else {
+            $this->returnJson(array('error' => $errors[0]));
+        }
     }
 
     public function actionDelete()

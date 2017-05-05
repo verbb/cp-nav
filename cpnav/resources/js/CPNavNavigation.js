@@ -99,7 +99,7 @@ $(function() {
                 this.$spinner.addClass('hidden');
 
                 if (textStatus == 'success' && response.success) {
-                    Craft.cp.displayNotice('Menu saved.');
+                    Craft.cp.displayNotice(Craft.t('Menu saved.'));
 
                     updateAllNav(response.navs);
 
@@ -141,6 +141,7 @@ $(function() {
 
                     this.closeHud();
                 } else {
+                    Craft.cp.displayError(response.error);
                     Garnish.shake(this.hud.$hud);
                 }
             }, this));
@@ -270,12 +271,13 @@ $(function() {
                     this.$element.html(response.nav.currLabel);
                     this.$element.parents('tr.nav-item').find('.original-nav-link').html(response.nav.url);
 
-                    Craft.cp.displayNotice('Menu saved.');
+                    Craft.cp.displayNotice(Craft.t('Menu saved.'));
 
                     updateNav(response.nav);
 
                     this.closeHud();
                 } else {
+                    Craft.cp.displayError(response.error);
                     Garnish.shake(this.hud.$hud);
                 }
             }, this));
