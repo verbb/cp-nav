@@ -1,0 +1,41 @@
+// ==========================================================================
+
+// CP Nav Plugin for Craft CMS
+// Author: Verbb - https://verbb.io/
+
+// ==========================================================================
+
+// ==========================================================================
+// Plugin Styles
+// ==========================================================================
+
+a.edit-nav {
+    padding-left: 5px;
+}
+
+.original-nav {
+    padding-left: 3px;
+    color: #999;
+    font-size: 90%;
+}
+
+.original-nav-link {
+    color: #999;
+    font-size: 90%;
+}
+
+.select.loading:after {
+    position: absolute;
+    content: '.';
+    font-size: 0;
+    display: block;
+    width: 24px;
+    height: 100%;
+    right: 3px !important;
+    top: 0;
+    background: url(../img/spinner.gif) no-repeat 0 50%;
+}
+
+// ==========================================================================
+// Verbb Branding
+// ==========================================================================

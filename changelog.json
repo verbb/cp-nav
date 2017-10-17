@@ -1,7 +1,17 @@
 [
     {
+        "version": "1.7.8",
+        "downloadUrl": "https://github.com/verbb/cp-nav/archive/1.7.8.zip",
+        "date": "2017-10-18T00:00:00+10:00",
+        "notes": [
+            "[Added] Verbb marketing (new plugin icon, readme, etc).",
+            "[Improved] Don’t store handle as an `AttributeType::Handle`.",
+            "[Improved] Better error-handling when adding/saving nav item."
+        ]
+    },
+    {
         "version": "1.7.7",
-        "downloadUrl": "https://github.com/engram-design/CPNav/archive/1.7.7.zip",
+        "downloadUrl": "https://github.com/verbb/cp-nav/archive/1.7.7.zip",
         "date": "2017-04-22T00:00:00+10:00",
         "notes": [
             "[Added] Support for Craft 2.6.2951.",
@@ -14,7 +24,7 @@
     },
     {
         "version": "1.7.6",
-        "downloadUrl": "https://github.com/engram-design/CPNav/archive/1.7.6.zip",
+        "downloadUrl": "https://github.com/verbb/cp-nav/archive/1.7.6.zip",
         "date": "2016-11-02T00:00:00+10:00",
         "notes": [
             "[Fixed] Fixed issues when saving nav items in some cases.",
@@ -24,7 +34,7 @@
     },
     {
         "version": "1.7.5",
-        "downloadUrl": "https://github.com/engram-design/CPNav/archive/1.7.5.zip",
+        "downloadUrl": "https://github.com/verbb/cp-nav/archive/1.7.5.zip",
         "date": "2016-06-25T17:18:00+10:00",
         "notes": [
             "[Added] Added support for translations with menu labels.",
@@ -33,7 +43,7 @@
     },
     {
         "version": "1.7.4",
-        "downloadUrl": "https://github.com/engram-design/CPNav/archive/1.7.4.zip",
+        "downloadUrl": "https://github.com/verbb/cp-nav/archive/1.7.4.zip",
         "date": "2016-02-29T17:10:00+10:00",
         "notes": [
             "[Fixed] Fixed issue with `{siteUrl}` being an array not a string. Thanks to [@slelorrain](https://github.com/slelorrain)."
@@ -41,7 +51,7 @@
     },
     {
         "version": "1.7.3",
-        "downloadUrl": "https://github.com/engram-design/CPNav/archive/1.7.3.zip",
+        "downloadUrl": "https://github.com/verbb/cp-nav/archive/1.7.3.zip",
         "date": "2016-02-21T13:10:00+10:00",
         "notes": [
             "[Added] Added `{siteUrl}` twig tag when creating nav items."
@@ -49,7 +59,7 @@
     },
     {
         "version": "1.7.2",
-        "downloadUrl": "https://github.com/engram-design/CPNav/archive/1.7.2.zip",
+        "downloadUrl": "https://github.com/verbb/cp-nav/archive/1.7.2.zip",
         "date": "2016-02-03T14:46:00+10:00",
         "notes": [
             "[Fixed] Fixed issue with url's not being properly sanitised and processed."
@@ -57,7 +67,7 @@
     },
     {
         "version": "1.7.1",
-        "downloadUrl": "https://github.com/engram-design/CPNav/archive/1.7.1.zip",
+        "downloadUrl": "https://github.com/verbb/cp-nav/archive/1.7.1.zip",
         "date": "2016-01-13T18:15:00+10:00",
         "notes": [
             "[Fixed] Fixed issue with plugin release feed url."
@@ -65,7 +75,7 @@
     },
     {
         "version": "1.7.0",
-        "downloadUrl": "https://github.com/engram-design/CPNav/archive/1.7.0.zip",
+        "downloadUrl": "https://github.com/verbb/cp-nav/archive/1.7.0.zip",
         "date": "2015-12-24T00:00:00+10:00",
         "notes": [
             "[Added] Craft 2.5 support, including release feed and icons.",
@@ -76,7 +86,7 @@
     },
     {
         "version": "1.6.2",
-        "downloadUrl": "https://github.com/engram-design/CPNav/archive/1.6.2.zip",
+        "downloadUrl": "https://github.com/verbb/cp-nav/archive/1.6.2.zip",
         "date": "2015-12-24T00:00:00+10:00",
         "notes": [
             "Minor fix when editing non-manual nav items. URL field is disabled - therefore not passed to controller."
@@ -84,7 +94,7 @@
     },
     {
         "version": "1.6.1",
-        "downloadUrl": "https://github.com/engram-design/CPNav/archive/1.6.1.zip",
+        "downloadUrl": "https://github.com/verbb/cp-nav/archive/1.6.1.zip",
         "date": "2015-12-24T00:00:00+10:00",
         "notes": [
             "Added Quick-Add menu button to right-hand utilities area of CP navigation. Can be turned off globally, or restricted via user permissions."
@@ -92,16 +102,16 @@
     },
     {
         "version": "1.6",
-        "downloadUrl": "https://github.com/engram-design/CPNav/archive/1.6.zip",
+        "downloadUrl": "https://github.com/verbb/cp-nav/archive/1.6.zip",
         "date": "2015-12-24T00:00:00+10:00",
         "notes": [
-            "Added the option to open manually created menu items in new tab/window. Thanks to [@lindseydiloreto](https://github.com/darylknight) via [#6](https://github.com/engram-design/CPNav/issues/6).",
-            "Automatically redirect to first enabled menu item when accessing a hidden menu item. Thanks to [@darylknight](https://github.com/darylknight) via [#3](https://github.com/engram-design/CPNav/issues/3)."
+            "Added the option to open manually created menu items in new tab/window. Thanks to [@lindseydiloreto](https://github.com/darylknight) via [#6](https://github.com/verbb/cp-nav/issues/6).",
+            "Automatically redirect to first enabled menu item when accessing a hidden menu item. Thanks to [@darylknight](https://github.com/darylknight) via [#3](https://github.com/verbb/cp-nav/issues/3)."
         ]
     },
     {
         "version": "1.5",
-        "downloadUrl": "https://github.com/engram-design/CPNav/archive/1.5.zip",
+        "downloadUrl": "https://github.com/verbb/cp-nav/archive/1.5.zip",
         "date": "2015-12-24T00:00:00+10:00",
         "notes": [
             "Major refactoring codebase and database structure.",
@@ -112,7 +122,7 @@
     },
     {
         "version": "1.4",
-        "downloadUrl": "https://github.com/engram-design/CPNav/archive/1.4.zip",
+        "downloadUrl": "https://github.com/verbb/cp-nav/archive/1.4.zip",
         "date": "2015-12-24T00:00:00+10:00",
         "notes": [
             "Performs checks when plugins are installed/uninstalled or enabled/disabled to determine if menu item should be removed or added.",
@@ -121,7 +131,7 @@
     },
     {
         "version": "1.3",
-        "downloadUrl": "https://github.com/engram-design/CPNav/archive/1.3.zip",
+        "downloadUrl": "https://github.com/verbb/cp-nav/archive/1.3.zip",
         "date": "2015-12-24T00:00:00+10:00",
         "notes": [
             "Added ability to delete user-created menu items. You cannot delete a core menu item, or a plugin menu item. You can hide these instead.",
@@ -130,7 +140,7 @@
     },
     {
         "version": "1.2",
-        "downloadUrl": "https://github.com/engram-design/CPNav/archive/1.2.zip",
+        "downloadUrl": "https://github.com/verbb/cp-nav/archive/1.2.zip",
         "date": "2015-12-24T00:00:00+10:00",
         "notes": [
             "Updated interface.",
@@ -141,7 +151,7 @@
     },
     {
         "version": "1.1",
-        "downloadUrl": "https://github.com/engram-design/CPNav/archive/1.1.zip",
+        "downloadUrl": "https://github.com/verbb/cp-nav/archive/1.1.zip",
         "date": "2015-12-24T00:00:00+10:00",
         "notes": [
             "Fix for lack of full Url support - especially for Globals area."
@@ -149,7 +159,7 @@
     },
     {
         "version": "1.0",
-        "downloadUrl": "https://github.com/engram-design/CPNav/archive/1.0.zip",
+        "downloadUrl": "https://github.com/verbb/cp-nav/archive/1.0.zip",
         "date": "2015-12-24T00:00:00+10:00",
         "notes": [
             "Initial release."
