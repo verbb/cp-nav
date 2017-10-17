@@ -2,7 +2,7 @@
 > ### Control Panel Nav has a new home with the fine folks at Verbb. Read about it in our [blog post](https://verbb.io/blog/welcome-to-verbb).
 >
 
-# Control Panel Nav Plugin for Craft CMS
+# Control Panel Nav Plugin for Craft CMS 3
 
 <img width="500" src="https://verbb.io/uploads/plugins/cp-nav/_800x455_crop_center-center/cp-nav-social-card.png">
 
