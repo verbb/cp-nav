@@ -14,7 +14,7 @@ class CpNavPlugin extends BasePlugin
 
     public function getVersion()
     {
-        return '1.7.7';
+        return '1.7.8';
     }
 
     public function getSchemaVersion()
@@ -24,17 +24,17 @@ class CpNavPlugin extends BasePlugin
 
     public function getDeveloper()
     {
-        return 'S. Group';
+        return 'Verbb';
     }
 
     public function getDeveloperUrl()
     {
-        return 'http://sgroup.com.au';
+        return 'https://verbb.io';
     }
 
     public function getPluginUrl()
     {
-        return 'https://github.com/engram-design/CPNav';
+        return 'https://github.com/verbb/cp-nav';
     }
 
     public function getDocumentationUrl()
@@ -44,7 +44,7 @@ class CpNavPlugin extends BasePlugin
 
     public function getReleaseFeedUrl()
     {
-        return 'https://raw.githubusercontent.com/engram-design/CPNav/master/changelog.json';
+        return 'https://raw.githubusercontent.com/verbb/cp-nav/master/changelog.json';
     }
 
     public function getSettingsUrl()
