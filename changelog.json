@@ -4,7 +4,9 @@
         "downloadUrl": "https://github.com/verbb/cp-nav/archive/1.7.8.zip",
         "date": "2017-10-18T00:00:00+10:00",
         "notes": [
-            "[Added] Verbb marketing (new plugin icon, readme, etc)."
+            "[Added] Verbb marketing (new plugin icon, readme, etc).",
+            "[Improved] Don’t store handle as an `AttributeType::Handle`.",
+            "[Improved] Better error-handling when adding/saving nav item."
         ]
     },
     {
