@@ -1,39 +1,24 @@
 <?php
-/**
- * CP Nav plugin for Craft CMS 3.x
- *
- * Control Panel Nav is a Craft CMS plugin to help manage your Control Panel navigation.
- *
- * @link      http://verbb.io
- * @copyright Copyright (c) 2017 Verbb
- */
 
 namespace verbb\cpnav\models;
 
-use verbb\cpnav\CpNav;
-
 use Craft;
 use craft\base\Model;
+use craft\helpers\UrlHelper;
 
-/**
- * @author    Verbb
- * @package   CpNav
- * @since     2
- *
- * @property int $id
- */
 class Navigation extends Model
 {
+
     // Public Properties
     // =========================================================================
 
     /**
-     * @var int
+     * @var integer
      */
     public $id;
 
     /**
-     * @var int
+     * @var integer
      */
     public $layoutId;
 
@@ -53,12 +38,12 @@ class Navigation extends Model
     public $currLabel;
 
     /**
-     * @var bool
+     * @var boolean
      */
     public $enabled;
 
     /**
-     * @var string
+     * @var integer
      */
     public $order;
 
@@ -78,17 +63,17 @@ class Navigation extends Model
     public $icon;
 
     /**
-     * @var mixed
+     * @var string
      */
     public $customIcon;
 
     /**
-     * @var bool
+     * @var boolean
      */
     public $manualNav;
 
     /**
-     * @var bool
+     * @var boolean
      */
     public $newWindow;
 
@@ -104,10 +89,35 @@ class Navigation extends Model
      */
     public $pluginIcon;
 
+    /**
+     * @var string
+     */
+    public $parsedUrl;
+
+    /**
+     * @var \DateTime
+     */
+    public $dateCreated;
+
+    /**
+     * @var \DateTime
+     */
+    public $dateUpdated;
+
+    /**
+     * @var string
+     */
+    public $uid;
+
 
     // Public Methods
     // =========================================================================
 
+    /**
+     * Navigation constructor.
+     *
+     * @param array $attributes
+     */
     public function __construct($attributes = null)
     {
         parent::__construct($attributes);
@@ -120,29 +130,91 @@ class Navigation extends Model
                 $this->craftIcon = $this->icon;
             }
         }
+
+        // Set custom icon path if set
+        if ($this->customIcon) {
+
+            // json decode custom icon id
+            $customIcon = json_decode($this->customIcon)[0];
+            $asset = Craft::$app->assets->getAssetById($customIcon);
+
+            if ($asset) {
+                $path = $asset->getVolume()->path . '/' . $asset->folderPath . $asset->filename;
+
+                if (@file_exists($path)) {
+                    $this->pluginIcon = @file_get_contents($path);
+                }
+            }
+        }
+
+        // Do some extra work on the url if needed
+        $url = trim($this->url);
+
+        // Allow Environment Variables to be used in the URL
+        foreach (Craft::$app->getConfig()->getConfigFromFile('general') as $key => $value) {
+            $url = str_replace('{' . $key . '}', $value, $url);
+        }
+
+        // Support siteUrl
+        $url = str_replace('{siteUrl}', Craft::$app->getConfig()->getGeneral()->siteUrl, $url);
+
+        // And a spcial case for global - always direct to first global set
+        if ($this->handle == 'globals') {
+            $globals = Craft::$app->globals->getEditableSets();
+
+            if ($globals) {
+                $url = 'globals/' . $globals[0]->handle;
+            }
+        }
+
+        $this->parsedUrl = UrlHelper::url($url);
     }
 
     /**
-     * @inheritdoc
+     * Returns the attribute labels.
+     *
+     * @return array
+     */
+    public function attributeLabels(): array
+    {
+        return [
+            'currLabel' => Craft::t('cp-nav', 'Label'),
+            'url'       => Craft::t('cp-nav', 'URL'),
+        ];
+    }
+
+    /**
+     * Returns the validation rules for attributes.
+     *
+     * @return array
      */
     public function rules(): array
     {
         return [
-            ['id', 'int'],
-            ['layoutId', 'int'],
+            ['id', 'integer'],
+            ['layoutId', 'integer'],
             ['handle', 'string'],
             ['prevLabel', 'string'],
-            ['currLabel', 'string'],
-            ['enabled', 'bool'],
-            ['order', 'string'],
+
+            // built-in "string" validator
+            ['currLabel', 'string', 'min' => 1],
+
+            ['enabled', 'boolean'],
+            ['order', 'integer'],
             ['prevUrl', 'string'],
-            ['url', 'string'],
+
+            // built-in "string" validator
+            ['url', 'string', 'min' => 1],
+
             ['icon', 'string'],
-            ['customIcon', 'mixed'],
-            ['manualNav', 'bool'],
-            ['newWindow', 'bool'],
+            ['customIcon', 'string'],
+            ['manualNav', 'boolean'],
+            ['newWindow', 'boolean'],
             ['craftIcon', 'string'],
             ['pluginIcon', 'string'],
+
+            // built-in "required" validator
+            [['currLabel', 'url'], 'required'],
         ];
     }
 
@@ -154,11 +226,9 @@ class Navigation extends Model
     {
         // Database stores plugin icons as "iconSvg-pluginHandle"
         $lcHandle = substr($icon, 8);
-        $iconPath = Craft::$app->path->getPluginIconsPath() . $lcHandle . '/resources/icon-mask.svg';
+        $iconPath = Craft::$app->path->getPluginIconsPath() . $lcHandle . '/icon-mask.svg';
 
-//        if (IOHelper::fileExists($iconPath)) {
         if (@file_exists($iconPath)) {
-//            $iconSvg = IOHelper::getFileContents($iconPath);
             $iconSvg = @file_get_contents($iconPath);
         } else {
             $iconSvg = false;

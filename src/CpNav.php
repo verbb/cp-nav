@@ -1,37 +1,30 @@
 <?php
-/**
- * CP Nav plugin for Craft CMS 3.x
- *
- * Control Panel Nav is a Craft CMS plugin to help manage your Control Panel navigation.
- *
- * @link      http://verbb.io
- * @copyright Copyright (c) 2017 Verbb
- * @author    Verbb
- * @package   CpNav
- */
 
 namespace verbb\cpnav;
 
 use verbb\cpnav\services\LayoutService;
-use verbb\cpnav\services\Navigation as NavigationService;
-use verbb\cpnav\services\CpNav as CpNavService;
+use verbb\cpnav\services\NavigationService;
+use verbb\cpnav\services\CpNavService;
 
 use Craft;
 use craft\base\Plugin;
-use craft\services\Plugins;
 use craft\events\PluginEvent;
-use craft\web\UrlManager;
+use craft\events\RegisterCpNavItemsEvent;
 use craft\events\RegisterUrlRulesEvent;
+use craft\services\Plugins;
+use craft\web\UrlManager;
+use craft\web\twig\variables\Cp;
 
 use yii\base\Event;
 
 /**
- * @property  LayoutService $layoutService
- * @property  NavigationService $navigation
- * @property  CpNavService $cpNav
+ * @property  LayoutService     $layoutService
+ * @property  NavigationService $navigationService
+ * @property  CpNavService      $cpNavService
  */
 class CpNav extends Plugin
 {
+
     // Static Properties
     // =========================================================================
 
@@ -49,23 +42,22 @@ class CpNav extends Plugin
         parent::init();
         self::$plugin = $this;
 
-        // Register our site routes
-//        Event::on(
-//            UrlManager::class,
-//            UrlManager::EVENT_REGISTER_SITE_URL_RULES,
-//            function (RegisterUrlRulesEvent $event) {
-//                $event->rules['siteActionTrigger1'] = 'cp-nav/layout';
-//                $event->rules['siteActionTrigger2'] = 'cp-nav/navigation';
-//            }
-//        );
+        // Register Components (Services)
+        $this->setComponents([
+            'layoutService'     => LayoutService::class,
+            'navigationService' => NavigationService::class,
+            'cpNavService'      => CpNavService::class,
+        ]);
 
         // Register our CP routes
         Event::on(
             UrlManager::class,
             UrlManager::EVENT_REGISTER_CP_URL_RULES,
-            function (RegisterUrlRulesEvent $event) {
+            function(RegisterUrlRulesEvent $event) {
                 $event->rules['cp-nav'] = 'cp-nav/navigation/index';
+                $event->rules['cp-nav/navigation/get-hud-html'] = 'cp-nav/navigation/getHudHtml';
                 $event->rules['cp-nav/layouts'] = 'cp-nav/layout/index';
+                $event->rules['cp-nav/layouts/get-hud-html'] = 'cp-nav/layouts/getHudHtml';
             }
         );
 
@@ -73,41 +65,26 @@ class CpNav extends Plugin
         Event::on(
             Plugins::class,
             Plugins::EVENT_AFTER_INSTALL_PLUGIN,
-            function (PluginEvent $event) {
+            function(PluginEvent $event) {
                 if ($event->plugin === $this) {
 
                     // Setup default Layouts and Nav items
-                    $this->cpNav->setupDefaults();
+                    $this->cpNavService->setupDefaults();
                 }
             }
         );
 
-        /**
-         * Logging in Craft involves using one of the following methods:
-         *
-         * Craft::trace(): record a message to trace how a piece of code runs. This is mainly for development use.
-         * Craft::info(): record a message that conveys some useful information.
-         * Craft::warning(): record a warning message that indicates something unexpected has happened.
-         * Craft::error(): record a fatal error that should be investigated as soon as possible.
-         *
-         * Unless `devMode` is on, only Craft::warning() & Craft::error() will log to `craft/storage/logs/web.log`
-         *
-         * It's recommended that you pass in the magic constant `__METHOD__` as the second parameter, which sets
-         * the category to the method (prefixed with the fully qualified class name) where the constant appears.
-         *
-         * To enable the Yii debug toolbar, go to your user account in the AdminCP and check the
-         * [] Show the debug toolbar on the front end & [] Show the debug toolbar on the Control Panel
-         *
-         * http://www.yiiframework.com/doc-2.0/guide-runtime-logging.html
-         */
-        Craft::info(
-            Craft::t(
-                'cp-nav',
-                '{name} plugin loaded',
-                ['name' => $this->name]
-            ),
-            __METHOD__
-        );
+        // Old modifyCpNav hook as event
+        Event::on(Cp::class, Cp::EVENT_REGISTER_CP_NAV_ITEMS, function(RegisterCpNavItemsEvent $event) {
+            // Don't run the plugins custom menu during a migration
+            if (Craft::$app->getRequest()->getUrl() == '/actions/update/updateDatabase') {
+                return true;
+            }
+
+            if (Craft::$app->request->isCpRequest) {
+                $this->cpNavService->modifyCpNav($event->navItems);
+            }
+        });
     }
 
 

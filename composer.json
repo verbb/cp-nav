@@ -34,7 +34,7 @@
     ],
     "autoload": {
         "psr-4": {
-          "verbb\\cpnav\\": "src/"
+            "verbb\\cpnav\\": "src/"
         }
     },
     "extra": {
@@ -44,11 +44,6 @@
         "hasCpSettings": true,
         "hasCpSection": false,
         "changelogUrl": "https://raw.githubusercontent.com/verbb/cp-nav/master/CHANGELOG.md",
-        "components": {
-            "layoutService": "verbb\\cpnav\\services\\LayoutService",
-            "navigation": "verbb\\cpnav\\services\\Navigation",
-            "cpNav": "verbb\\cpnav\\services\\CpNav"
-        },
         "class": "verbb\\cpnav\\CpNav"
     }
 }

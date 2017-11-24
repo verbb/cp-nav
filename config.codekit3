@@ -7,12 +7,12 @@
 		"uuidString": "ECE3F09A-2816-43C6-9715-3F4A30BD28C5"
 		}
 	],
-"creatorBuild": "25900",
+"creatorBuild": "25849",
 "files": {
-	"\/.craftplugin": {
-		"ft": 8192,
-		"oA": 2,
-		"oAP": "\/.craftplugin",
+	"\/.github": {
+		"ft": 65536,
+		"oA": 1,
+		"oAP": "\/build\/.github",
 		"oF": 0
 		},
 	"\/.gitignore": {
@@ -21,23 +21,19 @@
 		"oAP": "\/.gitignore",
 		"oF": 0
 		},
-	"\/CHANGELOG.md": {
-		"cS": 0,
-		"eF": 1,
-		"eL": 1,
-		"eLB": 0,
-		"ema": 1,
-		"eSQ": 1,
-		"ft": 4096,
-		"oA": 0,
-		"oAP": "\/CHANGELOG.html",
+	"\/.idea": {
+		"ft": 65536,
+		"oA": 1,
+		"oAP": "\/build\/.idea",
+		"oF": 0
+		},
+	"\/changelog.json": {
+		"ft": 524288,
+		"oA": 1,
+		"oAP": "\/changelog-min.json",
 		"oF": 0,
-		"oFM": 0,
-		"oS": 0,
-		"pHT": 0,
-		"pME": 1,
-		"rFN": 0,
-		"uCM": 0
+		"oO": 0,
+		"oS": 1
 		},
 	"\/composer.json": {
 		"ft": 524288,
@@ -83,6 +79,12 @@
 		"rFN": 0,
 		"uCM": 0
 		},
+	"\/screenshots": {
+		"ft": 65536,
+		"oA": 1,
+		"oAP": "\/build\/screenshots",
+		"oF": 0
+		},
 	"\/src\/assetbundles\/cpnav\/CpNavAsset.php": {
 		"ft": 8192,
 		"oA": 2,
@@ -97,7 +99,6 @@
 		},
 	"\/src\/assetbundles\/cpnav\/src\/js\/_layout.js": {
 		"ft": 64,
-		"ma": 0,
 		"mi": 1,
 		"oA": 1,
 		"oAP": "\/src\/assetbundles\/cpnav\/dist\/js\/_layout.js",
@@ -107,7 +108,6 @@
 		},
 	"\/src\/assetbundles\/cpnav\/src\/js\/_navigation.js": {
 		"ft": 64,
-		"ma": 0,
 		"mi": 1,
 		"oA": 1,
 		"oAP": "\/src\/assetbundles\/cpnav\/dist\/js\/_navigation.js",
@@ -117,7 +117,6 @@
 		},
 	"\/src\/assetbundles\/cpnav\/src\/js\/cp-nav.js": {
 		"ft": 64,
-		"ma": 0,
 		"mi": 1,
 		"oA": 0,
 		"oAP": "\/src\/assetbundles\/cpnav\/dist\/js\/cp-nav.js",
@@ -189,12 +188,6 @@
 		"oA": 1,
 		"oAP": "\/build\/src\/templates",
 		"oF": 0
-		},
-	"\/src\/translations": {
-		"ft": 65536,
-		"oA": 1,
-		"oAP": "\/build\/src\/translations",
-		"oF": 0
 		}
 	},
 "hooks": [
@@ -203,7 +196,7 @@
 	},
 "projectAttributes": {
 	"creationDate": 528723773,
-	"displayValue": "CPNav",
+	"displayValue": "cp-nav",
 	"displayValueWasSetByUser": 0,
 	"iconImageName": "meme-ariel"
 	},
@@ -609,10 +602,6 @@
 			"active": 0,
 			"optionString": "{'setWithoutGet': true, 'getWithoutSet': false}"
 			},
-		"array-bracket-newline": {
-			"active": 0,
-			"optionString": "{'multiline': true, 'minItems': null}"
-			},
 		"array-bracket-spacing": {
 			"active": 0,
 			"optionString": "'never', {'singleValue': false, 'objectsInArrays': false, 'arraysInArrays': false}"
@@ -620,10 +609,6 @@
 		"array-callback-return": {
 			"active": 0,
 			"optionString": ""
-			},
-		"array-element-newline": {
-			"active": 0,
-			"optionString": "'always'"
 			},
 		"arrow-body-style": {
 			"active": 0,
@@ -721,10 +706,6 @@
 			"active": 0,
 			"optionString": "'always', {'null': 'always'}"
 			},
-		"for-direction": {
-			"active": 0,
-			"optionString": ""
-			},
 		"func-call-spacing": {
 			"active": 0,
 			"optionString": "'never'"
@@ -744,10 +725,6 @@
 		"generator-star-spacing": {
 			"active": 0,
 			"optionString": "{'before': true, 'after': false}"
-			},
-		"getter-return": {
-			"active": 0,
-			"optionString": "{'allowImplicit': false}"
 			},
 		"global-require": {
 			"active": 0,
@@ -876,10 +853,6 @@
 		"no-bitwise": {
 			"active": 0,
 			"optionString": "{'allow': ['~'], 'int32Hint': true}"
-			},
-		"no-buffer-constructor": {
-			"active": 0,
-			"optionString": ""
 			},
 		"no-caller": {
 			"active": 0,
@@ -1255,7 +1228,7 @@
 			},
 		"no-sync": {
 			"active": 0,
-			"optionString": "{'allowAtRootLevel': false}"
+			"optionString": ""
 			},
 		"no-tabs": {
 			"active": 0,
@@ -1425,10 +1398,6 @@
 			"active": 0,
 			"optionString": "{'blocks': 'always', 'switches': 'always', 'classes': 'always'}"
 			},
-		"padding-line-between-statements": {
-			"active": 0,
-			"optionString": "{blankLine: 'always', prev:'*', next:'return'}"
-			},
 		"prefer-arrow-callback": {
 			"active": 0,
 			"optionString": ""
@@ -1497,10 +1466,6 @@
 			"active": 0,
 			"optionString": "{'before': false, 'after': true}"
 			},
-		"semi-style": {
-			"active": 0,
-			"optionString": "'last'"
-			},
 		"sort-imports": {
 			"active": 0,
 			"optionString": "{'ignoreCase': false, 'ignoreMemberSort': true, 'memberSyntaxSortOrder': ['none', 'all', 'multiple', 'single']}"
@@ -1540,10 +1505,6 @@
 		"strict": {
 			"active": 0,
 			"optionString": "'safe'"
-			},
-		"switch-colon-spacing": {
-			"active": 0,
-			"optionString": "{'after': true, 'before': false}"
 			},
 		"symbol-description": {
 			"active": 0,
@@ -2175,9 +2136,8 @@
 		],
 	"overrideExternalServerCSS": 0,
 	"previewPathAddition": "",
-	"skippedFoldersString": "log, _logs, logs, _cache, cache, \/storage\/framework\/sessions, node_modules, \/src\/migrations, \/src\/translations, \/src\/assetbundles\/cpnav\/dist, \/src\/assetbundles\/cpnav\/dist\/img, \/src\/records, \/src\/services, \/src\/models, \/src\/templates, \/src\/controllers",
+	"skippedFoldersString": "log, _logs, logs, _cache, cache, \/storage\/framework\/sessions, node_modules, \/src\/migrations, \/src\/translations, \/src\/assetbundles\/cpnav\/dist, \/src\/assetbundles\/cpnav\/dist\/img, \/src\/records, \/src\/services, \/src\/models, \/src\/templates, \/src\/controllers, \/.idea, \/.github, \/screenshots",
 	"sourceFolderName": "source",
-	"susyVersion": 3,
 	"uglifyDefinesString": "",
 	"uglifyFlags2": {
 		"ascii-only": {

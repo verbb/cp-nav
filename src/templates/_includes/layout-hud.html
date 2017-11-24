@@ -1,0 +1,37 @@
+{% import "_includes/forms" as forms %}
+
+{% set users = [] %}
+
+{% if allGroups is defined %}
+    {% for user in allGroups %}
+        {% set users = users | merge([{ label: user.name, value: user.id }]) %}
+    {% endfor %}
+{% endif %}
+
+{% if clientAccount is defined %}
+    {% set users = users | merge([{ label: 'Client account', value: 'client' }]) %}
+{% endif %}
+
+{{ forms.textField({
+    label: "Name" | t,
+    instructions: 'Choose what you want this layout to be called' | t,
+    id: 'name',
+    name: 'name',
+    required: true,
+    autofocus: true,
+    value: layout.name,
+}) }}
+
+<input type="hidden" name="id" value="{{ layout.id }}" style="display: none;" />
+
+{% if users %}
+    {{ forms.checkboxSelectField({
+        label: "Permissions" | t,
+        instructions: 'Select which user groups should have this layout assigned to them.' | t,
+        id: 'permissions',
+        name: 'permissions',
+        options: users,
+        values: layout.permissions,
+        showAllOption: false,
+    }) }}
+{% endif %}

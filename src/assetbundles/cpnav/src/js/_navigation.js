@@ -53,13 +53,13 @@ Craft.CpNav.AddMenuItem = Garnish.Base.extend({
 
         this.$element.addClass('loading');
 
-        Craft.postActionRequest('cp-nav/navigation/getHudHtml', this.data, $.proxy(this, 'showHud'));
+        Craft.postActionRequest('cp-nav/navigation/get-hud-html', this.data, $.proxy(this, 'showHud'));
     },
 
     showHud: function(response, textStatus) {
         this.$element.removeClass('loading');
 
-        if (textStatus == 'success') {
+        if (textStatus === 'success') {
             var $hudContents = $();
 
             this.$form = $('<div/>');
@@ -102,7 +102,7 @@ Craft.CpNav.AddMenuItem = Garnish.Base.extend({
         Craft.postActionRequest('cp-nav/navigation/new', data, $.proxy(function(response, textStatus) {
             this.$spinner.addClass('hidden');
 
-            if (textStatus == 'success' && response.success) {
+            if (textStatus === 'success' && response.success) {
                 Craft.cp.displayNotice(Craft.t('app', 'Menu saved.'));
 
                 updateAllNav(response.navs);
@@ -175,7 +175,7 @@ $(document).on('change', '#navItems .lightswitch', function() {
     }
 
     Craft.postActionRequest('cp-nav/navigation/toggle', data, $.proxy(function(response, textStatus) {
-        if (textStatus == 'success' && response.success) {
+        if (textStatus === 'success' && response.success) {
             Craft.cp.displayNotice(Craft.t('app', 'Status saved.'));
 
             updateAllNav(response.navs);
@@ -222,13 +222,13 @@ Craft.CpNav.EditNavItem = Garnish.Base.extend({
 
         this.$element.addClass('loading');
 
-        Craft.postActionRequest('cp-nav/navigation/getHudHtml', this.data, $.proxy(this, 'showHud'));
+        Craft.postActionRequest('cp-nav/navigation/get-hud-html', this.data, $.proxy(this, 'showHud'));
     },
 
     showHud: function(response, textStatus) {
         this.$element.removeClass('loading');
 
-        if (textStatus == 'success') {
+        if (textStatus === 'success') {
             var $hudContents = $();
 
             this.$form = $('<div/>');
@@ -269,15 +269,15 @@ Craft.CpNav.EditNavItem = Garnish.Base.extend({
         Craft.postActionRequest('cp-nav/navigation/save', data, $.proxy(function(response, textStatus) {
             this.$spinner.addClass('hidden');
 
-            if (textStatus == 'success' && response.success) {
+            if (textStatus === 'success' && response.success) {
                 this.$element.html(response.nav.currLabel);
                 this.$element.parents('tr.nav-item').find('.original-nav-link').html(response.nav.url);
 
                 Craft.cp.displayNotice(Craft.t('app', 'Menu saved.'));
 
-                updateNav(response.nav);
-
                 this.closeHud();
+
+                updateAllNav(response.navs);
             } else {
                 Craft.cp.displayError(response.error);
                 Garnish.shake(this.hud.$hud);
@@ -374,46 +374,13 @@ var AdminTable = new Craft.CpNav.AlternateAdminTable({
 // ----------------------------------------
 // FUNCTIONS TO ASSIST WITH UPDATING THE CP NAV CLIENT-SIDE
 // ----------------------------------------
-
-var updateNav = function(nav) {
-    var $navItem = $('#global-sidebar nav ul#nav li[id="nav-'+nav.handle+'"]');
-
-    var url = Craft.getUrl(nav.url);
-
-    var iconHtml = '<span class="icon">' +
-        '<svg version="1.1" baseProfile="full" width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">' +
-            '<circle cx="10" cy="10" r="10" fill="#000" fill-opacity="0.35"></circle>' +
-            '<text x="10" y="15" font-size="15" font-family="sans-serif" font-weight="bold" text-anchor="middle" fill="#000">'+nav.currLabel.substring(0, 1).toUpperCase()+'</text>' +
-        '</svg>' +
-    '</span>';
-
-    if (nav.craftIcon) {
-        var iconHtml = '<span class="icon"><span data-icon="'+nav.craftIcon+'"></span></span>';
-    }
-
-    if (nav.pluginIcon) {
-        var iconHtml = '<span class="icon">'+nav.pluginIcon+'</span>';
-    }
-
-    if (nav.newWindow == 1) {
-        var target = 'target="_blank"';
-    } else {
-        var target = 'target="_self"';
-    }
-
-    $navItem.html('<a href="'+url+'" '+target+'>' +
-        iconHtml +
-        '<span class="label">'+nav.currLabel+'</span>' +
-    '</a>');
-}
-
 var updateAllNav = function(navs) {
     $('#global-sidebar nav ul#nav').empty();
 
     var navItems = '';
     $.each(navs, function(index, nav) {
         if (nav.enabled == '1') {
-            var url = Craft.getUrl(nav.url);
+            var url = Craft.getUrl(nav.parsedUrl);
 
             var iconHtml = '<span class="icon">' +
                 '<svg version="1.1" baseProfile="full" width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">' +
@@ -423,17 +390,17 @@ var updateAllNav = function(navs) {
             '</span>';
 
             if (nav.craftIcon) {
-                var iconHtml = '<span class="icon"><span data-icon="'+nav.craftIcon+'"></span></span>';
+                iconHtml = '<span class="icon"><span data-icon="'+nav.craftIcon+'"></span></span>';
             }
 
             if (nav.pluginIcon) {
-                var iconHtml = '<span class="icon">'+nav.pluginIcon+'</span>';
+                iconHtml = '<span class="icon">'+nav.pluginIcon+'</span>';
             }
 
+            var target = 'target="_self"';
+
             if (nav.newWindow == 1) {
-                var target = 'target="_blank"';
-            } else {
-                var target = 'target="_self"';
+                target = 'target="_blank"';
             }
 
             navItems += '<li id="nav-'+nav.handle+'">' +

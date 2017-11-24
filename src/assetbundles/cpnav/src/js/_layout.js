@@ -48,13 +48,13 @@ Craft.CpNav.EditLayoutItem = Garnish.Base.extend({
 
         this.$element.addClass('loading');
 
-        Craft.postActionRequest('cp-nav/layout/getHudHtml', this.data, $.proxy(this, 'showHud'));
+        Craft.postActionRequest('cp-nav/layout/get-hud-html', this.data, $.proxy(this, 'showHud'));
     },
 
     showHud: function(response, textStatus) {
         this.$element.removeClass('loading');
 
-        if (textStatus == 'success') {
+        if (textStatus === 'success') {
             var $hudContents = $();
 
             this.$form = $('<div/>');
@@ -95,13 +95,14 @@ Craft.CpNav.EditLayoutItem = Garnish.Base.extend({
         Craft.postActionRequest('cp-nav/layout/save', data, $.proxy(function(response, textStatus) {
             this.$spinner.addClass('hidden');
 
-            if (textStatus == 'success' && response.success) {
+            if (textStatus === 'success' && response.success) {
                 this.$element.html('<strong>'+response.layout.name+'</strong>');
 
                 Craft.cp.displayNotice(Craft.t('app', 'Layout saved.'));
 
                 this.closeHud();
             } else {
+                Craft.cp.displayError(response.error);
                 Garnish.shake(this.hud.$hud);
             }
         }, this));
@@ -145,13 +146,13 @@ Craft.CpNav.CreateLayoutItem = Garnish.Base.extend({
 
         this.$element.addClass('loading');
 
-        Craft.postActionRequest('cp-nav/layout/getHudHtml', {}, $.proxy(this, 'showHud'));
+        Craft.postActionRequest('cp-nav/layout/get-hud-html', {}, $.proxy(this, 'showHud'));
     },
 
     showHud: function(response, textStatus) {
         this.$element.removeClass('loading');
 
-        if (textStatus == 'success') {
+        if (textStatus === 'success') {
             var $hudContents = $();
 
             this.$form = $('<div/>');
@@ -192,7 +193,7 @@ Craft.CpNav.CreateLayoutItem = Garnish.Base.extend({
         Craft.postActionRequest('cp-nav/layout/new', data, $.proxy(function(response, textStatus) {
             this.$spinner.addClass('hidden');
 
-            if (textStatus == 'success' && response.success) {
+            if (textStatus === 'success' && response.success) {
                 Craft.cp.displayNotice(Craft.t('app', 'Layout created.'));
 
                 var newLayout = response.layouts;
@@ -208,6 +209,7 @@ Craft.CpNav.CreateLayoutItem = Garnish.Base.extend({
 
                 this.closeHud();
             } else {
+                Craft.cp.displayError(response.error);
                 Garnish.shake(this.hud.$hud);
             }
         }, this));
