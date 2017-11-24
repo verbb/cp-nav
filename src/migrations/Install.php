@@ -93,7 +93,7 @@ class Install extends Migration
 
                     // Custom columns in the table
                     'layoutId'    => $this->integer()->notNull(),
-                    'handle'      => $this->string(255),
+                    'handle'      => $this->string(255)->unique(),
                     'prevLabel'   => $this->string(255),
                     'currLabel'   => $this->string(255),
                     'enabled'     => $this->boolean()->notNull()->defaultValue(1),

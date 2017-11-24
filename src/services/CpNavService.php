@@ -137,7 +137,7 @@ class CpNavService extends Component
             foreach ($currentNav as $value) {
                 $key = StringHelper::camelCase($value['label']);
 
-                if (!isset($generatedNav[$key])) {
+                if (!isset($generatedNav[$key]) && !CpNav::$plugin->navigationService->getByHandle($layoutId, $key)) {
 
                     if (isset($value['url'])) {
                         // Some cases we call CpVariable directly, which contains the full url - strip that out

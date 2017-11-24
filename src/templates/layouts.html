@@ -8,11 +8,11 @@
 
 {% set selectedTab = 'layouts' %}
 
-{% set extraPageHeaderHtml %}
+{% block actionButton %}
     <div class="buttons right">
         <a class="btn submit add icon add-new-layout">{{ "New layout" | t }}</a>
     </div>
-{% endset %}
+{% endblock %}
 
 {% block main %}
 

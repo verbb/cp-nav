@@ -20,11 +20,11 @@
     {% set layoutId = 1 %}
 {% endif %}
 
-{% set extraPageHeaderHtml %}
+{% block actionButton %}
     <div class="buttons right">
         <a class="btn submit add icon add-new-menu-item">{{ "New menu item" | t }}</a>
     </div>
-{% endset %}
+{% endblock %}
 
 {% block main %}
 

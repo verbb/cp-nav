@@ -211,7 +211,7 @@ class Navigation extends Model
             ['manualNav', 'boolean'],
             ['newWindow', 'boolean'],
             ['craftIcon', 'string'],
-            ['pluginIcon', 'string'],
+//            ['pluginIcon', 'string'],
 
             // built-in "required" validator
             [['currLabel', 'url'], 'required'],
