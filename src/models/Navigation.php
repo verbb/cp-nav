@@ -230,7 +230,10 @@ class Navigation extends Model
         if (($plugin = Craft::$app->getPlugins()->getPlugin($handle)) !== null) {
             /** @var Plugin $plugin */
             $getCpNavItem = $plugin->getCpNavItem();
-            $iconSvg = $getCpNavItem['iconSvg'];
+
+            if (isset($getCpNavItem['iconSvg'])) {
+                $iconSvg = $getCpNavItem['iconSvg'];
+            }
         }
 
         return $iconSvg;
