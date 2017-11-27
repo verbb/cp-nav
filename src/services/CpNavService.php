@@ -172,10 +172,12 @@ class CpNavService extends Component
             }
         } else {
 
+            // Create an array of current navigation handles to easy check via in_array
+            $currentNavHandles = array_column($currentNav, 'url');
+
             // A menu item exists in our records, but not in the menu - delete
             foreach ($generatedNav as $key => $value) {
-                if (!isset($currentNav[$value['handle']])) {
-
+                if (!\in_array($value['handle'], $currentNavHandles, false)) {
                     $navModel = CpNav::$plugin->navigationService->getByHandle($layoutId, $value['handle']);
 
                     if ($navModel) {
