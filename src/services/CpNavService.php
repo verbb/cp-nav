@@ -130,12 +130,12 @@ class CpNavService extends Component
     public function regenerateNav($layoutId, $generatedNav, $currentNav)
     {
         // Find the extra or missing menu item
-        if (count($generatedNav) < count($currentNav)) {
+        if (\count($generatedNav) < \count($currentNav)) {
             $order = 0;
 
             // A menu item exists in the menu, but not in our records - add
             foreach ($currentNav as $value) {
-                $key = StringHelper::camelCase($value['label']);
+                $key = StringHelper::toKebabCase($value['label']);
 
                 if (!isset($generatedNav[$key]) && !CpNav::$plugin->navigationService->getByHandle($layoutId, $key)) {
 

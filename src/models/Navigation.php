@@ -4,6 +4,7 @@ namespace verbb\cpnav\models;
 
 use Craft;
 use craft\base\Model;
+use craft\base\Plugin;
 use craft\helpers\UrlHelper;
 
 class Navigation extends Model
@@ -125,7 +126,7 @@ class Navigation extends Model
         // Populate the Craft and Plugin icons as soon as we populate models - i.e - getById, getAll, etc
         if ($this->icon) {
             if (substr($this->icon, 0, 7) == 'iconSvg') {
-                $this->pluginIcon = $this->_getPluginIcon($this->icon);
+                $this->pluginIcon = $this->_getPluginIcon($this->handle);
             } else {
                 $this->craftIcon = $this->icon;
             }
@@ -222,16 +223,14 @@ class Navigation extends Model
     // Private Methods
     // =========================================================================
 
-    private function _getPluginIcon($icon)
+    private function _getPluginIcon($handle)
     {
-        // Database stores plugin icons as "iconSvg-pluginHandle"
-        $lcHandle = substr($icon, 8);
-        $iconPath = Craft::$app->path->getPluginIconsPath() . $lcHandle . '/icon-mask.svg';
+        $iconSvg = false;
 
-        if (@file_exists($iconPath)) {
-            $iconSvg = @file_get_contents($iconPath);
-        } else {
-            $iconSvg = false;
+        if (($plugin = Craft::$app->getPlugins()->getPlugin($handle)) !== null) {
+            /** @var Plugin $plugin */
+            $getCpNavItem = $plugin->getCpNavItem();
+            $iconSvg = $getCpNavItem['iconSvg'];
         }
 
         return $iconSvg;
