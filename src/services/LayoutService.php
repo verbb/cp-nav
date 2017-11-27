@@ -58,7 +58,7 @@ class LayoutService extends Component
     public function getByUserId()
     {
         $layoutId = 1; // Default layout
-        $userId = Craft::$app->getUser()->id;
+        /** @var LayoutRecord $records */
         $records = LayoutRecord::find()->all();
 
         if (Craft::$app->getEdition() == Craft::Client) {
@@ -67,28 +67,27 @@ class LayoutService extends Component
             // Is there even a client account?
             if ($client) {
                 foreach ($records as $key => $record) {
-                    if (is_array($record->permissions)) {
-                        if (in_array('client', $record->permissions)) {
-                            $layoutId = $record->id;
+                    $permissions = json_decode($record->permissions);
+                    if (\is_array($permissions) && \in_array('client', $permissions, false)) {
+                        $layoutId = $record->id;
 
-                            break; // break out immediately
-                        }
+                        break; // break out immediately
                     }
                 }
             }
 
             $variables['clientAccount'] = $client;
         } else if (Craft::$app->getEdition() == Craft::Pro) {
+            $userId = Craft::$app->getUser()->id;
             $groups = Craft::$app->userGroups->getGroupsByUserId($userId);
 
             foreach ($groups as $index => $group) {
                 foreach ($records as $key => $record) {
-                    if (is_array($record->permissions)) {
-                        if (in_array($group->id, $record->permissions)) {
-                            $layoutId = $record->id;
+                    $permissions = json_decode($record->permissions);
+                    if (\is_array($permissions) && \in_array($group->id, $permissions, false)) {
+                        $layoutId = $record->id;
 
-                            break 2; // break out immediately
-                        }
+                        break 2; // break out immediately
                     }
                 }
             }
