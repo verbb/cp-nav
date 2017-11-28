@@ -80,7 +80,9 @@ class CpNavService extends BaseApplicationComponent
                             $asset = craft()->assets->getFileById($newNav->customIcon);
 
                             if ($asset) {
-                                $path = $asset->getSource()->settings['path'] . $asset->getFolder()->path . $asset->filename;
+
+                                $asset_path = craft()->assetSources->populateSourceType($asset->getSource());
+                                $path = $asset_path->getLocalCopy($asset);
 
                                 if (IOHelper::fileExists($path)) {
                                     $iconSvg = IOHelper::getFileContents($path);
