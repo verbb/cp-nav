@@ -115,7 +115,7 @@ class Navigation extends Model
     // =========================================================================
 
     /**
-     * Navigation constructor.
+     * Populate the Craft and Plugin icons as soon as we populate models - i.e - getById, getAll, etc
      *
      * @param array $attributes
      */
@@ -123,16 +123,18 @@ class Navigation extends Model
     {
         parent::__construct($attributes);
 
-        // Populate the Craft and Plugin icons as soon as we populate models - i.e - getById, getAll, etc
         if ($this->icon) {
-            if (substr($this->icon, 0, 7) == 'iconSvg') {
-                $this->pluginIcon = $this->_getPluginIcon($this->handle);
+            // Craft changed the handling of svg icons. Formerly it returned the svg content. Now it returns just
+            // the icon path and handles the rendering in twig. We have to manually get the icon content to display
+            // it in our javascript
+            if (@file_exists($this->icon)) {
+                $this->pluginIcon = @file_get_contents($this->icon);
             } else {
                 $this->craftIcon = $this->icon;
             }
         }
 
-        // Set custom icon path if set
+        // Get custom icon content
         if ($this->customIcon) {
 
             // json decode custom icon id
@@ -211,31 +213,9 @@ class Navigation extends Model
             ['customIcon', 'string'],
             ['manualNav', 'boolean'],
             ['newWindow', 'boolean'],
-            ['craftIcon', 'string'],
-//            ['pluginIcon', 'string'],
 
             // built-in "required" validator
             [['currLabel', 'url'], 'required'],
         ];
-    }
-
-
-    // Private Methods
-    // =========================================================================
-
-    private function _getPluginIcon($handle)
-    {
-        $iconSvg = false;
-
-        if (($plugin = Craft::$app->getPlugins()->getPlugin($handle)) !== null) {
-            /** @var Plugin $plugin */
-            $getCpNavItem = $plugin->getCpNavItem();
-
-            if (isset($getCpNavItem['iconSvg'])) {
-                $iconSvg = $getCpNavItem['iconSvg'];
-            }
-        }
-
-        return $iconSvg;
     }
 }

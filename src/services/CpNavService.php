@@ -72,12 +72,12 @@ class CpNavService extends Component
                         ];
 
                         // Check for placeholder icons - we need to fetch from the plugin
-                        if ($newNav->pluginIcon) {
-                            $nav[$newNav->handle]['iconSvg'] = $newNav->pluginIcon;
+                        if ($newNav->craftIcon) {
+                            $nav[$newNav->handle]['icon'] = $newNav->icon;
                         }
 
-                        if ($newNav->craftIcon && !isset($nav[$newNav->handle]['iconSvg'])) {
-                            $nav[$newNav->handle]['icon'] = $newNav->icon;
+                        if ($newNav->pluginIcon) {
+                            $nav[$newNav->handle]['icon'] = $newNav->pluginIcon;
                         }
                     }
                 }
@@ -146,12 +146,8 @@ class CpNavService extends Component
                         $url = $key;
                     }
 
-                    // Get the icon class if core, for plugins, we store a placeholder (iconSvg-pluginHandle), and fetch
-                    // the plugin icon later because we don't really want to store the actual SVG icon in our db...
                     if (isset($value['icon'])) {
                         $icon = $value['icon'];
-                    } else if (isset($value['iconSvg'])) {
-                        $icon = 'iconSvg-' . $key;
                     } else {
                         $icon = null;
                     }

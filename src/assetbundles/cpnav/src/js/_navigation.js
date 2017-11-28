@@ -375,14 +375,14 @@ var AdminTable = new Craft.CpNav.AlternateAdminTable({
 // FUNCTIONS TO ASSIST WITH UPDATING THE CP NAV CLIENT-SIDE
 // ----------------------------------------
 var updateAllNav = function(navs) {
-    $('#global-sidebar nav ul#nav').empty();
+    $('#global-sidebar nav#nav ul').empty();
 
     var navItems = '';
     $.each(navs, function(index, nav) {
         if (nav.enabled == '1') {
             var url = Craft.getUrl(nav.parsedUrl);
 
-            var iconHtml = '<span class="icon">' +
+            var iconHtml = '<span class="icon icon-mask">' +
                 '<svg version="1.1" baseProfile="full" width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">' +
                     '<circle cx="10" cy="10" r="10" fill="#000" fill-opacity="0.35"></circle>' +
                     '<text x="10" y="15" font-size="15" font-family="sans-serif" font-weight="bold" text-anchor="middle" fill="#000">'+nav.currLabel.substring(0, 1).toUpperCase()+'</text>' +
@@ -390,11 +390,11 @@ var updateAllNav = function(navs) {
             '</span>';
 
             if (nav.craftIcon) {
-                iconHtml = '<span class="icon"><span data-icon="'+nav.craftIcon+'"></span></span>';
+                iconHtml = '<span class="icon icon-mask"><span data-icon="'+nav.craftIcon+'"></span></span>';
             }
 
             if (nav.pluginIcon) {
-                iconHtml = '<span class="icon">'+nav.pluginIcon+'</span>';
+                iconHtml = '<span class="icon icon-mask">'+nav.pluginIcon+'</span>';
             }
 
             var target = 'target="_self"';
@@ -412,7 +412,7 @@ var updateAllNav = function(navs) {
         }
     });
 
-    $('#global-sidebar nav ul#nav').append(navItems);
+    $('#global-sidebar nav#nav ul').append(navItems);
 }
 
 
