@@ -14,9 +14,9 @@
     ],
     "support": {
         "email": "support@verbb.io",
-        "issues": "https://github.com/verbb/cp-nav/issues?state=open"
+        "issues": "https://github.com/verbb/cp-nav/issues?state=open",
         "source": "https://github.com/verbb/cp-nav",
-        "docs": "https://github.com/verbb/cp-nav",
+        "docs": "https://github.com/verbb/cp-nav"
     },
     "license": "MIT",
     "authors": [
