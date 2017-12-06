@@ -13,8 +13,10 @@
         "control panel navigation"
     ],
     "support": {
-        "docs": "https://github.com/verbb/cp-nav/blob/master/README.md",
-        "issues": "https://github.com/verbb/cp-nav/issues"
+        "email": "support@verbb.io",
+        "issues": "https://github.com/verbb/cp-nav/issues?state=open"
+        "source": "https://github.com/verbb/cp-nav",
+        "docs": "https://github.com/verbb/cp-nav",
     },
     "license": "MIT",
     "authors": [
@@ -24,7 +26,7 @@
         }
     ],
     "require": {
-        "craftcms/cms": "~3.0.0-beta.23"
+        "craftcms/cms": "~3.0.0-RC1"
     },
     "repositories": [
         {
@@ -40,9 +42,11 @@
     "extra": {
         "name": "Control Panel Nav",
         "handle": "cp-nav",
+        "description": "Control Panel Nav helps you managing your Control Panel navigation.",
         "schemaVersion": "2.0.0",
         "hasCpSettings": true,
         "hasCpSection": false,
+        "documentationUrl": "https://github.com/verbb/cp-nav",
         "changelogUrl": "https://raw.githubusercontent.com/verbb/cp-nav/master/CHANGELOG.md",
         "class": "verbb\\cpnav\\CpNav"
     }
