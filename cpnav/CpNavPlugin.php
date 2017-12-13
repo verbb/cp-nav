@@ -39,12 +39,12 @@ class CpNavPlugin extends BasePlugin
 
     public function getDocumentationUrl()
     {
-        return $this->getPluginUrl() . '/blob/master/README.md';
+        return 'https://verbb.io/craft-plugins/cp-nav/docs';
     }
 
     public function getReleaseFeedUrl()
     {
-        return 'https://raw.githubusercontent.com/verbb/cp-nav/master/changelog.json';
+        return 'https://raw.githubusercontent.com/verbb/cp-nav/craft-2/changelog.json';
     }
 
     public function getSettingsUrl()
