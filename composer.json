@@ -2,7 +2,7 @@
     "name": "verbb/cp-nav",
     "description": "Control Panel Nav is a Craft CMS plugin to help manage your Control Panel navigation.",
     "type": "craft-plugin",
-    "version": "2.0.1",
+    "version": "2.0.2",
     "keywords": [
         "craft",
         "cms",
@@ -27,7 +27,7 @@
         }
     ],
     "require": {
-        "craftcms/cms": "~3.0.0-RC1"
+        "craftcms/cms": "^3.0.0-RC1"
     },
     "repositories": [
         {

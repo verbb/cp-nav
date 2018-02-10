@@ -6,7 +6,9 @@ use verbb\cpnav\CpNav;
 use verbb\cpnav\models\Navigation as NavigationModel;
 
 use Craft;
+use craft\base\Volume;
 use craft\elements\Asset;
+use craft\helpers\Html;
 use craft\helpers\Json;
 use craft\web\Controller;
 
@@ -132,9 +134,20 @@ class NavigationController extends Controller
             $nav->manualNav = true;
         }
 
+        $volumes = Craft::$app->getVolumes()->getAllVolumes();
+        $sourcesOptions = [];
+
+        /** @var Volume $volume */
+        foreach ($volumes as $volume) {
+            $sourceOptions[] = [
+                'label' => Html::encode($volume->name),
+                'value' => $volume->id,
+            ];
+        }
+        
         $variables = [
             'nav'         => $nav,
-            'sources'     => Craft::$app->volumes->getPublicVolumes(),
+            'sources'     => $sourcesOptions,
             'elementType' => Asset::class,
         ];
 

@@ -155,13 +155,15 @@ class Navigation extends Model
 
         // Allow Environment Variables to be used in the URL
         foreach (Craft::$app->getConfig()->getConfigFromFile('general') as $key => $value) {
-            $url = str_replace('{' . $key . '}', $value, $url);
+            if (\is_string($value)) {
+                $url = str_replace('{' . $key . '}', $value, $url);
+            }
         }
 
         // Support siteUrl
         $url = str_replace('{siteUrl}', Craft::$app->getConfig()->getGeneral()->siteUrl, $url);
 
-        // And a spcial case for global - always direct to first global set
+        // And a special case for global - always direct to first global set
         if ($this->handle == 'globals') {
             $globals = Craft::$app->globals->getEditableSets();
 

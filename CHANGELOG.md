@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.2 - 2017-12-13
+
+### Fixed
+- Fixed issue when using arrays in configuration files. Thanks to [@juresrpcic](https://github.com/juresrpcic) via [#30](https://github.com/verbb/cp-nav/issues/30).
+- Fixed issue with volumes sources when adding a custom icon.
+
 ## 2.0.1 - 2017-12-07
 
 ### Changed
