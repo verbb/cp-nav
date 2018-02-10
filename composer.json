@@ -16,7 +16,8 @@
         "email": "support@verbb.io",
         "issues": "https://github.com/verbb/cp-nav/issues?state=open",
         "source": "https://github.com/verbb/cp-nav",
-        "docs": "https://github.com/verbb/cp-nav"
+        "docs": "https://github.com/verbb/cp-nav",
+        "rss": "https://github.com/verbb/cp-nav/commits/v2.atom"
     },
     "license": "MIT",
     "authors": [
@@ -47,7 +48,7 @@
         "hasCpSettings": true,
         "hasCpSection": false,
         "documentationUrl": "https://github.com/verbb/cp-nav",
-        "changelogUrl": "https://raw.githubusercontent.com/verbb/cp-nav/master/CHANGELOG.md",
+        "changelogUrl": "https://raw.githubusercontent.com/verbb/cp-nav/craft-3/CHANGELOG.md",
         "class": "verbb\\cpnav\\CpNav"
     }
 }

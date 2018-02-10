@@ -22,7 +22,6 @@ While Craft 3 is still in beta, you'll need to use Composer to download and inst
 
 3. In the Control Panel, go to Settings → Plugins and click the “Install” button for CP Nav.
 
-
 ## Documentation
 
 Visit the [CP Nav Plugin page](https://verbb.io/craft-plugins/cp-nav) for all documentation, guides, pricing and developer resources.
