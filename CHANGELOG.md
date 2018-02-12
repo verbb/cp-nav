@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.3 - 2018-02-12
+
+### Fixed
+- Fix for siteUrl config settings throwing an error when more than one site is defined
+- Update Craft CMS requirements
+
 ## 2.0.2 - 2017-12-13
 
 ### Fixed
