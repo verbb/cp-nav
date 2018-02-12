@@ -161,7 +161,11 @@ class Navigation extends Model
         }
 
         // Support siteUrl
-        $url = str_replace('{siteUrl}', Craft::$app->getConfig()->getGeneral()->siteUrl, $url);
+        $siteUrl = Craft::$app->getConfig()->getGeneral()->siteUrl;
+
+        if (\is_string($siteUrl)) {
+            $url = str_replace('{siteUrl}', $siteUrl, $url);
+        }
 
         // And a special case for global - always direct to first global set
         if ($this->handle == 'globals') {
