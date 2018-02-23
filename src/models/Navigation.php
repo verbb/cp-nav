@@ -127,7 +127,7 @@ class Navigation extends Model
             // Craft changed the handling of svg icons. Formerly it returned the svg content. Now it returns just
             // the icon path and handles the rendering in twig. We have to manually get the icon content to display
             // it in our javascript
-            if (@file_exists($this->icon)) {
+            if (@is_file($this->icon)) {
                 $this->pluginIcon = @file_get_contents($this->icon);
             } else {
                 $this->craftIcon = $this->icon;
