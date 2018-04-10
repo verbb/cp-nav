@@ -24,6 +24,14 @@ class CpNavService extends Component
     {
         // Keep a temporary copy of the un-altered nav in case things go wrong
         $originalNav = $nav;
+        $subNavs = [];
+
+        // Save any sub-navs for plugins for later, just index them by the plugin handle
+        foreach ($originalNav as $value) {
+            if (isset($value['subnav'])) {
+                $subNavs[$value['url']] = $value['subnav'];
+            }
+        }
 
         try {
             $layout = CpNav::$plugin->layoutService->getByUserId();
@@ -78,6 +86,11 @@ class CpNavService extends Component
 
                         if ($newNav->pluginIcon) {
                             $nav[$newNav->handle]['icon'] = $newNav->pluginIcon;
+                        }
+
+                        // Check for plugin sub-navs
+                        if (isset($subNavs[$newNav->handle])) {
+                            $nav[$newNav->handle]['subnav'] = $subNavs[$newNav->handle];
                         }
                     }
                 }
