@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.0.4 - 2018-04-11
+
+- Fix for Craft 3.0 (changing Client to Solo)
+- Fix not including sub-navigation of plugins
+- Fix not including `sel` class on menu items
+- Fix icon path check to ignore directories
+
 ## 2.0.3 - 2018-02-12
 
 ### Fixed
