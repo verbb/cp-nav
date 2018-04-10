@@ -48,8 +48,8 @@ class LayoutController extends Controller
             'layout' => $layout,
         ];
 
-        if (Craft::$app->getEdition() == Craft::Client) {
-            $variables['clientAccount'] = User::find()->client()->status(null)->one();
+        if (Craft::$app->getEdition() == Craft::Solo) {
+            $variables['soloAccount'] = User::find()->status(null)->one();
         } else if (Craft::$app->getEdition() == Craft::Pro) {
             $variables['allGroups'] = Craft::$app->userGroups->getAllGroups();
         }

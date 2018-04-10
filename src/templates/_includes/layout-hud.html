@@ -8,8 +8,8 @@
     {% endfor %}
 {% endif %}
 
-{% if clientAccount is defined %}
-    {% set users = users | merge([{ label: 'Client account', value: 'client' }]) %}
+{% if soloAccount is defined %}
+    {% set users = users | merge([{ label: 'Solo Account', value: 'solo' }]) %}
 {% endif %}
 
 {{ forms.textField({

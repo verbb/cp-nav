@@ -61,14 +61,14 @@ class LayoutService extends Component
         /** @var LayoutRecord $records */
         $records = LayoutRecord::find()->all();
 
-        if (Craft::$app->getEdition() == Craft::Client) {
-            $client = User::find()->client()->status(null)->one();
+        if (Craft::$app->getEdition() == Craft::Solo) {
+            $solo = User::find()->status(null)->one();
 
-            // Is there even a client account?
-            if ($client) {
+            // Is there even a solo account?
+            if ($solo) {
                 foreach ($records as $key => $record) {
                     $permissions = json_decode($record->permissions);
-                    if (\is_array($permissions) && \in_array('client', $permissions, false)) {
+                    if (\is_array($permissions) && \in_array('solo', $permissions, false)) {
                         $layoutId = $record->id;
 
                         break; // break out immediately
@@ -76,7 +76,7 @@ class LayoutService extends Component
                 }
             }
 
-            $variables['clientAccount'] = $client;
+            $variables['soloAccount'] = $solo;
         } else if (Craft::$app->getEdition() == Craft::Pro) {
             $userId = Craft::$app->getUser()->id;
             $groups = Craft::$app->userGroups->getGroupsByUserId($userId);
