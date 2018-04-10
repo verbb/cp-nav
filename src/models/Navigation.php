@@ -176,7 +176,7 @@ class Navigation extends Model
             }
         }
 
-        $this->parsedUrl = UrlHelper::url($url);
+        $this->parsedUrl = $url;
     }
 
     /**
