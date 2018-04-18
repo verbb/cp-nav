@@ -128,7 +128,7 @@ class CpNavService extends Component
             if (!CpNav::$plugin->navigationService->getByHandle($layoutId, $key)) {
 
                 // Handleball off to the main menu regeneration function - no need to duplicate code
-                $this->regenerateNav($layoutId, null, $defaultNavs->nav());
+                $this->regenerateNav($layoutId, [], $defaultNavs->nav());
             }
         }
     }
