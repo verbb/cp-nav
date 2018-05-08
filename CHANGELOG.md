@@ -1,7 +1,16 @@
 # Changelog
 
+## 2.0.5 - 2018-05-08
+
+### Fixed
+- Fix for count() error in PHP 7.2+
+- Badge support
+- Fix incorrect column default values for plugin
+- Fix subnav items not working correctly for some plugins
+
 ## 2.0.4 - 2018-04-11
 
+### Fixed
 - Fix for Craft 3.0 (changing Client to Solo)
 - Fix not including sub-navigation of plugins
 - Fix not including `sel` class on menu items
