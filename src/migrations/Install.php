@@ -71,7 +71,7 @@ class Install extends Migration
 
                     // Custom columns in the table
                     'name'        => $this->string(255),
-                    'isDefault'   => $this->boolean()->notNull()->defaultValue(0),
+                    'isDefault'   => $this->boolean()->notNull()->defaultValue(false),
                     'permissions' => $this->text(),
 
                     // Yii stuff
@@ -96,14 +96,14 @@ class Install extends Migration
                     'handle'      => $this->string(255),
                     'prevLabel'   => $this->string(255),
                     'currLabel'   => $this->string(255),
-                    'enabled'     => $this->boolean()->notNull()->defaultValue(1),
+                    'enabled'     => $this->boolean()->notNull()->defaultValue(true),
                     'order'       => $this->integer()->defaultValue(0),
                     'prevUrl'     => $this->string(255),
                     'url'         => $this->string(255),
                     'icon'        => $this->string(255),
                     'customIcon'  => $this->string(255),
-                    'manualNav'   => $this->boolean()->notNull()->defaultValue(0),
-                    'newWindow'   => $this->boolean()->notNull()->defaultValue(0),
+                    'manualNav'   => $this->boolean()->notNull()->defaultValue(false),
+                    'newWindow'   => $this->boolean()->notNull()->defaultValue(false),
 
                     // Yii stuff
                     'dateCreated' => $this->dateTime()->notNull(),
