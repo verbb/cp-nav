@@ -374,8 +374,13 @@ var AdminTable = new Craft.CpNav.AlternateAdminTable({
 // ----------------------------------------
 // FUNCTIONS TO ASSIST WITH UPDATING THE CP NAV CLIENT-SIDE
 // ----------------------------------------
+var badgeHandleIndex = {};
 var updateAllNav = function(navs) {
-    $('#global-sidebar nav#nav ul').empty();
+    var navList = $('#global-sidebar nav#nav ul');
+    navList.find('.badge').each(function () {
+        badgeHandleIndex[$(this).closest('li').attr('id').substr(4)] = $(this)[0].outerHTML;
+    });
+    navList.empty();
 
     var navItems = '';
     $.each(navs, function(index, nav) {
@@ -403,10 +408,13 @@ var updateAllNav = function(navs) {
                 target = 'target="_blank"';
             }
 
+            var badgeHtml = nav.handle in badgeHandleIndex ? badgeHandleIndex[nav.handle] : '';
+
             navItems += '<li id="nav-'+nav.handle+'">' +
                 '<a href="'+url+'" '+target+'>' +
                     iconHtml +
                     '<span class="label">'+nav.currLabel+'</span>' +
+                    badgeHtml +
                 '</a>' +
             '</li>';
         }
