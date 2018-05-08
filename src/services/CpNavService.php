@@ -128,7 +128,7 @@ class CpNavService extends Component
             if (!CpNav::$plugin->navigationService->getByHandle($layoutId, $key)) {
 
                 // Handleball off to the main menu regeneration function - no need to duplicate code
-                $this->regenerateNav($layoutId, null, $defaultNavs->nav());
+                $this->regenerateNav($layoutId, [], $defaultNavs->nav());
             }
         }
     }
@@ -143,7 +143,7 @@ class CpNavService extends Component
     public function regenerateNav($layoutId, $generatedNav, $currentNav)
     {
         // Find the extra or missing menu item
-        if (\count($generatedNav) < \count($currentNav)) {
+        if (count($generatedNav) < count($currentNav)) {
             $order = 0;
 
             // A menu item exists in the menu, but not in our records - add
