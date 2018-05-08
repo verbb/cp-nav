@@ -148,17 +148,13 @@ class CpNavService extends Component
 
             // A menu item exists in the menu, but not in our records - add
             foreach ($currentNav as $value) {
-                $key = StringHelper::toKebabCase($value['label']);
+                if (isset($value['url'])) {
+                    $handle = str_replace(UrlHelper::url() . '/', '', $value['url']);
+                } else {
+                    $handle = StringHelper::toKebabCase($value['label']);
+                }
 
-                if (!isset($generatedNav[$key]) && !CpNav::$plugin->navigationService->getByHandle($layoutId, $key)) {
-
-                    if (isset($value['url'])) {
-                        // Some cases we call CpVariable directly, which contains the full url - strip that out
-                        $url = str_replace(UrlHelper::url() . '/', '', $value['url']);
-                    } else {
-                        $url = $key;
-                    }
-
+                if (!isset($generatedNav[$handle]) && !CpNav::$plugin->navigationService->getByHandle($layoutId, $handle)) {
                     if (isset($value['icon'])) {
                         $icon = $value['icon'];
                     } else {
@@ -167,11 +163,11 @@ class CpNavService extends Component
 
                     $model = $this->_prepareNavModel([
                         'layoutId' => $layoutId,
-                        'handle'   => $key,
+                        'handle'   => $handle,
                         'label'    => $value['label'],
                         'order'    => $order,
                         'icon'     => $icon,
-                        'url'      => $url,
+                        'url'      => $handle,
                     ]);
 
                     CpNav::$plugin->navigationService->save($model);
