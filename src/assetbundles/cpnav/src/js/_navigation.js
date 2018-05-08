@@ -377,9 +377,11 @@ var AdminTable = new Craft.CpNav.AlternateAdminTable({
 var badgeHandleIndex = {};
 var updateAllNav = function(navs) {
     var navList = $('#global-sidebar nav#nav ul');
+    
     navList.find('.badge').each(function () {
         badgeHandleIndex[$(this).closest('li').attr('id').substr(4)] = $(this)[0].outerHTML;
     });
+
     navList.empty();
 
     var navItems = '';

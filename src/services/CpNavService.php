@@ -32,6 +32,7 @@ class CpNavService extends Component
             if (isset($value['subnav'])) {
                 $subNavs[$value['url']] = $value['subnav'];
             }
+
             if (isset($value['badgeCount'])) {
               $badges[$value['url']] = $value['badgeCount'];
             }
@@ -43,6 +44,7 @@ class CpNavService extends Component
             // If we're passing in a layoutId param, we're likely on the CP Nav settings page
             // so we want to force the particular layout we're on to the selected one
             $layoutId = Craft::$app->getRequest()->getParam('layoutId');
+
             if ($layoutId) {
                 $layout = CpNav::$plugin->layoutService->getById($layoutId);
             }
@@ -99,7 +101,7 @@ class CpNavService extends Component
 
                         // Check for badges
                         if (isset($badges[$newNav->handle])) {
-                          $nav[$newNav->handle]['badgeCount'] = $badges[$newNav->handle];
+                            $nav[$newNav->handle]['badgeCount'] = $badges[$newNav->handle];
                         }
                     }
                 }
