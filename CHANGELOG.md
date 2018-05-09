@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.6 - 2018-05-10
+
+### Fixed
+- Fix hardcoded plugin icons
+
 ## 2.0.5 - 2018-05-08
 
 ### Fixed
