@@ -124,11 +124,18 @@ class Navigation extends Model
         parent::__construct($attributes);
 
         if ($this->icon) {
-            // Craft changed the handling of svg icons. Formerly it returned the svg content. Now it returns just
-            // the icon path and handles the rendering in twig. We have to manually get the icon content to display
-            // it in our javascript
-            if (@is_file($this->icon)) {
-                $this->pluginIcon = @file_get_contents($this->icon);
+            // If this is a plugin, we've stored the full path to the icon-mask.svg file. 
+            // But - this will change for each environment, so we need to fetch it properly!
+            if (strpos($this->icon, '/') !== false) {
+                $plugin = Craft::$app->getPlugins()->getPlugin($this->handle);
+
+                if ($plugin) {
+                    $navItem = $plugin->getCpNavItem();
+
+                    if (isset($navItem['icon'])) {
+                        $this->pluginIcon = @file_get_contents($navItem['icon']);
+                    }
+                }
             } else {
                 $this->craftIcon = $this->icon;
             }
