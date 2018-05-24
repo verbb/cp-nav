@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.7 - 2018-05-25
+
+### Fixed
+- Fix Craft native menu item icons
+
 ## 2.0.6 - 2018-05-10
 
 ### Fixed
