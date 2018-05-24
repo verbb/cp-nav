@@ -87,7 +87,7 @@ class CpNavService extends Component
 
                         // Check for placeholder icons - we need to fetch from the plugin
                         if ($newNav->craftIcon) {
-                            $nav[$newNav->handle]['icon'] = $newNav->icon;
+                            $nav[$newNav->handle]['fontIcon'] = $newNav->icon;
                         }
 
                         if ($newNav->pluginIcon) {
