@@ -11,6 +11,7 @@ use craft\elements\Asset;
 use craft\helpers\Html;
 use craft\helpers\Json;
 use craft\web\Controller;
+use craft\web\twig\variables\Cp;
 
 use \yii\web\Response;
 
@@ -312,6 +313,18 @@ class NavigationController extends Controller
         } catch (\Throwable $e) {
             return $this->asErrorJson($e->getMessage());
         }
+    }
+
+    public function actionRegenerate()
+    {
+        $layout = CpNav::$plugin->layoutService->getByUserId();
+        $defaultNavs = new Cp();
+
+        $manualNavs = CpNav::$plugin->navigationService->getAllManual($layout->id, 'handle');
+
+        CpNav::$plugin->cpNavService->regenerateNav($layout->id, $manualNavs, $defaultNavs->nav());
+
+        return $this->redirect(Craft::$app->getRequest()->getReferrer());
     }
 
 

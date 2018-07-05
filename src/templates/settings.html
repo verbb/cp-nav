@@ -1,1 +1,27 @@
-{% redirect 'cp-nav' %}
+{% extends "cp-nav/_layouts/cp" %}
+{% import "_includes/forms" as forms %}
+
+{% set crumbs = [
+    { label: "Control Panel Nav" | t, url: url('cp-nav') },
+    { label: "Settings" | t, url: url('cp-nav') }
+] %}
+
+{% set selectedTab = 'settings' %}
+
+{% set content %}
+
+<div class="field">
+    <div class="heading">
+        <label id="cache-label" for="cache">{{ "Regenerate Navigation" | t('cp-nav') }}</label>
+
+        <div class="instructions">
+            <p>{{ "To force regeneration of the control panel navigation, click the button below." | t('cp-nav') }}</p>
+
+            <a class="btn submit" href="{{ actionUrl('cp-nav/navigation/regenerate') }}">
+                {{ "Regenerate Navigation" | t('cp-nav') }}
+            </a>
+        </div>
+    </div>
+</div>
+
+{% endset %}
