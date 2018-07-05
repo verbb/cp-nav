@@ -12,7 +12,7 @@ var LayoutAdminTable = new Craft.AdminTable({
     tableSelector: '#layoutItems',
     sortable: false,
     deleteAction: 'cp-nav/layout/delete',
-    confirmDeleteMessage: Craft.t('app', 'Are you sure you want to permanently delete this layout and all its settings? This cannot be undone.'),
+    confirmDeleteMessage: Craft.t('cp-nav', 'Are you sure you want to permanently delete this layout and all its settings? This cannot be undone.'),
 });
 
 
@@ -98,7 +98,7 @@ Craft.CpNav.EditLayoutItem = Garnish.Base.extend({
             if (textStatus === 'success' && response.success) {
                 this.$element.html('<strong>'+response.layout.name+'</strong>');
 
-                Craft.cp.displayNotice(Craft.t('app', 'Layout saved.'));
+                Craft.cp.displayNotice(Craft.t('cp-nav', 'Layout saved.'));
 
                 this.closeHud();
             } else {
@@ -194,7 +194,7 @@ Craft.CpNav.CreateLayoutItem = Garnish.Base.extend({
             this.$spinner.addClass('hidden');
 
             if (textStatus === 'success' && response.success) {
-                Craft.cp.displayNotice(Craft.t('app', 'Layout created.'));
+                Craft.cp.displayNotice(Craft.t('cp-nav', 'Layout created.'));
 
                 var newLayout = response.layouts;
 

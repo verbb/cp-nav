@@ -10,7 +10,7 @@
 
 {% block actionButton %}
     <div class="buttons right">
-        <a class="btn submit add icon add-new-layout">{{ "New layout" | t }}</a>
+        <a class="btn submit add icon add-new-layout">{{ "New layout" | t('cp-nav') }}</a>
     </div>
 {% endblock %}
 
@@ -18,18 +18,10 @@
 
     <table id="layoutItems" class="data fullwidth collapsible">
         <thead>
-            <th scope="col">{{ "Name" | t }}</th>
+            <th scope="col">{{ "Name" | t('cp-nav') }}</th>
             <th></th>
         </thead>
         <tbody>
-            {#{{ forms.selectField({
-                first: true,
-                label: "Default Layout"|t,
-                instructions: "Choose which layout to use for new users who aren't assigned a specific layout below."|t,
-                id: 'layoutId',
-                name: 'layoutId',
-            }) }}#}
-
             {% if layouts | length > 0 %}
                 {% for layout in layouts %}
                     <tr class="layout-item" data-id="{{ layout.id }}" data-name="{{ layout.name }}">
@@ -43,7 +35,7 @@
 
                         <td class="thin">
                             {% if not layout.isDefault %}
-                                <a class="delete icon" title="{{ 'Delete' | t }}" role="button"></a>
+                                <a class="delete icon" title="{{ 'Delete' | t('cp-nav') }}" role="button"></a>
                             {% endif %}
                         </td>
                     </tr>

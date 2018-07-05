@@ -103,7 +103,7 @@ Craft.CpNav.AddMenuItem = Garnish.Base.extend({
             this.$spinner.addClass('hidden');
 
             if (textStatus === 'success' && response.success) {
-                Craft.cp.displayNotice(Craft.t('app', 'Menu saved.'));
+                Craft.cp.displayNotice(Craft.t('cp-nav', 'Menu saved.'));
 
                 updateAllNav(response.navs);
 

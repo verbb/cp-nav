@@ -22,7 +22,7 @@
 
 {% block actionButton %}
     <div class="buttons right">
-        <a class="btn submit add icon add-new-menu-item">{{ "New menu item" | t }}</a>
+        <a class="btn submit add icon add-new-menu-item">{{ "New menu item" | t('cp-nav') }}</a>
     </div>
 {% endblock %}
 
@@ -42,9 +42,9 @@
 
     <table id="navItems" class="data fullwidth collapsible">
         <thead>
-            <th scope="col">{{ "Visible" | t }}</th>
-            <th scope="col">{{ "Label" | t }}</th>
-            <th scope="col">{{ "URL" | t }}</th>
+            <th scope="col">{{ "Visible" | t('cp-nav') }}</th>
+            <th scope="col">{{ "Label" | t('cp-nav') }}</th>
+            <th scope="col">{{ "URL" | t('cp-nav') }}</th>
             <th></th>
         </thead>
         <tbody>
@@ -58,19 +58,19 @@
                         }) }}
                     </td>
 
-                    <td data-title="{{ nav.currLabel | t }}">
-                        <a class="move icon" title="{{ 'Reorder'|t }}" role="button"></a>
-                        <a class="edit-nav">{{ nav.currLabel | t }}</a>
-                        <span class="original-nav">({{ nav.prevLabel | t }})</span>
+                    <td data-title="{{ nav.currLabel | t('cp-nav') }}">
+                        <a class="move icon" title="{{ 'Reorder' | t('cp-nav') }}" role="button"></a>
+                        <a class="edit-nav">{{ nav.currLabel | t('cp-nav') }}</a>
+                        <span class="original-nav">({{ nav.prevLabel | t('cp-nav') }})</span>
                     </td>
 
-                    <td data-title="{{ nav.currLabel | t }}">
+                    <td data-title="{{ nav.currLabel | t('cp-nav') }}">
                         <span class="original-nav-link">{{ nav.url }}</span>
                     </td>
 
                     <td class="thin">
                         {% if nav.manualNav %}
-                            <a class="delete icon" title="{{ 'Delete'|t }}" role="button"></a>
+                            <a class="delete icon" title="{{ 'Delete' | t('cp-nav') }}" role="button"></a>
                         {% endif %}
                     </td>
                 </tr>
