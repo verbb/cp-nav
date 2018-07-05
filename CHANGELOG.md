@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.0.8 - 2018-07-05
+
+### Added
+- Add nav regenerate settings
+
+### Fixed
+- Fix default icons not appearing (showing as placeholders)
+- Fix missing template translations
+
 ## 2.0.7 - 2018-05-25
 
 ### Fixed
