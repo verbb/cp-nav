@@ -166,10 +166,16 @@ class CpNavService extends Component
                 }
 
                 if (!isset($generatedNav[$handle]) && !CpNav::$plugin->navigationService->getByHandle($layoutId, $handle)) {
+                    $icon = null;
+
+                    // Check for custom icon (plugins)
                     if (isset($value['icon'])) {
                         $icon = $value['icon'];
-                    } else {
-                        $icon = null;
+                    }
+
+                    // Check for built-in Craft icon
+                    if (isset($value['fontIcon'])) {
+                        $icon = $value['fontIcon'];
                     }
 
                     $model = $this->_prepareNavModel([
