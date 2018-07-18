@@ -8,6 +8,7 @@ use craft\base\Plugin;
 use craft\events\PluginEvent;
 use craft\events\RegisterCpNavItemsEvent;
 use craft\events\RegisterUrlRulesEvent;
+use craft\helpers\UrlHelper;
 use craft\services\Plugins;
 use craft\web\UrlManager;
 use craft\web\twig\variables\Cp;
@@ -70,6 +71,6 @@ class CpNav extends Plugin
 
     public function getSettingsResponse()
     {
-        Craft::$app->getResponse()->redirect(UrlHelper::cpUrl('cp-nav/settings'));
+        Craft::$app->getResponse()->redirect(UrlHelper::cpUrl('cp-nav'));
     }
 }
