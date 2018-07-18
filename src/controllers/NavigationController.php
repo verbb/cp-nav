@@ -28,11 +28,13 @@ class NavigationController extends Controller
     {
         $layoutId = $this->_getCurrentLayoutId();
 
+        $layout = CpNav::$plugin->layoutService->getById($layoutId);
         $layouts = CpNav::$plugin->layoutService->getAll();
         $navItems = CpNav::$plugin->navigationService->getByLayoutId($layoutId);
 
         $this->renderTemplate('cp-nav/index', [
             'layouts'  => $layouts,
+            'layout'  => $layout,
             'navItems' => $navItems,
         ]);
     }
