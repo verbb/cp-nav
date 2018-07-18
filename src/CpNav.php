@@ -87,18 +87,8 @@ class CpNav extends Plugin
         });
     }
 
-
-    // Protected Methods
-    // =========================================================================
-
-    /**
-     * Returns the rendered settings HTML, which will be inserted into the content
-     * block on the settings page.
-     *
-     * @return string The rendered settings HTML
-     */
-    protected function settingsHtml(): string
+    public function getSettingsResponse()
     {
-        return Craft::$app->view->renderTemplate('cp-nav/settings');
+        Craft::$app->controller->redirect('cp-nav/settings');
     }
 }
