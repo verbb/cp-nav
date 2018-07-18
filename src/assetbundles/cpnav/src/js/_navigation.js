@@ -27,6 +27,19 @@ $(document).on('click', '.add-new-menu-item', function(e) {
 });
 
 
+// ----------------------------------------
+// SIDEBAR NOTIFICATION
+// ----------------------------------------
+
+var $notification = $('.cp-nav-notice');
+
+if ($notification.length) {
+    $notification.remove();
+
+    $notification.insertAfter('#global-sidebar #system-info').addClass('shown');
+}
+
+
 
 // ----------------------------------------
 // NEW MENU ITEM MODAL

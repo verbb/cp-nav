@@ -37,7 +37,6 @@ a.edit-nav {
 }
 
 .cp-nav-notice {
-    position: absolute;
     top: 83px;
     left: 0;
     width: 207px;
@@ -50,6 +49,11 @@ a.edit-nav {
     line-height: 30px;
     font-size: 12px;
     z-index: 1000;
+    display: none;
+
+    &.shown {
+        display: block;
+    }
 
     .icon {
         position: relative;
