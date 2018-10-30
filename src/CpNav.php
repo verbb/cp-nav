@@ -33,18 +33,35 @@ class CpNav extends Plugin
         self::$plugin = $this;
 
         $this->_setPluginComponents();
+        $this->_setLogging();
+        $this->_registerCpRoutes();
+        $this->_registerCpNavItems();
+        $this->_registerAfterPluginInstall();
+    }
 
-        // Register our CP routes
-        Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_CP_URL_RULES, [$this, 'registerCpUrlRules']);
+    public function getSettingsResponse()
+    {
+        return Craft::$app->getResponse()->redirect(UrlHelper::cpUrl('cp-nav'));
+    }
 
-        // Setup default Layouts and Nav items
-        Event::on(Plugins::class, Plugins::EVENT_AFTER_INSTALL_PLUGIN, function(PluginEvent $event) {
-            if ($event->plugin === $this) {
-                $this->cpNavService->setupDefaults();
-            }
+
+    // Private Methods
+    // =========================================================================
+
+    private function _registerCpRoutes()
+    {
+        Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_CP_URL_RULES, function(RegisterUrlRulesEvent $event) {
+            $event->rules = array_merge($event->rules, [
+                'cp-nav' => 'cp-nav/navigation/index',
+                'cp-nav/navigation/get-hud-html' => 'cp-nav/navigation/getHudHtml',
+                'cp-nav/layouts' => 'cp-nav/layout/index',
+                'cp-nav/layouts/get-hud-html' => 'cp-nav/layouts/getHudHtml',
+            ]);
         });
+    }
 
-        // Old modifyCpNav hook as event
+    private function _registerCpNavItems()
+    {
         Event::on(Cp::class, Cp::EVENT_REGISTER_CP_NAV_ITEMS, function(RegisterCpNavItemsEvent $event) {
             // Don't run the plugins custom menu during a migration
             if (Craft::$app->getRequest()->getUrl() == '/actions/update/updateDatabase') {
@@ -57,20 +74,13 @@ class CpNav extends Plugin
         });
     }
 
-    public function registerCpUrlRules(RegisterUrlRulesEvent $event)
+    private function _registerAfterPluginInstall()
     {
-        $rules = [
-            'cp-nav' => 'cp-nav/navigation/index',
-            'cp-nav/navigation/get-hud-html' => 'cp-nav/navigation/getHudHtml',
-            'cp-nav/layouts' => 'cp-nav/layout/index',
-            'cp-nav/layouts/get-hud-html' => 'cp-nav/layouts/getHudHtml',
-        ];
-
-        $event->rules = array_merge($event->rules, $rules);
+        Event::on(Plugins::class, Plugins::EVENT_AFTER_INSTALL_PLUGIN, function(PluginEvent $event) {
+            if ($event->plugin === $this) {
+                $this->cpNavService->setupDefaults();
+            }
+        });
     }
 
-    public function getSettingsResponse()
-    {
-        Craft::$app->getResponse()->redirect(UrlHelper::cpUrl('cp-nav'));
-    }
 }
