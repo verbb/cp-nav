@@ -1,0 +1,27 @@
+[
+    {
+        "title": "Get Started",
+        "collapsable": false,
+        "children": [
+            "get-started/installation-setup",
+            "get-started/requirements"
+        ]
+    },
+    {
+        "title": "Feature Tour",
+        "collapsable": false,
+        "children": [
+            "feature-tour/navigation",
+            "feature-tour/layouts"
+        ]
+    },
+    {
+        "title": "Support",
+        "collapsable": false,
+        "children": [
+            "support/get-support",
+            "support/roadmap",
+            "support/craft-2-docs"
+        ]
+    }
+]
