@@ -4,17 +4,19 @@ While Craft 3 is in beta, you'll need to install plugins with [Composer](https:/
 
 To install CP Nav, follow the below instructions.
 
-## Installation [#](#installation "Direct link to Installation")
+## Installation
 
 1.  Open your terminal and go to your Craft project:
     
-        cd /path/to/project
-        
+```
+cd /path/to/project
+```
     
 2.  Then tell Composer to load the plugin:
-    
-        composer require verbb/cp-nav
-        
+
+```
+composer require verbb/cp-nav
+```
     
 3.  In the Control Panel, go to Settings → Plugins and click the “Install” button for CP Nav.
     
