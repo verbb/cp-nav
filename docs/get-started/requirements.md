@@ -1,9 +1,7 @@
 # Requirements
 
 ### Craft CMS
-
-This plugin requires Craft CMS 3.0.0-beta.29 or later.
+CP Nav requires Craft CMS 3.0 or greater.
 
 ### PHP
-
-This plugin requires PHP 7.0 or greater.
+CP Nav requires PHP 7.0 or greater.
