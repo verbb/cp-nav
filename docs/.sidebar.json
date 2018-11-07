@@ -19,9 +19,7 @@
         "title": "Support",
         "collapsable": false,
         "children": [
-            "support/get-support",
-            "support/roadmap",
-            "support/craft-2-docs"
+            "support/get-support"
         ]
     }
 ]
