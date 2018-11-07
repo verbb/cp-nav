@@ -1,7 +1,7 @@
 # Layouts
 
 :::tip
-This feature is only available on Craft Client or Craft Pro.
+This feature is only available on Craft Pro.
 :::
 
 Layouts give you a means to control different navigations on a per-user basis. This can be especially handy if you wish to create a client-specific menu, while not affecting the navigation for site Admins.
