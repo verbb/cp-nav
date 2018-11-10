@@ -28,12 +28,9 @@
 
 {% set content %}
 
-    {% if craft.app.request.getParam('layoutId') %}
-        <div class="cp-nav-notice">
-            {{ 'CP Nav: Editing {name}' | t('cp-nav', { name: layout.name }) }}
-            <a href="{{ url('cp-nav') }}" class="icon close" title="{{ 'Stop Editing' | t('cp-nav') }}"></a>
-        </div>
-    {% endif %}
+    <div class="cp-nav-notice">
+        {{ 'CP Nav: Editing {name}' | t('cp-nav', { name: layout.name }) }}
+    </div>
 
     {% if craft.app.getEditionName() != 'Personal' %}
         {{ forms.selectField({
