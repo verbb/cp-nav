@@ -128,20 +128,24 @@ class CpNavService extends Component
      */
     public function setupDefaults($layoutId = 1)
     {
-        if (!CpNav::$plugin->layoutService->getById($layoutId)) {
-            CpNav::$plugin->layoutService->setDefaultLayout($layoutId);
+        $layoutService = CpNav::$plugin->layoutService;
+        $navigationService = CpNav::$plugin->navigationService;
+
+        if (!$layoutService->getById($layoutId)) {
+            $layoutService->setDefaultLayout($layoutId);
         }
 
         // Populate navs with 'stock' navigation
-        $defaultNavs = new Cp();
+        $navService = new Cp();
+        $defaultNavs = $navService->nav();
 
-        foreach ($defaultNavs->nav() as $nav) {
+        foreach ($defaultNavs as $nav) {
             $key = strtolower($nav['label']);
 
-            if (!CpNav::$plugin->navigationService->getByHandle($layoutId, $key)) {
+            if (!$navigationService->getByHandle($layoutId, $key)) {
 
                 // Handleball off to the main menu regeneration function - no need to duplicate code
-                $this->regenerateNav($layoutId, [], $defaultNavs->nav());
+                $this->regenerateNav($layoutId, [], $defaultNavs);
             }
         }
     }
