@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.0.9 - 2018-11-10
+
+### Added
+- Added better visual notification when editing a nav.
+
+### Fixed
+- Fix custom icons not resolving with aliases.
+- Fix errors when installing via console.
+- Fix redirection issue for settings.
+
 ## 2.0.8 - 2018-07-05
 
 ### Added
