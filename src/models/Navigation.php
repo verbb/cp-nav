@@ -149,7 +149,7 @@ class Navigation extends Model
             $asset = Craft::$app->assets->getAssetById($customIcon);
 
             if ($asset) {
-                $path = $asset->getVolume()->path . '/' . $asset->folderPath . $asset->filename;
+                $path = Craft::getAlias($asset->getVolume()->path . '/' . $asset->folderPath . $asset->filename);
 
                 if (@file_exists($path)) {
                     $this->pluginIcon = @file_get_contents($path);
