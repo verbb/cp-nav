@@ -36,7 +36,6 @@ class CpNav extends Plugin
         $this->_setLogging();
         $this->_registerCpRoutes();
         $this->_registerCpNavItems();
-        $this->_registerAfterPluginInstall();
     }
 
     public function getSettingsResponse()
@@ -77,15 +76,6 @@ class CpNav extends Plugin
 
             if ($request->isCpRequest) {
                 $this->cpNavService->modifyCpNav($event->navItems);
-            }
-        });
-    }
-
-    private function _registerAfterPluginInstall()
-    {
-        Event::on(Plugins::class, Plugins::EVENT_AFTER_INSTALL_PLUGIN, function(PluginEvent $event) {
-            if ($event->plugin === $this) {
-                $this->cpNavService->setupDefaults();
             }
         });
     }

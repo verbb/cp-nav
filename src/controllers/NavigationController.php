@@ -21,9 +21,22 @@ class NavigationController extends Controller
     // Public Methods
     // =========================================================================
 
-    /**
-     * @return void
-     */
+    public function beforeAction($action)
+    {   
+        // Are we trying to load the index page? Check we have defaults setup
+        if ($action->actionMethod === 'actionIndex') {
+            $layoutId = $this->_getCurrentLayoutId();
+
+            $navItems = CpNav::$plugin->navigationService->getByLayoutId($layoutId);
+
+            if (!$navItems) {
+                CpNav::$plugin->cpNavService->setupDefaults();
+            }
+        }
+
+        return parent::beforeAction($action);
+    }
+
     public function actionIndex()
     {
         $layoutId = $this->_getCurrentLayoutId();
@@ -39,9 +52,6 @@ class NavigationController extends Controller
         ]);
     }
 
-    /**
-     * @return \yii\web\Response
-     */
     public function actionReorder(): Response
     {
         $this->requirePostRequest();
@@ -336,7 +346,7 @@ class NavigationController extends Controller
     private function _getCurrentLayoutId()
     {
         $request = Craft::$app->getRequest();
-        
+
         if ($request->getParam('layoutId')) {
             return $request->getParam('layoutId');
         }
