@@ -335,8 +335,10 @@ class NavigationController extends Controller
 
     private function _getCurrentLayoutId()
     {
-        if (Craft::$app->request->getParam('layoutId')) {
-            return Craft::$app->request->getParam('layoutId');
+        $request = Craft::$app->getRequest();
+        
+        if ($request->getParam('layoutId')) {
+            return $request->getParam('layoutId');
         }
 
         return 1;
