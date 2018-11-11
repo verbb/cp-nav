@@ -44,9 +44,6 @@
         "name": "Control Panel Nav",
         "handle": "cp-nav",
         "description": "Control Panel Nav helps you managing your Control Panel navigation.",
-        "schemaVersion": "2.0.0",
-        "hasCpSettings": true,
-        "hasCpSection": false,
         "documentationUrl": "https://github.com/verbb/cp-nav",
         "changelogUrl": "https://raw.githubusercontent.com/verbb/cp-nav/craft-3/CHANGELOG.md",
         "class": "verbb\\cpnav\\CpNav"

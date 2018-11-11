@@ -17,11 +17,16 @@ use yii\base\Event;
 
 class CpNav extends Plugin
 {
+    // Public Properties
+    // =========================================================================
+
+    public $schemaVersion = '2.0.0';
+    public $hasCpSettings = true;
+
     // Traits
     // =========================================================================
 
     use PluginTrait;
-
 
     // Public Methods
     // =========================================================================
