@@ -9,12 +9,12 @@
 {% endif %}
 
 {% if soloAccount is defined %}
-    {% set users = users | merge([{ label: 'Solo Account', value: 'solo' }]) %}
+    {% set users = users | merge([{ label: 'Solo Account' | t('cp-nav'), value: 'solo' }]) %}
 {% endif %}
 
 {{ forms.textField({
-    label: "Name" | t,
-    instructions: 'Choose what you want this layout to be called' | t,
+    label: "Name" | t('cp-nav'),
+    instructions: 'Choose what you want this layout to be called' | t('cp-nav'),
     id: 'name',
     name: 'name',
     required: true,
@@ -26,8 +26,8 @@
 
 {% if users %}
     {{ forms.checkboxSelectField({
-        label: "Permissions" | t,
-        instructions: 'Select which user groups should have this layout assigned to them.' | t,
+        label: "Permissions" | t('cp-nav'),
+        instructions: 'Select which user groups should have this layout assigned to them.' | t('cp-nav'),
         id: 'permissions',
         name: 'permissions',
         options: users,

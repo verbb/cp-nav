@@ -2,14 +2,14 @@
 
 {% do view.registerAssetBundle("verbb\\cpnav\\assetbundles\\CpNav\\CpNavAsset") %}
 
-{% set title = 'Control Panel Nav' %}
+{% set title = 'Control Panel Nav' | t('cp-nav') %}
 
 {% set tabs = {
-    navigation: { label: "Navigation" | t, url: url('cp-nav') },
+    navigation: { label: "Navigation" | t('cp-nav'), url: url('cp-nav') },
 } %}
 
 {% if craft.app.getEditionName() != 'Personal' %}
-    {% set tabs = tabs | merge({ layouts: { label: "Layouts" | t, url: url('cp-nav/layouts') } }) %}
+    {% set tabs = tabs | merge({ layouts: { label: "Layouts" | t('cp-nav'), url: url('cp-nav/layouts') } }) %}
 {% endif %}
 
-{% set tabs = tabs | merge({ settings: { label: "Settings" | t, url: url('cp-nav/settings') } }) %}
+{% set tabs = tabs | merge({ settings: { label: "Settings" | t('cp-nav'), url: url('cp-nav/settings') } }) %}

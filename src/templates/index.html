@@ -35,8 +35,8 @@
     {% if craft.app.getEditionName() != 'Personal' %}
         {{ forms.selectField({
             first: true,
-            label: "Layout" | t,
-            instructions: "Choose a Layout to edit" | t,
+            label: "Layout" | t('cp-nav'),
+            instructions: "Choose a Layout to edit" | t('cp-nav'),
             id: 'layoutId',
             name: 'layoutId',
             value: layoutId,

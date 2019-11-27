@@ -1,8 +1,8 @@
 {% import "_includes/forms" as forms %}
 
 {{ forms.textField({
-    label: "Label" | t,
-    instructions: 'Choose what you want this menu item to be called' | t,
+    label: "Label" | t('cp-nav'),
+    instructions: 'Choose what you want this menu item to be called' | t('cp-nav'),
     id: 'currLabel',
     name: 'currLabel',
     required: true,
@@ -13,8 +13,8 @@
 {% set prevUrl = (nav.prevUrl) ? nav.prevUrl : nav.url %}
 
 {{ forms.textField({
-    label: "URL" | t,
-    instructions: 'Choose the URL this menu points to.' | t,
+    label: "URL" | t('cp-nav'),
+    instructions: 'Choose the URL this menu points to.' | t('cp-nav'),
     id: 'url',
     name: 'url',
     required: true,
@@ -30,8 +30,8 @@
 
 {% if nav.manualNav %}
     {{ forms.lightswitchField({
-        label: "New window" | t,
-        instructions: 'Whether to open this page in a new window.' | t,
+        label: "New window" | t('cp-nav'),
+        instructions: 'Whether to open this page in a new window.' | t('cp-nav'),
         name: 'newWindow',
         on: nav.newWindow,
     }) }}
@@ -45,15 +45,15 @@
     elements: icons,
     id: 'customIcon',
     name: 'customIcon',
-    label: 'Icon' | t,
-    instructions: 'Specify an SVG asset for this menu item icon.' | t,
+    label: 'Icon' | t('cp-nav'),
+    instructions: 'Specify an SVG asset for this menu item icon.' | t('cp-nav'),
     elementType: elementType,
     criteria: {
         kind: ['image'],
     },
     sources: sources,
     jsClass: 'Craft.AssetSelectInput',
-    addButtonLabel: 'Select an Icon' | t,
+    addButtonLabel: 'Select an Icon' | t('cp-nav'),
     limit: 1,
 }) }}
 
