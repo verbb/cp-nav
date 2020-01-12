@@ -6,10 +6,6 @@ use craft\db\Migration;
 
 class Install extends Migration
 {
-    // Public Properties
-    // =========================================================================
-
-
     // Public Methods
     // =========================================================================
 

@@ -1,5 +1,4 @@
 <?php
-
 namespace verbb\cpnav\controllers;
 
 use verbb\cpnav\CpNav;
@@ -14,22 +13,18 @@ use yii\web\Response;
 
 class LayoutController extends Controller
 {
-
     // Public Methods
     // =========================================================================
 
     public function actionIndex()
     {
-        $layouts = CpNav::$plugin->layoutService->getAll();
+        $layouts = CpNav::$plugin->getLayouts()->getAllLayouts();
 
         $this->renderTemplate('cp-nav/layouts', [
             'layouts' => $layouts,
         ]);
     }
 
-    /**
-     * @return \yii\web\Response
-     */
     public function actionGetHudHtml(): Response
     {
         $this->requirePostRequest();
@@ -39,7 +34,7 @@ class LayoutController extends Controller
         $layoutId = $request->getParam('id');
 
         if ($layoutId) {
-            $layout = CpNav::$plugin->layoutService->getById($layoutId);
+            $layout = CpNav::$plugin->getLayouts()->getLayoutById($layoutId);
         } else {
             $layout = new LayoutModel();
         }
@@ -60,146 +55,103 @@ class LayoutController extends Controller
         $bodyHtml = Craft::$app->view->renderTemplate($template, $variables);
         $footHtml = Craft::$app->view->clearJsBuffer();
 
-        try {
-            return $this->asJson([
-                'html'     => $bodyHtml,
-                'footerJs' => $footHtml,
-            ]);
-        } catch (\Throwable $e) {
-            return $this->asErrorJson($e->getMessage());
-        }
+        return $this->asJson([
+            'html'     => $bodyHtml,
+            'footerJs' => $footHtml,
+        ]);
     }
 
-    /**
-     * @return \yii\web\Response
-     */
     public function actionNew(): Response
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();
+
         $request = Craft::$app->getRequest();
 
         $layout = new LayoutModel();
         $layout->name = $request->getRequiredParam('name');
         $layout->permissions = json_encode($request->getParam('permissions'));
 
-        CpNav::$plugin->layoutService->save($layout);
-
-        if (!$layout->hasErrors()) {
-            // Copy default layout navigation
-
-            /** @var NavigationModel $nav */
-            foreach (CpNav::$plugin->navigationService->getByLayoutId(1) as $nav) {
-
-                $model = new NavigationModel([
-                    'layoutId'   => $layout->id,
-                    'handle'     => $nav->handle,
-                    'prevLabel'  => $nav->prevLabel,
-                    'currLabel'  => $nav->currLabel,
-                    'enabled'    => $nav->enabled,
-                    'order'      => $nav->order,
-                    'prevUrl'    => $nav->prevUrl,
-                    'url'        => $nav->url,
-                    'icon'       => $nav->icon,
-                    'customIcon' => $nav->customIcon,
-                    'manualNav'  => $nav->manualNav,
-                    'newWindow'  => $nav->newWindow,
-                ]);
-
-                CpNav::$plugin->navigationService->save($model);
-            }
+        if (!CpNav::$plugin->getLayouts()->saveLayout($layout)) {
+            return $this->asJson(['error' => $this->_getErrorString($layout)]);
         }
 
-        try {
-            if (!$layout->hasErrors()) {
-                return $this->asJson(['success' => true, 'layouts' => $layout]);
-            }
+        // Copy default layout navigation
+        foreach (CpNav::$plugin->getNavigations()->getNavigationsByLayoutId(1) as $nav) {
+            $navigation = new NavigationModel([
+                'layoutId'   => $layout->id,
+                'handle'     => $nav->handle,
+                'prevLabel'  => $nav->prevLabel,
+                'currLabel'  => $nav->currLabel,
+                'enabled'    => $nav->enabled,
+                'order'      => $nav->order,
+                'prevUrl'    => $nav->prevUrl,
+                'url'        => $nav->url,
+                'icon'       => $nav->icon,
+                'customIcon' => $nav->customIcon,
+                'manualNav'  => $nav->manualNav,
+                'newWindow'  => $nav->newWindow,
+            ]);
 
-            $error = '';
-            foreach ($layout->getFirstErrors() as $firstError) {
-                $error = $firstError;
-                break;
-            }
-
-            return $this->asJson(['error' => $error]);
-        } catch (\Throwable $e) {
-            return $this->asErrorJson($e->getMessage());
+            CpNav::$plugin->getNavigations()->saveNavigation($navigation);
         }
+
+        return $this->asJson(['success' => true, 'layouts' => $layout]);
     }
 
-    /**
-     * @return \yii\web\Response
-     */
     public function actionSave(): Response
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();
+
         $request = Craft::$app->getRequest();
 
         $layoutId = $request->getRequiredParam('id');
-        $model = CpNav::$plugin->layoutService->getById($layoutId);
+        $layout = CpNav::$plugin->getLayouts()->getLayoutById($layoutId);
 
-        if ($model) {
-            $model->name = $request->getRequiredParam('name');
-            $model->permissions = json_encode($request->getParam('permissions'));
-
-            CpNav::$plugin->layoutService->save($model);
+        if (!$layout) {
+            return $this->asJson(['error' => Craft::t('cp-nav', 'No layout model found.')]);
         }
 
-        try {
-            if ($model && !$model->hasErrors()) {
-                $json = $this->asJson(['success' => true, 'layout' => $model]);
-            } elseif ($model->hasErrors()) {
-                $error = '';
-                foreach ($model->getFirstErrors() as $firstError) {
-                    $error = $firstError;
-                    break;
-                }
-                $json = $this->asJson(['error' => $error]);
-            } else {
-                $json = $this->asJson(['error' => 'No layout model found.']);
-            }
+        $layout->name = $request->getRequiredParam('name');
+        $layout->permissions = json_encode($request->getParam('permissions'));
 
-            return $json;
-        } catch (\Throwable $e) {
-            return $this->asErrorJson($e->getMessage());
+        if (!CpNav::$plugin->getLayouts()->saveLayout($layout)) {
+            return $this->asJson(['error' => $this->_getErrorString($layout)]);
         }
+
+        return $this->asJson(['success' => true, 'layout' => $layout]);
     }
 
-    /**
-     * @return \yii\web\Response
-     */
     public function actionDelete(): Response
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();
+
         $request = Craft::$app->getRequest();
 
         $layoutId = $request->getRequiredParam('id');
-        $model = CpNav::$plugin->layoutService->getById($layoutId);
+        $layout = CpNav::$plugin->getLayouts()->getLayoutById($layoutId);
 
-        if ($model) {
-            CpNav::$plugin->layoutService->delete($model);
+        if (!$layout) {
+            return $this->asJson(['error' => Craft::t('cp-nav', 'No layout model found.')]);
         }
 
-        try {
-            if ($model && !$model->hasErrors()) {
-                $layouts = CpNav::$plugin->layoutService->getAll();
-                $json = $this->asJson(['success' => true, 'layouts' => $layouts]);
-            } elseif ($model->hasErrors()) {
-                $error = '';
-                foreach ($model->getFirstErrors() as $firstError) {
-                    $error = $firstError;
-                    break;
-                }
-                $json = $this->asJson(['error' => $error]);
-            } else {
-                $json = $this->asJson(['error' => 'No layout model found.']);
-            }
-
-            return $json;
-        } catch (\Throwable $e) {
-            return $this->asErrorJson($e->getMessage());
+        if (!CpNav::$plugin->getLayouts()->deleteLayout($layout)) {
+            return $this->asJson(['error' => $this->_getErrorString($layout)]);
         }
+
+        $layouts = CpNav::$plugin->getLayouts()->getAllLayouts();
+
+        return $this->asJson(['success' => true, 'layouts' => $layouts]);
+    }
+    
+
+    // Private Methods
+    // =========================================================================
+
+    private function _getErrorString($object)
+    {
+        return $object->getErrorSummary(true)[0] ?? '';
     }
 }

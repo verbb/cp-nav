@@ -2,9 +2,9 @@
 namespace verbb\cpnav\base;
 
 use verbb\cpnav\CpNav;
-use verbb\cpnav\services\LayoutService;
-use verbb\cpnav\services\NavigationService;
-use verbb\cpnav\services\CpNavService;
+use verbb\cpnav\services\LayoutsService;
+use verbb\cpnav\services\NavigationsService;
+use verbb\cpnav\services\Service;
 
 use Craft;
 use craft\log\FileTarget;
@@ -22,27 +22,27 @@ trait PluginTrait
     // Public Methods
     // =========================================================================
 
-    public function getLayoutService()
+    public function getLayouts()
     {
-        return $this->get('layoutService');
+        return $this->get('layouts');
     }
 
-    public function getNavigationService()
+    public function getNavigations()
     {
-        return $this->get('navigationService');
+        return $this->get('navigations');
     }
 
-    public function getCpNavService()
+    public function getService()
     {
-        return $this->get('cpNavService');
+        return $this->get('service');
     }
 
     private function _setPluginComponents()
     {
         $this->setComponents([
-            'layoutService' => LayoutService::class,
-            'navigationService' => NavigationService::class,
-            'cpNavService' => CpNavService::class,
+            'layouts' => LayoutsService::class,
+            'navigations' => NavigationsService::class,
+            'service' => Service::class,
         ]);
     }
 

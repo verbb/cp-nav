@@ -22,11 +22,13 @@ class CpNav extends Plugin
 
     public $schemaVersion = '2.0.0';
     public $hasCpSettings = true;
+    
 
     // Traits
     // =========================================================================
 
     use PluginTrait;
+
 
     // Public Methods
     // =========================================================================
@@ -80,7 +82,7 @@ class CpNav extends Plugin
             }
 
             if ($request->isCpRequest) {
-                $this->cpNavService->modifyCpNav($event->navItems);
+                $this->getService()->modifyCpNav($event->navItems);
             }
         });
     }

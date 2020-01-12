@@ -1,5 +1,4 @@
 <?php
-
 namespace verbb\cpnav\models;
 
 use Craft;
@@ -7,54 +6,21 @@ use craft\base\Model;
 
 class Layout extends Model
 {
-
     // Public Properties
     // =========================================================================
 
-    /**
-     * @var integer
-     */
     public $id;
-
-    /**
-     * @var string
-     */
     public $name;
-
-    /**
-     * @var boolean
-     */
     public $isDefault;
-
-    /**
-     * @var string
-     */
     public $permissions;
-
-    /**
-     * @var \DateTime
-     */
     public $dateCreated;
-
-    /**
-     * @var \DateTime
-     */
     public $dateUpdated;
-
-    /**
-     * @var string
-     */
     public $uid;
 
 
     // Public Methods
     // =========================================================================
 
-    /**
-     * Returns the attribute labels.
-     *
-     * @return array
-     */
     public function attributeLabels(): array
     {
         return [
@@ -64,11 +30,6 @@ class Layout extends Model
         ];
     }
 
-    /**
-     * Returns the validation rules for attributes.
-     *
-     * @return array
-     */
     public function rules(): array
     {
         return [

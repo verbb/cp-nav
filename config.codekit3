@@ -303,6 +303,22 @@
 		"oAP": "/src/CpNav.php",
 		"oF": 0
 		},
+	"/src/events/LayoutEvent.php": {
+		"cB": 0,
+		"ft": 8192,
+		"hM": 0,
+		"oA": 2,
+		"oAP": "/src/events/LayoutEvent.php",
+		"oF": 0
+		},
+	"/src/events/NavigationEvent.php": {
+		"cB": 0,
+		"ft": 8192,
+		"hM": 0,
+		"oA": 2,
+		"oAP": "/src/events/NavigationEvent.php",
+		"oF": 0
+		},
 	"/src/icon.svg": {
 		"ft": 2097152,
 		"miP": 0,

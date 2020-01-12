@@ -1,5 +1,4 @@
 <?php
-
 namespace verbb\cpnav\models;
 
 use Craft;
@@ -9,116 +8,35 @@ use craft\helpers\UrlHelper;
 
 class Navigation extends Model
 {
-
     // Public Properties
     // =========================================================================
 
-    /**
-     * @var integer
-     */
     public $id;
-
-    /**
-     * @var integer
-     */
     public $layoutId;
-
-    /**
-     * @var string
-     */
     public $handle;
-
-    /**
-     * @var string
-     */
     public $prevLabel;
-
-    /**
-     * @var string
-     */
     public $currLabel;
-
-    /**
-     * @var boolean
-     */
     public $enabled;
-
-    /**
-     * @var integer
-     */
     public $order;
-
-    /**
-     * @var string
-     */
     public $prevUrl;
-
-    /**
-     * @var string
-     */
     public $url;
-
-    /**
-     * @var string
-     */
     public $icon;
-
-    /**
-     * @var string
-     */
     public $customIcon;
-
-    /**
-     * @var boolean
-     */
     public $manualNav;
-
-    /**
-     * @var boolean
-     */
     public $newWindow;
 
     // Model-only
-
-    /**
-     * @var string
-     */
     public $craftIcon;
-
-    /**
-     * @var string
-     */
     public $pluginIcon;
-
-    /**
-     * @var string
-     */
     public $parsedUrl;
-
-    /**
-     * @var \DateTime
-     */
     public $dateCreated;
-
-    /**
-     * @var \DateTime
-     */
     public $dateUpdated;
-
-    /**
-     * @var string
-     */
     public $uid;
 
 
     // Public Methods
     // =========================================================================
 
-    /**
-     * Populate the Craft and Plugin icons as soon as we populate models - i.e - getById, getAll, etc
-     *
-     * @param array $attributes
-     */
     public function __construct($attributes = null)
     {
         parent::__construct($attributes);
@@ -162,7 +80,7 @@ class Navigation extends Model
 
         // Allow Environment Variables to be used in the URL
         foreach (Craft::$app->getConfig()->getConfigFromFile('general') as $key => $value) {
-            if (\is_string($value)) {
+            if (is_string($value)) {
                 $url = str_replace('{' . $key . '}', $value, $url);
             }
         }
@@ -170,7 +88,7 @@ class Navigation extends Model
         // Support siteUrl
         $siteUrl = Craft::$app->getConfig()->getGeneral()->siteUrl;
 
-        if (\is_string($siteUrl)) {
+        if (is_string($siteUrl)) {
             $url = str_replace('{siteUrl}', $siteUrl, $url);
         }
 
@@ -186,11 +104,6 @@ class Navigation extends Model
         $this->parsedUrl = $url;
     }
 
-    /**
-     * Returns the attribute labels.
-     *
-     * @return array
-     */
     public function attributeLabels(): array
     {
         return [
@@ -199,11 +112,6 @@ class Navigation extends Model
         ];
     }
 
-    /**
-     * Returns the validation rules for attributes.
-     *
-     * @return array
-     */
     public function rules(): array
     {
         return [
