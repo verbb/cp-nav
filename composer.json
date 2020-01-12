@@ -1,6 +1,6 @@
 {
     "name": "verbb/cp-nav",
-    "description": "Control Panel Nav is a Craft CMS plugin to help manage your Control Panel navigation.",
+    "description": "Control Panel Nav helps you managing your Control Panel navigation.",
     "type": "craft-plugin",
     "version": "2.0.9",
     "keywords": [
@@ -27,14 +27,8 @@
         }
     ],
     "require": {
-        "craftcms/cms": "^3.0.0-RC1"
+        "craftcms/cms": "^3.0.0"
     },
-    "repositories": [
-        {
-            "type": "composer",
-            "url": "https://asset-packagist.org"
-        }
-    ],
     "autoload": {
         "psr-4": {
             "verbb\\cpnav\\": "src/"
@@ -43,8 +37,6 @@
     "extra": {
         "name": "Control Panel Nav",
         "handle": "cp-nav",
-        "description": "Control Panel Nav helps you managing your Control Panel navigation.",
-        "documentationUrl": "https://github.com/verbb/cp-nav",
         "changelogUrl": "https://raw.githubusercontent.com/verbb/cp-nav/craft-3/CHANGELOG.md",
         "class": "verbb\\cpnav\\CpNav"
     }
