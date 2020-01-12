@@ -19,7 +19,6 @@ class Service extends Component
     // Properties
     // =========================================================================
 
-    private $_originalnavItems = [];
     private $_subNavs = [];
     private $_badges = [];
 
@@ -28,10 +27,6 @@ class Service extends Component
 
     public function generateNavigation($event)
     {
-        // This is the only real way to prevent it from firing in certain circumstances
-        // for instance, if we ever want to fetch the original nav;
-        $this->_originalnavItems = $event->navItems;
-
         // Keep a temporary copy of the un-altered nav in case things go wrong
         $subNavs = [];
         $badges = [];
@@ -50,9 +45,11 @@ class Service extends Component
                 $newNavItem = $navigation->generateNavItem();
 
                 // Apply any previous subnavs or badges back onto navs items
-                $this->_applySubNavsAndBadges($newNavItem);
+                if ($newNavItem) {
+                    $this->_applySubNavsAndBadges($newNavItem);
 
-                $newNavItems[] = $newNavItem;
+                    $newNavItems[] = $newNavItem;
+                }
             }
 
             // Update the original nav
@@ -64,26 +61,6 @@ class Service extends Component
         }
     }
 
-    public function getOriginalNav()
-    {
-        // Just call it - we don't want the result of this function, we just want the hook called,
-        // which in turn calls our function above. Our hook will store the original nav in a private 
-        // variable, for final use here. Might be a better way?
-        (new Cp())->nav();
-
-        return $this->_originalnavItems;
-    }
-
-    public function afterUserLogin(UserEvent $event)
-    {
-
-    }
-
-    public function afterUserLogout(UserEvent $event)
-    {
-
-    }
-
     public function afterPluginInstall(PluginEvent $event)
     {
         try {
@@ -91,6 +68,21 @@ class Service extends Component
 
             // Add the plugin's nav item
             if ($plugin->hasCpSection && ($pluginNavItem = $plugin->getCpNavItem()) !== null) {
+                // So this is a bit annoying. At this point, new plugin items are added at the bottom
+                // of the nav, which probably has to do with how new plugins are stored in the internal cache
+                // So - in order to get the correct order to insert, save the info for later, on the next page request
+                Craft::$app->getSession()->set('cpNav.installedPlugin', $pluginNavItem);
+            }
+        } catch (\Throwable $e) {
+            CpNav::error(Craft::t('app', '{e} - {f}: {l}.', ['e' => $e->getMessage(), 'f' => $e->getFile(), 'l' => $e->getLine()]));
+        }
+    }
+
+    public function processPendingPluginInstall($event)
+    {
+        // Check to see if we've just installed a plugin
+        if ($pluginNavItem = Craft::$app->getSession()->get('cpNav.installedPlugin')) {
+            try {
                 $navigation = new NavigationModel();
                 $navigation->handle = $pluginNavItem['url'] ?? '';
                 $navigation->currLabel = $pluginNavItem['label'] ?? '';
@@ -103,19 +95,24 @@ class Service extends Component
                 $navigation->newWindow = false;
 
                 // Its a bit of effort, but the only real way to get the correct order of the new nav item
-                // is to render normally, and find the correct index, and use that. Better than appending though.
-                $navItems = $this->getOriginalNav();
+                // is to look at how its placed normally, and use that. Better than appending though.
+                $navItems = $event->navItems;
 
                 foreach ($navItems as $orderIndex => $navItem) {
                     if ($navItem['url'] === $pluginNavItem['url']) {
                         $navigation->order = $orderIndex;
+
+                        break;
                     }
                 }
 
+                // Create nav item for all layouts
                 CpNav::$plugin->getNavigations()->saveNavigationToAllLayouts($navigation);
+            } catch (\Throwable $e) {
+                CpNav::error(Craft::t('app', '{e} - {f}: {l}.', ['e' => $e->getMessage(), 'f' => $e->getFile(), 'l' => $e->getLine()]));
             }
-        } catch (\Throwable $e) {
-            CpNav::error(Craft::t('app', '{e} - {f}: {l}.', ['e' => $e->getMessage(), 'f' => $e->getFile(), 'l' => $e->getLine()]));
+
+            Craft::$app->getSession()->remove('cpNav.installedPlugin');
         }
     }
 

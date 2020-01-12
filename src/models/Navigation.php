@@ -150,6 +150,13 @@ class Navigation extends Model
 
     public function generateNavItem()
     {
+        // Depsite having a custom, set menu for all users, we still need to check permissions
+        // based on the current users' permision level. We wouldn't want to show a plugin nav item
+        // if the user doesn't have access to it (even if defined in CP Nav).
+        if (!$this->_checkPermission()) {
+            return;
+        }
+
         $item = [
             'id' => 'nav-' . $this->handle,
             'label' => Craft::t('app', $this->currLabel),
@@ -191,4 +198,43 @@ class Navigation extends Model
             Craft::$app->view->registerJs($js);
         }
     }
+
+    private function _checkPermission()
+    {
+        $craftPro = Craft::$app->getEdition() === Craft::Pro;
+        $isAdmin = Craft::$app->getUser()->getIsAdmin();
+        $generalConfig = Craft::$app->getConfig()->getGeneral();
+
+        // Prepare a key-may of permission-handling
+        $permissionMap = [
+            'entries' => Craft::$app->getSections()->getTotalEditableSections(),
+            'globals' => Craft::$app->getGlobals()->getEditableSets(),
+            'categories' => Craft::$app->getCategories()->getEditableGroupIds(),
+            'assets' => Craft::$app->getVolumes()->getTotalViewableVolumes(),
+            'users' => $craftPro && Craft::$app->getUser()->checkPermission('editUsers'),
+
+            'utilities' => Craft::$app->getUtilities()->getAuthorizedUtilityTypes(),
+
+            'graphql' => $isAdmin && $craftPro && $generalConfig->enableGql,
+            'settings' => $isAdmin && $generalConfig->allowAdminChanges,
+            'plugin-store' => $isAdmin && $generalConfig->allowAdminChanges,
+        ];
+
+        // Add each plugin
+        foreach (Craft::$app->getPlugins()->getAllPlugins() as $plugin) {
+            if ($pluginNavItem = $plugin->getCpNavItem()) {
+                $permissionMap[$pluginNavItem['url']] = Craft::$app->getUser()->checkPermission('accessPlugin-' . $plugin->id);
+            }
+        }
+
+        // Check if explicitly false
+        if (isset($permissionMap[$this->handle])) {
+            if ((bool)$permissionMap[$this->handle] === false) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
 }

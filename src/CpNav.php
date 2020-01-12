@@ -73,23 +73,25 @@ class CpNav extends Plugin
         $request = Craft::$app->getRequest();
 
         // if ($request->isCpRequest && strstr($request->url, 'cpnav-test')) {
-        if ($request->isCpRequest) {
+        // if ($request->isCpRequest) {
             Event::on(Cp::class, Cp::EVENT_REGISTER_CP_NAV_ITEMS, function(RegisterCpNavItemsEvent $event) {
+                // Check to see if the nav needs to be updated
+                $this->getService()->processPendingPluginInstall($event);
+
+                // Generate our custom nav instead
                 $this->getService()->generateNavigation($event);
             });
-        }
+        // }
     }
 
     private function _registerEventHandlers()
     {
+        // When installing/enabling or uninstalling/disabling plugins, update the nav
         Event::on(Plugins::class, Plugins::EVENT_AFTER_INSTALL_PLUGIN, [$this->getService(), 'afterPluginInstall']);
         Event::on(Plugins::class, Plugins::EVENT_AFTER_UNINSTALL_PLUGIN, [$this->getService(), 'afterPluginUninstall']);
 
         Event::on(Plugins::class, Plugins::EVENT_AFTER_ENABLE_PLUGIN, [$this->getService(), 'afterPluginInstall']);
         Event::on(Plugins::class, Plugins::EVENT_AFTER_DISABLE_PLUGIN, [$this->getService(), 'afterPluginUninstall']);
-
-        Event::on(User::class, User::EVENT_AFTER_LOGIN, [$this->getService(), 'afterUserLogin']);
-        Event::on(User::class, User::EVENT_AFTER_LOGOUT, [$this->getService(), 'afterUserLogout']);
     }
 
 }
