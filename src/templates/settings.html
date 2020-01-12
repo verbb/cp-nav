@@ -1,9 +1,9 @@
-{% extends "cp-nav/_layouts/cp" %}
-{% import "_includes/forms" as forms %}
+{% extends 'cp-nav/_layouts' %}
+{% import '_includes/forms' as forms %}
 
 {% set crumbs = [
-    { label: "Control Panel Nav" | t, url: url('cp-nav') },
-    { label: "Settings" | t, url: url('cp-nav') }
+    { label: 'Control Panel Nav' | t, url: url('cp-nav') },
+    { label: 'Settings' | t, url: url('cp-nav') }
 ] %}
 
 {% set selectedTab = 'settings' %}
@@ -12,13 +12,13 @@
 
 <div class="field">
     <div class="heading">
-        <label id="cache-label" for="cache">{{ "Regenerate Navigation" | t('cp-nav') }}</label>
+        <label id="cache-label" for="cache">{{ "Reset Navigation" | t('cp-nav') }}</label>
 
         <div class="instructions">
-            <p>{{ "To force regeneration of the control panel navigation, click the button below." | t('cp-nav') }}</p>
+            <p>{{ 'To reset all control panel navigations to their original state, click the button below. You will loose  any of your customisation changes, such as renaming, enable/disable and re-ordering.' | t('cp-nav') }}</p>
 
-            <a class="btn submit" href="{{ actionUrl('cp-nav/navigation/regenerate') }}">
-                {{ "Regenerate Navigation" | t('cp-nav') }}
+            <a class="btn submit" href="{{ actionUrl('cp-nav/navigation/reset') }}">
+                {{ 'Reset Navigation' | t('cp-nav') }}
             </a>
         </div>
     </div>

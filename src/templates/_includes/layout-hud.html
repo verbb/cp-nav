@@ -1,4 +1,4 @@
-{% import "_includes/forms" as forms %}
+{% import '_includes/forms' as forms %}
 
 {% set users = [] %}
 
@@ -13,7 +13,7 @@
 {% endif %}
 
 {{ forms.textField({
-    label: "Name" | t('cp-nav'),
+    label: 'Name' | t('cp-nav'),
     instructions: 'Choose what you want this layout to be called' | t('cp-nav'),
     id: 'name',
     name: 'name',
@@ -26,7 +26,7 @@
 
 {% if users %}
     {{ forms.checkboxSelectField({
-        label: "Permissions" | t('cp-nav'),
+        label: 'Permissions' | t('cp-nav'),
         instructions: 'Select which user groups should have this layout assigned to them.' | t('cp-nav'),
         id: 'permissions',
         name: 'permissions',

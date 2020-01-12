@@ -1,16 +1,16 @@
-{% extends "cp-nav/_layouts/cp" %}
-{% import "_includes/forms" as forms %}
+{% extends 'cp-nav/_layouts' %}
+{% import '_includes/forms' as forms %}
 
 {% set crumbs = [
-    { label: "Control Panel Nav" | t, url: url('cp-nav') },
-    { label: "Layouts" | t, url: url('cp-nav/layouts') }
+    { label: 'Control Panel Nav' | t, url: url('cp-nav') },
+    { label: 'Layouts' | t, url: url('cp-nav/layouts') }
 ] %}
 
 {% set selectedTab = 'layouts' %}
 
 {% block actionButton %}
     <div class="buttons right">
-        <a class="btn submit add icon add-new-layout">{{ "New layout" | t('cp-nav') }}</a>
+        <a class="btn submit add icon add-new-layout">{{ 'New layout' | t('cp-nav') }}</a>
     </div>
 {% endblock %}
 
@@ -18,7 +18,7 @@
 
     <table id="layoutItems" class="data fullwidth collapsible">
         <thead>
-            <th scope="col">{{ "Name" | t('cp-nav') }}</th>
+            <th scope="col">{{ 'Name' | t('cp-nav') }}</th>
             <th></th>
         </thead>
         <tbody>

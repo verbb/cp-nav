@@ -1,7 +1,7 @@
-{% import "_includes/forms" as forms %}
+{% import '_includes/forms' as forms %}
 
 {{ forms.textField({
-    label: "Label" | t('cp-nav'),
+    label: 'Label' | t('cp-nav'),
     instructions: 'Choose what you want this menu item to be called' | t('cp-nav'),
     id: 'currLabel',
     name: 'currLabel',
@@ -13,7 +13,7 @@
 {% set prevUrl = (nav.prevUrl) ? nav.prevUrl : nav.url %}
 
 {{ forms.textField({
-    label: "URL" | t('cp-nav'),
+    label: 'URL' | t('cp-nav'),
     instructions: 'Choose the URL this menu points to.' | t('cp-nav'),
     id: 'url',
     name: 'url',
@@ -30,7 +30,7 @@
 
 {% if nav.manualNav %}
     {{ forms.lightswitchField({
-        label: "New window" | t('cp-nav'),
+        label: 'New window' | t('cp-nav'),
         instructions: 'Whether to open this page in a new window.' | t('cp-nav'),
         name: 'newWindow',
         on: nav.newWindow,
@@ -42,11 +42,11 @@
 {% set icons = (icons is defined ? icons : []) -%}
 
 {{ forms.elementSelectField({
+    label: 'Icon' | t('cp-nav'),
+    instructions: 'Specify an SVG asset for this menu item icon.' | t('cp-nav'),
     elements: icons,
     id: 'customIcon',
     name: 'customIcon',
-    label: 'Icon' | t('cp-nav'),
-    instructions: 'Specify an SVG asset for this menu item icon.' | t('cp-nav'),
     elementType: elementType,
     criteria: {
         kind: ['image'],

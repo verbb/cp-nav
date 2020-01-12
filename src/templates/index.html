@@ -1,9 +1,9 @@
-{% extends "cp-nav/_layouts/cp" %}
-{% import "_includes/forms" as forms %}
+{% extends 'cp-nav/_layouts' %}
+{% import '_includes/forms' as forms %}
 
 {% set crumbs = [
-    { label: "Control Panel Nav" | t, url: url('cp-nav') },
-    { label: "Navigation" | t, url: url('cp-nav') }
+    { label: 'Control Panel Nav' | t, url: url('cp-nav') },
+    { label: 'Navigation' | t, url: url('cp-nav') }
 ] %}
 
 {% set selectedTab = 'navigation' %}
@@ -22,7 +22,7 @@
 
 {% block actionButton %}
     <div class="buttons right">
-        <a class="btn submit add icon add-new-menu-item">{{ "New menu item" | t('cp-nav') }}</a>
+        <a class="btn submit add icon add-new-menu-item">{{ 'New menu item' | t('cp-nav') }}</a>
     </div>
 {% endblock %}
 
@@ -35,8 +35,8 @@
     {% if craft.app.getEditionName() != 'Personal' %}
         {{ forms.selectField({
             first: true,
-            label: "Layout" | t('cp-nav'),
-            instructions: "Choose a Layout to edit" | t('cp-nav'),
+            label: 'Layout' | t('cp-nav'),
+            instructions: 'Choose a Layout to edit.' | t('cp-nav'),
             id: 'layoutId',
             name: 'layoutId',
             value: layoutId,
@@ -46,9 +46,9 @@
 
     <table id="navItems" class="data fullwidth collapsible">
         <thead>
-            <th scope="col">{{ "Visible" | t('cp-nav') }}</th>
-            <th scope="col">{{ "Label" | t('cp-nav') }}</th>
-            <th scope="col">{{ "URL" | t('cp-nav') }}</th>
+            <th scope="col">{{ 'Visible' | t('cp-nav') }}</th>
+            <th scope="col">{{ 'Label' | t('cp-nav') }}</th>
+            <th scope="col">{{ 'URL' | t('cp-nav') }}</th>
             <th></th>
         </thead>
         <tbody>
