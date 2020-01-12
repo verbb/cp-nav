@@ -45,10 +45,9 @@ class LayoutsService extends Component
         return $result ? new LayoutModel($result) : null;
     }
 
-    public function getLayoutByUserId()
+    public function getLayoutForCurrentUser()
     {
-        $layoutId = 1; // Default layout
-
+        $layoutForUser = null;
         $layouts = $this->getAllLayouts();
 
         if (Craft::$app->getEdition() == Craft::Solo) {
@@ -60,7 +59,7 @@ class LayoutsService extends Component
                     $permissions = json_decode($layout->permissions);
 
                     if (is_array($permissions) && in_array('solo', $permissions, false)) {
-                        $layoutId = $layout->id;
+                        $layoutForUser = $layout;
 
                         break;
                     }
@@ -75,7 +74,7 @@ class LayoutsService extends Component
                     $permissions = json_decode($layout->permissions);
 
                     if (is_array($permissions) && in_array($group->id, $permissions, false)) {
-                        $layoutId = $layout->id;
+                        $layoutForUser = $layout;
 
                         break 2;
                     }
@@ -83,7 +82,11 @@ class LayoutsService extends Component
             }
         }
 
-        return $this->getLayoutById($layoutId);
+        if (!$layoutForUser) {
+            return $this->getLayoutById(1);
+        }
+
+        return $layoutForUser;
     }
 
     public function setDefaultLayout($layoutId): bool

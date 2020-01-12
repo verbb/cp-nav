@@ -19,25 +19,27 @@ class NavigationController extends Controller
     // Public Methods
     // =========================================================================
 
-    public function beforeAction($action)
-    {   
-        // Are we trying to load the index page? Check we have defaults setup
-        if ($action->actionMethod === 'actionIndex') {
-            $layoutId = $this->_getCurrentLayoutId();
+    // public function beforeAction($action)
+    // {   
+    //     // Are we trying to load the index page? Check we have defaults setup
+    //     if ($action->actionMethod === 'actionIndex') {
+    //         $layoutId = $this->_getCurrentLayoutId();
 
-            $navItems = CpNav::$plugin->getNavigations()->getNavigationsByLayoutId($layoutId);
+    //         $navItems = CpNav::$plugin->getNavigations()->getNavigationsByLayoutId($layoutId);
 
-            if (!$navItems) {
-                CpNav::$plugin->getService()->setupDefaults();
-            }
-        }
+    //         if (!$navItems) {
+    //             CpNav::$plugin->getService()->setupDefaults();
+    //         }
+    //     }
 
-        return parent::beforeAction($action);
-    }
+    //     return parent::beforeAction($action);
+    // }
 
     public function actionIndex()
     {
-        $layoutId = $this->_getCurrentLayoutId();
+        $request = Craft::$app->getRequest();
+
+        $layoutId = $request->getParam('layoutId', 1);
 
         $layout = CpNav::$plugin->getLayouts()->getLayoutById($layoutId);
         $layouts = CpNav::$plugin->getLayouts()->getAllLayouts();
@@ -54,12 +56,11 @@ class NavigationController extends Controller
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();
-        $layoutId = $this->_getCurrentLayoutId();
 
         $request = Craft::$app->getRequest();
 
+        $layoutId = $request->getParam('layoutId', 1);
         $navIds = Json::decodeIfJson($request->getRequiredBodyParam('ids'));
-        $navigation = false;
 
         foreach ($navIds as $navOrder => $navId) {
             $navigation = CpNav::$plugin->getNavigations()->getNavigationById($navId);
@@ -70,20 +71,18 @@ class NavigationController extends Controller
                 $navigation = CpNav::$plugin->getNavigations()->saveNavigation($navigation);
             }
         }
-
-        $navs = CpNav::$plugin->getNavigations()->getNavigationsByLayoutId($layoutId);
         
-        return $this->asJson(['success' => true, 'navs' => $navs]);
+        return $this->asJson(['success' => true, 'navHtml' => $this->_getNavHtml()]);
     }
 
     public function actionToggle(): Response
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();
-        $layoutId = $this->_getCurrentLayoutId();
 
         $request = Craft::$app->getRequest();
 
+        $layoutId = $request->getParam('layoutId', 1);
         $toggle = $request->getRequiredBodyParam('value');
         $navId = $request->getRequiredBodyParam('id');
 
@@ -99,18 +98,17 @@ class NavigationController extends Controller
             return $this->asJson(['error' => $this->_getErrorString($navigation)]);
         }
 
-        $navs = CpNav::$plugin->getNavigations()->getNavigationsByLayoutId($layoutId);
-        
-        return $this->asJson(['success' => true, 'navs' => $navs]);
+        return $this->asJson(['success' => true, 'nav' => $navigation, 'navHtml' => $this->_getNavHtml()]);
     }
 
     public function actionGetHudHtml(): Response
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();
-        $layoutId = $this->_getCurrentLayoutId();
 
         $request = Craft::$app->getRequest();
+
+        $layoutId = $request->getParam('layoutId', 1);
         $navId = $request->getParam('id');
 
         if ($navId) {
@@ -164,9 +162,10 @@ class NavigationController extends Controller
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();
-        $layoutId = $this->_getCurrentLayoutId();
 
         $request = Craft::$app->getRequest();
+
+        $layoutId = $request->getParam('layoutId', 1);
         $label = $request->getParam('currLabel');
         $url = $request->getParam('url');
         $handle = $request->getParam('handle');
@@ -193,19 +192,19 @@ class NavigationController extends Controller
             return $this->asJson(['error' => $this->_getErrorString($navigation)]);
         }
 
-        $navs = CpNav::$plugin->getNavigations()->getNavigationsByLayoutId($layoutId);
-
-        return $this->asJson(['success' => true, 'navs' => $navs]);
+        return $this->asJson(['success' => true, 'nav' => $navigation, 'navHtml' => $this->_getNavHtml()]);
     }
 
     public function actionSave(): Response
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();
-        $layoutId = $this->_getCurrentLayoutId();
 
         $request = Craft::$app->getRequest();
+
+        $layoutId = $request->getParam('layoutId', 1);
         $navId = $request->getParam('id');
+
         $navigation = CpNav::$plugin->getNavigations()->getNavigationById($navId);
 
         if (!$navigation) {
@@ -224,16 +223,17 @@ class NavigationController extends Controller
             return $this->asJson(['error' => $this->_getErrorString($navigation)]);
         }
 
-        $navs = CpNav::$plugin->getNavigations()->getNavigationsByLayoutId($layoutId);
-        
-        return $this->asJson(['success' => true, 'nav' => $navigation, 'navs' => $navs]);
+        return $this->asJson(['success' => true, 'nav' => $navigation, 'navHtml' => $this->_getNavHtml()]);
     }
 
     public function actionDelete(): Response
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();
-        $layoutId = $this->_getCurrentLayoutId();
+
+        $request = Craft::$app->getRequest();
+
+        $layoutId = $request->getParam('layoutId', 1);
 
         $navId = Craft::$app->getRequest()->getRequiredParam('id');
         $navigation = CpNav::$plugin->getNavigations()->getNavigationById($navId);
@@ -246,33 +246,43 @@ class NavigationController extends Controller
             return $this->asJson(['error' => $this->_getErrorString($navigation)]);
         }
 
-        $navs = CpNav::$plugin->getNavigations()->getNavigationsByLayoutId($layoutId);
-        
-        return $this->asJson(['success' => true, 'navs' => $navs]);
+        return $this->asJson(['success' => true, 'navHtml' => $this->_getNavHtml()]);
     }
 
     public function actionRegenerate()
     {
-        $layout = CpNav::$plugin->getLayouts()->getLayoutByUserId();
-        $defaultNavs = new Cp();
+        // $layout = CpNav::$plugin->getLayouts()->getLayoutForCurrentUser();
+        // $defaultNavs = new Cp();
 
-        $manualNavs = CpNav::$plugin->getNavigations()->getAllManualNavigations($layout->id, 'handle');
+        // $manualNavs = CpNav::$plugin->getNavigations()->getAllManualNavigations($layout->id, 'handle');
 
-        CpNav::$plugin->getService()->regenerateNav($layout->id, $manualNavs, $defaultNavs->nav());
+        // CpNav::$plugin->getService()->regenerateNav($layout->id, $manualNavs, $defaultNavs->nav());
 
-        return $this->redirect(Craft::$app->getRequest()->getReferrer());
+        // return $this->redirect(Craft::$app->getRequest()->getReferrer());
     }
 
 
     // Private Methods
     // =========================================================================
 
-    private function _getCurrentLayoutId()
+    private function _getNavHtml()
     {
-        $request = Craft::$app->getRequest();
-        
-        return $request->getParam('layoutId', 1);
+        // $event = new \craft\events\RegisterCpNavItemsEvent();
+        // $event->navItems = (new Cp())->nav();
+
+        // CpNav::$plugin->getService()->generateNavigation($event);
+
+        // return $event->navItems;
+
+        return Craft::$app->view->renderTemplate('cp-nav/_layouts/navs');
     }
+
+    // private function _getCurrentLayoutId()
+    // {
+    //     $request = Craft::$app->getRequest();
+        
+    //     return $request->getParam('layoutId', 1);
+    // }
     
     private function _getErrorString($object)
     {

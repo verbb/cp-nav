@@ -118,12 +118,12 @@ Craft.CpNav.AddMenuItem = Garnish.Base.extend({
             if (textStatus === 'success' && response.success) {
                 Craft.cp.displayNotice(Craft.t('cp-nav', 'Menu saved.'));
 
-                updateAllNav(response.navs);
+                updateAllNav(response.navHtml);
 
                 // The newly added menu item will always be at the end...
-                var newMenuItem = response.navs[response.navs.length - 1];
+                var newMenuItem = response.nav;
 
-                var $tr = AdminTable.addRow('<tr class="nav-item" data-id="'+newMenuItem.id+'" data-currlabel="'+newMenuItem.currLabel+'" data-name="'+newMenuItem.currLabel+'">' + 
+                var $tr = AdminTable.addRow('<tr class="nav-item" data-id="' + newMenuItem.id + '" data-currlabel="' + newMenuItem.currLabel + '" data-name="' + newMenuItem.currLabel + '">' + 
                     '<td class="thin">' + 
                         '<div class="field">' + 
                             '<div class="input ltr">' + 
@@ -139,14 +139,14 @@ Craft.CpNav.AddMenuItem = Garnish.Base.extend({
                         '</div>' + 
                     '</td>' +
 
-                    '<td data-title="'+newMenuItem.currLabel+'">' + 
+                    '<td data-title="' + newMenuItem.currLabel + '">' + 
                         '<a class="move icon" title="' + Craft.t('app', 'Reorder') + '" role="button"></a>' + 
-                        '<a class="edit-nav">'+newMenuItem.currLabel+'</a>' + 
-                        '<span class="original-nav">('+newMenuItem.currLabel+')</span>' + 
+                        '<a class="edit-nav">' + newMenuItem.currLabel + '</a>' + 
+                        '<span class="original-nav">(' + newMenuItem.currLabel + ')</span>' + 
                     '</td>' + 
                     
-                    '<td data-title="'+newMenuItem.currLabel+'">' + 
-                        '<span class="original-nav-link">'+newMenuItem.url+'</span>' + 
+                    '<td data-title="' + newMenuItem.currLabel + '">' + 
+                        '<span class="original-nav-link">' + newMenuItem.url + '</span>' + 
                     '</td>' + 
                     
                     '<td class="thin">' + 
@@ -191,7 +191,7 @@ $(document).on('change', '#navItems .lightswitch', function() {
         if (textStatus === 'success' && response.success) {
             Craft.cp.displayNotice(Craft.t('app', 'Status saved.'));
 
-            updateAllNav(response.navs);
+            updateAllNav(response.navHtml);
         }
     }));
 });
@@ -290,7 +290,7 @@ Craft.CpNav.EditNavItem = Garnish.Base.extend({
 
                 this.closeHud();
 
-                updateAllNav(response.navs);
+                updateAllNav(response.navHtml);
             } else {
                 Craft.cp.displayError(response.error);
                 Garnish.shake(this.hud.$hud);
@@ -339,7 +339,7 @@ Craft.CpNav.AlternateAdminTable = Craft.AdminTable.extend({
                     this.onReorderItems(ids);
                     Craft.cp.displayNotice(Craft.t('app', this.settings.reorderSuccessMessage));
 
-                    updateAllNav(response.navs);
+                    updateAllNav(response.navHtml);
                 } else {
                     Craft.cp.displayError(Craft.t('app', this.settings.reorderFailMessage));
                 }
@@ -359,7 +359,7 @@ Craft.CpNav.AlternateAdminTable = Craft.AdminTable.extend({
             if (textStatus === 'success') {
                 this.handleDeleteItemResponse(response, $row);
 
-                updateAllNav(response.navs);
+                updateAllNav(response.navHtml);
             }
         }, this));
     },
@@ -387,55 +387,9 @@ var AdminTable = new Craft.CpNav.AlternateAdminTable({
 // ----------------------------------------
 // FUNCTIONS TO ASSIST WITH UPDATING THE CP NAV CLIENT-SIDE
 // ----------------------------------------
-var badgeHandleIndex = {};
-var updateAllNav = function(navs) {
-    var navList = $('#global-sidebar nav#nav ul');
-    
-    navList.find('.badge').each(function () {
-        badgeHandleIndex[$(this).closest('li').attr('id').substr(4)] = $(this)[0].outerHTML;
-    });
-
-    navList.empty();
-
-    var navItems = '';
-    $.each(navs, function(index, nav) {
-        if (nav.enabled == '1') {
-            var url = Craft.getUrl(nav.parsedUrl);
-
-            var iconHtml = '<span class="icon icon-mask">' +
-                '<svg version="1.1" baseProfile="full" width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">' +
-                    '<circle cx="10" cy="10" r="10" fill="#000" fill-opacity="0.35"></circle>' +
-                    '<text x="10" y="15" font-size="15" font-family="sans-serif" font-weight="bold" text-anchor="middle" fill="#000">'+nav.currLabel.substring(0, 1).toUpperCase()+'</text>' +
-                '</svg>' +
-            '</span>';
-
-            if (nav.craftIcon) {
-                iconHtml = '<span class="icon icon-mask"><span data-icon="'+nav.craftIcon+'"></span></span>';
-            }
-
-            if (nav.pluginIcon) {
-                iconHtml = '<span class="icon icon-mask">'+nav.pluginIcon+'</span>';
-            }
-
-            var target = 'target="_self"';
-
-            if (nav.newWindow == 1) {
-                target = 'target="_blank"';
-            }
-
-            var badgeHtml = nav.handle in badgeHandleIndex ? badgeHandleIndex[nav.handle] : '';
-
-            navItems += '<li id="nav-'+nav.handle+'">' +
-                '<a href="'+url+'" '+target+'>' +
-                    iconHtml +
-                    '<span class="label">'+nav.currLabel+'</span>' +
-                    badgeHtml +
-                '</a>' +
-            '</li>';
-        }
-    });
-
-    $('#global-sidebar nav#nav ul').append(navItems);
+// var badgeHandleIndex = {};
+var updateAllNav = function(navHtml) {
+    $('#global-sidebar nav#nav ul').html(navHtml);
 }
 
 

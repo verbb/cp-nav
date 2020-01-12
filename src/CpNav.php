@@ -68,23 +68,14 @@ class CpNav extends Plugin
 
     private function _registerCpNavItems()
     {
-        Event::on(Cp::class, Cp::EVENT_REGISTER_CP_NAV_ITEMS, function(RegisterCpNavItemsEvent $event) {
-            $request = Craft::$app->getRequest();
+        $request = Craft::$app->getRequest();
 
-            // Don't run the plugins custom menu for console requests
-            if ($request->getIsConsoleRequest()) {
-                return;
-            }
-
-            // Don't run the plugins custom menu during a migration
-            if ($request->getUrl() == '/actions/update/updateDatabase') {
-                return;
-            }
-
-            if ($request->isCpRequest) {
-                $this->getService()->modifyCpNav($event->navItems);
-            }
-        });
+        // if ($request->isCpRequest && strstr($request->url, 'cpnav-test')) {
+        if ($request->isCpRequest) {
+            Event::on(Cp::class, Cp::EVENT_REGISTER_CP_NAV_ITEMS, function(RegisterCpNavItemsEvent $event) {
+                $this->getService()->generateNavigation($event);
+            });
+        }
     }
 
 }

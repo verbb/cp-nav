@@ -45,16 +45,19 @@ class NavigationsService extends Component
         return $navigations;
     }
 
-    public function getNavigationsByLayoutId(int $layoutId)
+    public function getNavigationsByLayoutId(int $layoutId, $enabledOnly = false)
     {
         $navigations = [];
 
         $query = $this->_createNavigationsQuery()
             ->where(['layoutId' => $layoutId])
-            ->orderBy(['order' => SORT_ASC])
-            ->all();
+            ->orderBy(['order' => SORT_ASC]);
 
-        foreach ($query as $result) {
+        if ($enabledOnly) {
+            $query->andWhere(['enabled' => true]);
+        }
+
+        foreach ($query->all() as $result) {
             $navigations[] = new NavigationModel($result);
         }
 

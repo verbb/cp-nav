@@ -1,6 +1,8 @@
 <?php
 namespace verbb\cpnav\models;
 
+use verbb\cpnav\CpNav;
+
 use Craft;
 use craft\base\Model;
 
@@ -21,14 +23,14 @@ class Layout extends Model
     // Public Methods
     // =========================================================================
 
-    public function attributeLabels(): array
-    {
-        return [
-            'name'        => Craft::t('cp-nav', 'Name'),
-            'isDefault'   => Craft::t('cp-nav', 'Is Default'),
-            'permissions' => Craft::t('cp-nav', 'Permissions'),
-        ];
-    }
+    // public function attributeLabels(): array
+    // {
+    //     return [
+    //         'name'        => Craft::t('cp-nav', 'Name'),
+    //         'isDefault'   => Craft::t('cp-nav', 'Is Default'),
+    //         'permissions' => Craft::t('cp-nav', 'Permissions'),
+    //     ];
+    // }
 
     public function rules(): array
     {
@@ -44,5 +46,10 @@ class Layout extends Model
             // built-in "required" validator
             [['name'], 'required'],
         ];
+    }
+
+    public function getNavigations()
+    {
+        return CpNav::$plugin->getNavigations()->getNavigationsByLayoutId($this->id, true) ?? [];
     }
 }
