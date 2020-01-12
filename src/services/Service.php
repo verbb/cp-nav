@@ -6,15 +6,20 @@ use verbb\cpnav\models\Navigation as NavigationModel;
 
 use Craft;
 use craft\base\Component;
+use craft\events\PluginEvent;
+use craft\events\RegisterCpNavItemsEvent;
 use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
 use craft\web\twig\variables\Cp;
+
+use yii\web\UserEvent;
 
 class Service extends Component
 {
     // Properties
     // =========================================================================
 
+    private $_originalnavItems = [];
     private $_subNavs = [];
     private $_badges = [];
 
@@ -23,6 +28,10 @@ class Service extends Component
 
     public function generateNavigation($event)
     {
+        // This is the only real way to prevent it from firing in certain circumstances
+        // for instance, if we ever want to fetch the original nav;
+        $this->_originalnavItems = $event->navItems;
+
         // Keep a temporary copy of the un-altered nav in case things go wrong
         $subNavs = [];
         $badges = [];
@@ -49,6 +58,79 @@ class Service extends Component
             // Update the original nav
             if ($newNavItems) {
                 $event->navItems = $newNavItems;
+            }
+        } catch (\Throwable $e) {
+            CpNav::error(Craft::t('app', '{e} - {f}: {l}.', ['e' => $e->getMessage(), 'f' => $e->getFile(), 'l' => $e->getLine()]));
+        }
+    }
+
+    public function getOriginalNav()
+    {
+        // Just call it - we don't want the result of this function, we just want the hook called,
+        // which in turn calls our function above. Our hook will store the original nav in a private 
+        // variable, for final use here. Might be a better way?
+        (new Cp())->nav();
+
+        return $this->_originalnavItems;
+    }
+
+    public function afterUserLogin(UserEvent $event)
+    {
+
+    }
+
+    public function afterUserLogout(UserEvent $event)
+    {
+
+    }
+
+    public function afterPluginInstall(PluginEvent $event)
+    {
+        try {
+            $plugin = $event->plugin;
+
+            // Add the plugin's nav item
+            if ($plugin->hasCpSection && ($pluginNavItem = $plugin->getCpNavItem()) !== null) {
+                $navigation = new NavigationModel();
+                $navigation->handle = $pluginNavItem['url'] ?? '';
+                $navigation->currLabel = $pluginNavItem['label'] ?? '';
+                $navigation->prevLabel = $pluginNavItem['label'] ?? '';
+                $navigation->enabled = true;
+                $navigation->url = $pluginNavItem['url'] ?? '';
+                $navigation->prevUrl = $pluginNavItem['url'] ?? '';
+                $navigation->icon = $pluginNavItem['icon'] ?? $pluginNavItem['fontIcon'] ?? '';
+                $navigation->manualNav = false;
+                $navigation->newWindow = false;
+
+                // Its a bit of effort, but the only real way to get the correct order of the new nav item
+                // is to render normally, and find the correct index, and use that. Better than appending though.
+                $navItems = $this->getOriginalNav();
+
+                foreach ($navItems as $orderIndex => $navItem) {
+                    if ($navItem['url'] === $pluginNavItem['url']) {
+                        $navigation->order = $orderIndex;
+                    }
+                }
+
+                CpNav::$plugin->getNavigations()->saveNavigationToAllLayouts($navigation);
+            }
+        } catch (\Throwable $e) {
+            CpNav::error(Craft::t('app', '{e} - {f}: {l}.', ['e' => $e->getMessage(), 'f' => $e->getFile(), 'l' => $e->getLine()]));
+        }
+    }
+
+    public function afterPluginUninstall(PluginEvent $event)
+    {
+        try {
+            $plugin = $event->plugin;
+
+            // Remove the plugin's nav item
+            if ($plugin->hasCpSection && ($pluginNavItem = $plugin->getCpNavItem()) !== null) {
+                $handle = $pluginNavItem['url'] ?? '';
+
+                if ($handle) {
+                    CpNav::$plugin->getNavigations()->deleteNavigationFromAllLayouts($handle);
+                }
             }
         } catch (\Throwable $e) {
             CpNav::error(Craft::t('app', '{e} - {f}: {l}.', ['e' => $e->getMessage(), 'f' => $e->getFile(), 'l' => $e->getLine()]));
@@ -237,17 +319,6 @@ class Service extends Component
 
     // Private Methods
     // =========================================================================
-
-    // private function _prepareNavModel($attributes): NavigationModel
-    // {
-    //     $model = new NavigationModel($attributes);
-    //     $model->enabled = true;
-    //     $model->prevUrl = $model->url;
-    //     $model->manualNav = false;
-    //     $model->newWindow = false;
-
-    //     return $model;
-    // }
 
     private function _saveSubNavsAndBadges($originalNav)
     {

@@ -14,6 +14,7 @@ use craft\web\UrlManager;
 use craft\web\twig\variables\Cp;
 
 use yii\base\Event;
+use yii\web\User;
 
 class CpNav extends Plugin
 {
@@ -43,6 +44,7 @@ class CpNav extends Plugin
         $this->_setLogging();
         $this->_registerCpRoutes();
         $this->_registerCpNavItems();
+        $this->_registerEventHandlers();
     }
 
     public function getSettingsResponse()
@@ -76,6 +78,18 @@ class CpNav extends Plugin
                 $this->getService()->generateNavigation($event);
             });
         }
+    }
+
+    private function _registerEventHandlers()
+    {
+        Event::on(Plugins::class, Plugins::EVENT_AFTER_INSTALL_PLUGIN, [$this->getService(), 'afterPluginInstall']);
+        Event::on(Plugins::class, Plugins::EVENT_AFTER_UNINSTALL_PLUGIN, [$this->getService(), 'afterPluginUninstall']);
+
+        Event::on(Plugins::class, Plugins::EVENT_AFTER_ENABLE_PLUGIN, [$this->getService(), 'afterPluginInstall']);
+        Event::on(Plugins::class, Plugins::EVENT_AFTER_DISABLE_PLUGIN, [$this->getService(), 'afterPluginUninstall']);
+
+        Event::on(User::class, User::EVENT_AFTER_LOGIN, [$this->getService(), 'afterUserLogin']);
+        Event::on(User::class, User::EVENT_AFTER_LOGOUT, [$this->getService(), 'afterUserLogout']);
     }
 
 }

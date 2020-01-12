@@ -64,6 +64,21 @@ class NavigationsService extends Component
         return $navigations;
     }
 
+    public function getAllNavigationsByHandle(string $handle)
+    {
+        $navigations = [];
+
+        $query = $this->_createNavigationsQuery()
+            ->where(['handle' => $handle])
+            ->all();
+
+        foreach ($query as $result) {
+            $navigations[] = new NavigationModel($result);
+        }
+
+        return $navigations;
+    }
+
     public function getNavigationById(int $id)
     {
         $result = $this->_createNavigationsQuery()
@@ -131,6 +146,25 @@ class NavigationsService extends Component
         return true;
     }
 
+    public function saveNavigationToAllLayouts(NavigationModel $navigation)
+    {
+        $layouts = CpNav::$plugin->getLayouts()->getAllLayouts();
+
+        // Sanity check, in case its already there
+        $navigations = $this->getAllNavigationsByHandle($navigation->handle);
+
+        if ($navigations) {
+            return;
+        }
+
+        foreach ($layouts as $layout) {
+            $nav = clone $navigation;
+            $nav->layoutId = $layout->id;
+
+            $this->saveNavigation($nav);
+        }
+    }
+
     public function deleteNavigationById(int $navigationId): bool
     {
         $navigation = $this->getNavigationById($navigationId);
@@ -140,6 +174,17 @@ class NavigationsService extends Component
         }
 
         return $this->deleteNavigation($navigation);
+    }
+
+    public function deleteNavigationFromAllLayouts(string $handle): bool
+    {
+        $navigations = $this->getAllNavigationsByHandle($handle);
+
+        foreach ($navigations as $navigation) {
+            $this->deleteNavigation($navigation);
+        }
+
+        return true;
     }
 
     public function deleteNavigation(NavigationModel $navigation): bool

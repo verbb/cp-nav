@@ -12,7 +12,7 @@ use craft\helpers\Json;
 use craft\web\Controller;
 use craft\web\twig\variables\Cp;
 
-use \yii\web\Response;
+use yii\web\Response;
 
 class NavigationController extends Controller
 {

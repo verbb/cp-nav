@@ -23,15 +23,6 @@ class Layout extends Model
     // Public Methods
     // =========================================================================
 
-    // public function attributeLabels(): array
-    // {
-    //     return [
-    //         'name'        => Craft::t('cp-nav', 'Name'),
-    //         'isDefault'   => Craft::t('cp-nav', 'Is Default'),
-    //         'permissions' => Craft::t('cp-nav', 'Permissions'),
-    //     ];
-    // }
-
     public function rules(): array
     {
         return [
