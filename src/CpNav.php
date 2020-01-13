@@ -2,6 +2,7 @@
 namespace verbb\cpnav;
 
 use verbb\cpnav\base\PluginTrait;
+use verbb\cpnav\assetbundles\CpNavAsset;
 
 use Craft;
 use craft\base\Plugin;
@@ -45,6 +46,10 @@ class CpNav extends Plugin
         $this->_registerCpRoutes();
         $this->_registerCpNavItems();
         $this->_registerEventHandlers();
+
+        if (Craft::$app->getRequest()->getIsCpRequest()) {
+            Craft::$app->getView()->registerAssetBundle(CpNavAsset::class);
+        }
     }
 
     public function getSettingsResponse()

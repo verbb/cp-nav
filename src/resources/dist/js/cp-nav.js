@@ -1,0 +1,1 @@
+$((function(){void 0===Craft.CpNav&&(Craft.CpNav={}),Craft.CpNav.NewWindow=Garnish.Base.extend({init:function(t){$(t).attr("target","_blank")}}),Craft.CpNav.EmptyUrl=Garnish.Base.extend({init:function(t){$(t).addClass("cpn-empty-url"),$(t).removeAttr("href")}})}));
