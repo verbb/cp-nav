@@ -65,6 +65,11 @@ class Navigation extends Model
 
     public function getFullUrl()
     {
+        // An empty URL is okay
+        if ($this->url === '') {
+            return $this->url;
+        }
+
         // Do some extra work on the url if needed
         $url = trim($this->url);
 
@@ -181,6 +186,10 @@ class Navigation extends Model
             $this->_insertJsForNewWindow();
         }
 
+        if ($item['url'] === '') {
+            $this->_insertJsForEmptyUrl();
+        }
+
         return $item;
     }
 
@@ -191,12 +200,27 @@ class Navigation extends Model
     private function _insertJsForNewWindow()
     {
         // Prevent this from loading when opening a modal window
-        if (!Craft::$app->getRequest()->isAjax) {
-            $navElement = '#global-sidebar #nav li#nav-' . $this->handle . ' a';
-            $js = '$(function() { $("' . $navElement . '").attr("target", "_blank"); });';
-            
-            Craft::$app->view->registerJs($js);
+        if (Craft::$app->getRequest()->isAjax) {
+            return;
         }
+
+        $navElement = '#global-sidebar #nav li#nav-' . $this->handle . ' a';
+        $js = 'new Craft.CpNav.NewWindow("' . $navElement . '");';
+        
+        Craft::$app->view->registerJs($js);
+    }
+
+    private function _insertJsForEmptyUrl()
+    {
+        // Prevent this from loading when opening a modal window
+        if (Craft::$app->getRequest()->isAjax) {
+            return;
+        }
+        
+        $navElement = '#global-sidebar #nav li#nav-' . $this->handle . ' a';
+        $js = 'new Craft.CpNav.EmptyUrl("' . $navElement . '");';
+        
+        Craft::$app->view->registerJs($js);
     }
 
     private function _checkPermission()
