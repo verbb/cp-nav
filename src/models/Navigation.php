@@ -59,7 +59,7 @@ class Navigation extends Model
             ['newWindow', 'boolean'],
 
             // built-in "required" validator
-            [['currLabel', 'url'], 'required'],
+            [['currLabel'], 'required'],
         ];
     }
 
