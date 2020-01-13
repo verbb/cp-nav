@@ -218,7 +218,7 @@ class NavigationsService extends Component
             $navigationRecord = NavigationRecord::findOne($navigationId);
 
             if (!$navigationRecord) {
-                throw new NavigationNotFoundException("No navigation exists with the ID '{$navigationId}'");
+                throw new \Exception("No navigation exists with the ID '{$navigationId}'");
             }
         } else {
             $navigationRecord = new NavigationRecord();

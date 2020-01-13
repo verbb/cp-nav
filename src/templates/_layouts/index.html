@@ -8,8 +8,38 @@
     navigation: { label: 'Navigation' | t('cp-nav'), url: url('cp-nav') },
 } %}
 
-{% if craft.app.getEditionName() != 'Personal' %}
+{% if craft.app.getEditionName() != 'Solo' %}
     {% set tabs = tabs | merge({ layouts: { label: 'Layouts' | t('cp-nav'), url: url('cp-nav/layouts') } }) %}
 {% endif %}
 
 {% set tabs = tabs | merge({ settings: { label: 'Settings' | t('cp-nav'), url: url('cp-nav/settings') } }) %}
+
+{% set content %}
+    {% block blockContent %}
+
+    {% endblock %}
+
+    <hr>
+    
+    <div id="plugin-footer">
+        <div class="footer-left">
+            {% block footerButton %}
+
+            {% endblock %}
+        </div>
+
+        <div class="footer-right">
+            <a class="plugin-credit" href="https://verbb.io" target="_blank">
+                <span class="credit-love">Made with <span style="color: #e25555;">&#9829;</span> by</span>
+
+                <div class="credit-pill">
+                    <div class="credit-mask">
+                        <div class="credit-wrap">
+                            {% include 'cp-nav/_svg/verbb-logo.svg' %}
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+{% endset %}

@@ -26,13 +26,14 @@
     </div>
 {% endblock %}
 
-{% set content %}
+{% block blockContent %}
 
-    <div class="cp-nav-notice">
-        {{ 'CP Nav: Editing {name}' | t('cp-nav', { name: layout.name }) }}
-    </div>
+<div class="cp-nav-notice">
+    {{ 'CP Nav: Editing {name}' | t('cp-nav', { name: layout.name }) }}
+</div>
 
-    {% if craft.app.getEditionName() != 'Personal' %}
+{% if craft.app.getEditionName() != 'Solo' %}
+    <div class="layout-select">
         {{ forms.selectField({
             first: true,
             label: 'Layout' | t('cp-nav'),
@@ -42,45 +43,46 @@
             value: layoutId,
             options: layoutItems,
         }) }}
+    </div>
+{% endif %}
+
+<table id="navItems" class="data fullwidth collapsible">
+    <thead>
+        <th scope="col">{{ 'Visible' | t('cp-nav') }}</th>
+        <th scope="col">{{ 'Label' | t('cp-nav') }}</th>
+        <th scope="col">{{ 'URL' | t('cp-nav') }}</th>
+        <th></th>
+    </thead>
+    <tbody>
+    {% if navItems is defined and navItems | length > 0 %}
+        {% for nav in navItems %}
+            <tr class="nav-item" data-id="{{ nav.id }}" data-currLabel="{{ nav.currLabel }}" data-name="{{ nav.currLabel }}">
+                <td class="thin">
+                    {{ forms.lightswitchField({
+                        name: 'navEnabled',
+                        on: nav.enabled,
+                    }) }}
+                </td>
+
+                <td data-title="{{ nav.currLabel | t('cp-nav') }}">
+                    <a class="move icon" title="{{ 'Reorder' | t('cp-nav') }}" role="button"></a>
+                    <a class="edit-nav">{{ nav.currLabel | t('cp-nav') }}</a>
+                    <span class="original-nav">({{ nav.prevLabel | t('cp-nav') }})</span>
+                </td>
+
+                <td data-title="{{ nav.currLabel | t('cp-nav') }}">
+                    <span class="original-nav-link">{{ nav.url }}</span>
+                </td>
+
+                <td class="thin">
+                    {% if nav.manualNav %}
+                        <a class="delete icon" title="{{ 'Delete' | t('cp-nav') }}" role="button"></a>
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
     {% endif %}
+    </tbody>
+</table>
 
-    <table id="navItems" class="data fullwidth collapsible">
-        <thead>
-            <th scope="col">{{ 'Visible' | t('cp-nav') }}</th>
-            <th scope="col">{{ 'Label' | t('cp-nav') }}</th>
-            <th scope="col">{{ 'URL' | t('cp-nav') }}</th>
-            <th></th>
-        </thead>
-        <tbody>
-        {% if navItems is defined and navItems | length > 0 %}
-            {% for nav in navItems %}
-                <tr class="nav-item" data-id="{{ nav.id }}" data-currLabel="{{ nav.currLabel }}" data-name="{{ nav.currLabel }}">
-                    <td class="thin">
-                        {{ forms.lightswitchField({
-                            name: 'navEnabled',
-                            on: nav.enabled,
-                        }) }}
-                    </td>
-
-                    <td data-title="{{ nav.currLabel | t('cp-nav') }}">
-                        <a class="move icon" title="{{ 'Reorder' | t('cp-nav') }}" role="button"></a>
-                        <a class="edit-nav">{{ nav.currLabel | t('cp-nav') }}</a>
-                        <span class="original-nav">({{ nav.prevLabel | t('cp-nav') }})</span>
-                    </td>
-
-                    <td data-title="{{ nav.currLabel | t('cp-nav') }}">
-                        <span class="original-nav-link">{{ nav.url }}</span>
-                    </td>
-
-                    <td class="thin">
-                        {% if nav.manualNav %}
-                            <a class="delete icon" title="{{ 'Delete' | t('cp-nav') }}" role="button"></a>
-                        {% endif %}
-                    </td>
-                </tr>
-            {% endfor %}
-        {% endif %}
-        </tbody>
-    </table>
-
-{% endset %}
+{% endblock %}

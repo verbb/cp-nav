@@ -89,16 +89,6 @@ class LayoutsService extends Component
         return $layoutForUser;
     }
 
-    public function setDefaultLayout($layoutId): bool
-    {
-        $layout = new LayoutRecord();
-        $layout->id = $layoutId;
-        $layout->name = 'Default';
-        $layout->isDefault = true;
-
-        return $layout->save();
-    }
-
     public function saveLayout(LayoutModel $layout, bool $runValidation = true): bool
     {
         $isNewLayout = !$layout->id;
@@ -180,7 +170,7 @@ class LayoutsService extends Component
             $layoutRecord = LayoutRecord::findOne($layoutId);
 
             if (!$layoutRecord) {
-                throw new LayoutNotFoundException("No layout exists with the ID '{$layoutId}'");
+                $layoutRecord = new LayoutRecord();
             }
         } else {
             $layoutRecord = new LayoutRecord();

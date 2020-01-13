@@ -64,6 +64,7 @@ class CpNav extends Plugin
                 'cp-nav/navigation/get-hud-html' => 'cp-nav/navigation/getHudHtml',
                 'cp-nav/layouts' => 'cp-nav/layout/index',
                 'cp-nav/layouts/get-hud-html' => 'cp-nav/layouts/getHudHtml',
+                'cp-nav/settings' => 'cp-nav/default/settings',
             ]);
         });
     }

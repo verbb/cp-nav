@@ -7,21 +7,38 @@
 ] %}
 
 {% set selectedTab = 'settings' %}
+{% set fullPageForm = true %}
 
-{% set content %}
+{% set layoutItems = [] %}
+{% for layout in layouts %}
+    {% set layoutItems = layoutItems | merge([{ label: layout.name, value: layout.id }]) %}
+{% endfor %}
+
+{% block actionButton %}{% endblock %}
+
+{% block blockContent %}
+
+<input type="hidden" name="action" value="cp-nav/navigation/reset">
 
 <div class="field">
     <div class="heading">
         <label id="cache-label" for="cache">{{ "Reset Navigation" | t('cp-nav') }}</label>
 
         <div class="instructions">
-            <p>{{ 'To reset all control panel navigations to their original state, click the button below. You will loose  any of your customisation changes, such as renaming, enable/disable and re-ordering.' | t('cp-nav') }}</p>
+            <p>{{ 'To reset any layout to their original state, click the button below. You will loose any of your customisation changes, such as renaming, enable/disable and re-ordering. This will also include any manually created nav items.' | t('cp-nav') }}</p>
 
-            <a class="btn submit" href="{{ actionUrl('cp-nav/navigation/reset') }}">
+            {{ forms.selectField({
+                first: true,
+                id: 'layoutId',
+                name: 'layoutId',
+                options: layoutItems,
+            }) }}
+
+            <a class="btn submit formsubmit" data-confirm="{{ 'Are you sure you want to reset the navigation? This cannot be undone.' | t('cp-nav') }}">
                 {{ 'Reset Navigation' | t('cp-nav') }}
             </a>
         </div>
     </div>
 </div>
 
-{% endset %}
+{% endblock %}

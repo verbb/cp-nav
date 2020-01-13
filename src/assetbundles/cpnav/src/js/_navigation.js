@@ -10,7 +10,7 @@ if (typeof Craft.CpNav === typeof undefined) {
 // FETCH NAVS FOR LAYOUT WHEN CHANGING SELECT
 // ----------------------------------------
 
-$(document).on('change', 'select#layoutId', function() {
+$(document).on('change', '.layout-select select', function() {
     $(this).addClass('loading');
 
     window.location.href = Craft.getUrl('cp-nav?layoutId=' + $(this).val());
@@ -61,7 +61,7 @@ Craft.CpNav.AddMenuItem = Garnish.Base.extend({
         this.$element = $element;
 
         this.data = {
-            layoutId: $('select#layoutId').val(),
+            layoutId: $('.layout-select select').val(),
         };
 
         this.$element.addClass('loading');
@@ -184,7 +184,7 @@ $(document).on('change', '#navItems .lightswitch', function() {
     var data = {
         value: val,
         id: row.data('id'),
-        layoutId: $('select#layoutId').val(),
+        layoutId: $('.layout-select select').val(),
     }
 
     Craft.postActionRequest('cp-nav/navigation/toggle', data, $.proxy(function(response, textStatus) {
@@ -230,7 +230,7 @@ Craft.CpNav.EditNavItem = Garnish.Base.extend({
         this.data = {
             id: $data.data('id'),
             currLabel: $data.data('currlabel'),
-            layoutId: $('select#layoutId').val(),
+            layoutId: $('.layout-select select').val(),
         }
 
         this.$element.addClass('loading');
@@ -330,7 +330,7 @@ Craft.CpNav.AlternateAdminTable = Craft.AdminTable.extend({
         // Send it to the server
         var data = {
             ids: JSON.stringify(ids),
-            layoutId: $('select#layoutId').val(),
+            layoutId: $('.layout-select select').val(),
         };
 
         Craft.postActionRequest(this.settings.reorderAction, data, $.proxy(function(response, textStatus) {
@@ -352,7 +352,7 @@ Craft.CpNav.AlternateAdminTable = Craft.AdminTable.extend({
     deleteItem: function($row) {
         var data = {
             id: this.getItemId($row),
-            layoutId: $('select#layoutId').val(),
+            layoutId: $('.layout-select select').val(),
         };
 
         Craft.postActionRequest(this.settings.deleteAction, data, $.proxy(function(response, textStatus) {

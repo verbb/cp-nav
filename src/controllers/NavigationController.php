@@ -19,21 +19,22 @@ class NavigationController extends Controller
     // Public Methods
     // =========================================================================
 
-    // public function beforeAction($action)
-    // {   
-    //     // Are we trying to load the index page? Check we have defaults setup
-    //     if ($action->actionMethod === 'actionIndex') {
-    //         $layoutId = $this->_getCurrentLayoutId();
+    public function beforeAction($action)
+    {   
+        // Are we trying to load the index page? Check we have defaults setup
+        if ($action->actionMethod === 'actionIndex') {
+            $request = Craft::$app->getRequest();
+            $layoutId = $request->getParam('layoutId', 1);
 
-    //         $navItems = CpNav::$plugin->getNavigations()->getNavigationsByLayoutId($layoutId);
+            $navItems = CpNav::$plugin->getNavigations()->getNavigationsByLayoutId($layoutId);
 
-    //         if (!$navItems) {
-    //             CpNav::$plugin->getService()->setupDefaults();
-    //         }
-    //     }
+            if (!$navItems) {
+                CpNav::$plugin->getService()->populateOriginalNavigationItems($layoutId);
+            }
+        }
 
-    //     return parent::beforeAction($action);
-    // }
+        return parent::beforeAction($action);
+    }
 
     public function actionIndex()
     {
@@ -249,8 +250,22 @@ class NavigationController extends Controller
         return $this->asJson(['success' => true, 'navHtml' => $this->_getNavHtml()]);
     }
 
-    public function actionRegenerate()
+    public function actionReset()
     {
+        $request = Craft::$app->getRequest();
+        $layoutId = $request->getRequiredParam('layoutId');
+
+        $navigations = CpNav::$plugin->getNavigations()->getNavigationsByLayoutId($layoutId);
+
+        foreach ($navigations as $navigation) {
+            # code...
+        }
+
+        Craft::dd('test');
+
+        // $layouts = CpNav::$plugin->getLayouts()->getLayoutForCurrentUser();
+
+
         // $layout = CpNav::$plugin->getLayouts()->getLayoutForCurrentUser();
         // $defaultNavs = new Cp();
 
@@ -267,22 +282,8 @@ class NavigationController extends Controller
 
     private function _getNavHtml()
     {
-        // $event = new \craft\events\RegisterCpNavItemsEvent();
-        // $event->navItems = (new Cp())->nav();
-
-        // CpNav::$plugin->getService()->generateNavigation($event);
-
-        // return $event->navItems;
-
         return Craft::$app->view->renderTemplate('cp-nav/_layouts/navs');
     }
-
-    // private function _getCurrentLayoutId()
-    // {
-    //     $request = Craft::$app->getRequest();
-        
-    //     return $request->getParam('layoutId', 1);
-    // }
     
     private function _getErrorString($object)
     {
