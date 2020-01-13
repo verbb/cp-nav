@@ -257,23 +257,25 @@ class NavigationController extends Controller
 
         $navigations = CpNav::$plugin->getNavigations()->getNavigationsByLayoutId($layoutId);
 
+        $errors = [];
+
         foreach ($navigations as $navigation) {
-            # code...
+            if (!CpNav::$plugin->getNavigations()->deleteNavigation($navigation)) {
+                $errors[] = $this->_getErrorString($navigation);
+            }
         }
 
-        Craft::dd('test');
+        if ($errors) {
+            Craft::$app->getSession()->setError(Craft::t('cp-nav', 'Couldn’t reset layout - ' . $errors[0]));
 
-        // $layouts = CpNav::$plugin->getLayouts()->getLayoutForCurrentUser();
+            return null;
+        }
 
+        CpNav::$plugin->getService()->populateOriginalNavigationItems($layoutId);
 
-        // $layout = CpNav::$plugin->getLayouts()->getLayoutForCurrentUser();
-        // $defaultNavs = new Cp();
+        Craft::$app->getSession()->setNotice(Craft::t('cp-nav', 'Reset navigation.'));
 
-        // $manualNavs = CpNav::$plugin->getNavigations()->getAllManualNavigations($layout->id, 'handle');
-
-        // CpNav::$plugin->getService()->regenerateNav($layout->id, $manualNavs, $defaultNavs->nav());
-
-        // return $this->redirect(Craft::$app->getRequest()->getReferrer());
+        return $this->redirect('cp-nav/settings');
     }
 
 
