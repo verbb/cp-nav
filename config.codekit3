@@ -303,6 +303,14 @@
 		"oAP": "/src/CpNav.php",
 		"oF": 0
 		},
+	"/src/events/CacheEvent.php": {
+		"cB": 0,
+		"ft": 8192,
+		"hM": 0,
+		"oA": 2,
+		"oAP": "/src/events/CacheEvent.php",
+		"oF": 0
+		},
 	"/src/events/LayoutEvent.php": {
 		"cB": 0,
 		"ft": 8192,

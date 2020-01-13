@@ -21,7 +21,7 @@ class CpNav extends Plugin
     // Public Properties
     // =========================================================================
 
-    public $schemaVersion = '2.0.0';
+    public $schemaVersion = '2.0.1';
     public $hasCpSettings = true;
     
 
@@ -72,8 +72,7 @@ class CpNav extends Plugin
     {
         $request = Craft::$app->getRequest();
 
-        // if ($request->isCpRequest && strstr($request->url, 'cpnav-test')) {
-        // if ($request->isCpRequest) {
+        if ($request->isCpRequest) {
             Event::on(Cp::class, Cp::EVENT_REGISTER_CP_NAV_ITEMS, function(RegisterCpNavItemsEvent $event) {
                 // Check to see if the nav needs to be updated
                 $this->getService()->processPendingPluginInstall($event);
@@ -81,7 +80,7 @@ class CpNav extends Plugin
                 // Generate our custom nav instead
                 $this->getService()->generateNavigation($event);
             });
-        // }
+        }
     }
 
     private function _registerEventHandlers()

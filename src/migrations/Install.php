@@ -50,6 +50,14 @@ class Install extends Migration
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
         ]);
+        
+        $this->createTable('{{%cpnav_pending_navigations}}', [
+            'id' => $this->primaryKey(),
+            'pluginNavItem' => $this->text(),
+            'dateCreated' => $this->dateTime()->notNull(),
+            'dateUpdated' => $this->dateTime()->notNull(),
+            'uid' => $this->uid(),
+        ]);
     }
 
     public function addForeignKeys()
@@ -61,5 +69,6 @@ class Install extends Migration
     {
         $this->dropTableIfExists('{{%cpnav_navigation}}');
         $this->dropTableIfExists('{{%cpnav_layout}}');
+        $this->dropTableIfExists('{{%cpnav_pending_navigations}}');
     }
 }

@@ -71,7 +71,9 @@ class Service extends Component
                 // So this is a bit annoying. At this point, new plugin items are added at the bottom
                 // of the nav, which probably has to do with how new plugins are stored in the internal cache
                 // So - in order to get the correct order to insert, save the info for later, on the next page request
-                Craft::$app->getSession()->set('cpNav.installedPlugin', $pluginNavItem);
+                //
+                // It'd be nice if we could ditch this, but requires investigation into Craft core
+                CpNav::$plugin->getPendingNavigations()->set($pluginNavItem);
             }
         } catch (\Throwable $e) {
             CpNav::error(Craft::t('app', '{e} - {f}: {l}.', ['e' => $e->getMessage(), 'f' => $e->getFile(), 'l' => $e->getLine()]));
@@ -80,8 +82,14 @@ class Service extends Component
 
     public function processPendingPluginInstall($event)
     {
-        // Check to see if we've just installed a plugin
-        if ($pluginNavItem = Craft::$app->getSession()->get('cpNav.installedPlugin')) {
+        // Check to see if we've installed any plugins that have updates for us to apply. We have to use the DB 
+        // to store these (as opposed to sessions) so we can support installing plugins via the console
+        // (where sessions aren't supported and throw an error)
+        $pluginNavItems = CpNav::$plugin->getPendingNavigations()->get();
+
+        foreach ($pluginNavItems as $pluginNavItem) {
+            $errors = [];
+
             try {
                 $navigation = new NavigationModel();
                 $navigation->handle = $pluginNavItem['url'] ?? '';
@@ -109,10 +117,18 @@ class Service extends Component
                 // Create nav item for all layouts
                 CpNav::$plugin->getNavigations()->saveNavigationToAllLayouts($navigation);
             } catch (\Throwable $e) {
-                CpNav::error(Craft::t('app', '{e} - {f}: {l}.', ['e' => $e->getMessage(), 'f' => $e->getFile(), 'l' => $e->getLine()]));
+                $error = Craft::t('app', '{e} - {f}: {l}.', ['e' => $e->getMessage(), 'f' => $e->getFile(), 'l' => $e->getLine()]);
+
+                CpNav::error($error);
+                $errors[] = $error;
+
+                continue;
             }
 
-            Craft::$app->getSession()->remove('cpNav.installedPlugin');
+            // Clear out all pending items, unless errors
+            if (!$errors) {
+                CpNav::$plugin->getPendingNavigations()->remove();
+            }
         }
     }
 
