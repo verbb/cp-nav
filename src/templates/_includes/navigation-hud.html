@@ -42,7 +42,7 @@
     {% set icons = (icons is defined ? icons : []) -%}
 
     {{ forms.elementSelectField({
-        label: 'Icon' | t('cp-nav'),
+        label: 'Custom Icon' | t('cp-nav'),
         instructions: 'Specify an SVG asset for this menu item icon.' | t('cp-nav'),
         elements: icons,
         id: 'customIcon',
@@ -56,7 +56,128 @@
         addButtonLabel: 'Select an Icon' | t('cp-nav'),
         limit: 1,
     }) }}
+
+    {% set options = [
+        { value: '', label: 'Select icon' },
+        { value: 'gauge', label: 'gauge' },
+        { value: 'globe', label: 'globe' },
+        { value: 'layout', label: 'layout' },
+        { value: 'screwdriver', label: 'screwdriver' },
+        { value: 'newstamp', label: 'newstamp' },
+        { value: 'move', label: 'move' },
+        { value: 'structure-rtl', label: 'structure-rtl' },
+        { value: 'structure', label: 'structure' },
+        { value: 'ban', label: 'ban' },
+        { value: 'search', label: 'search' },
+        { value: 'user', label: 'user' },
+        { value: 'grid-large', label: 'grid-large' },
+        { value: 'grid', label: 'grid' },
+        { value: 'check', label: 'check' },
+        { value: 'remove', label: 'remove' },
+        { value: 'settings', label: 'settings' },
+        { value: 'trash', label: 'trash' },
+        { value: 'home', label: 'home' },
+        { value: 'clock', label: 'clock' },
+        { value: 'refresh', label: 'refresh' },
+        { value: 'lock', label: 'lock' },
+        { value: 'tag', label: 'tag' },
+        { value: 'tags', label: 'tags' },
+        { value: 'list-rtl', label: 'list-rtl' },
+        { value: 'list', label: 'list' },
+        { value: 'image', label: 'image' },
+        { value: 'pencil', label: 'pencil' },
+        { value: 'field', label: 'field' },
+        { value: 'done', label: 'done' },
+        { value: 'info', label: 'info' },
+        { value: 'arrow-left', label: 'arrow-left' },
+        { value: 'arrow-right', label: 'arrow-right' },
+        { value: 'arrow-up', label: 'arrow-up' },
+        { value: 'arrow-down', label: 'arrow-down' },
+        { value: 'shareleft', label: 'shareleft' },
+        { value: 'share', label: 'share' },
+        { value: 'expand', label: 'expand' },
+        { value: 'plus', label: 'plus' },
+        { value: 'minus', label: 'minus' },
+        { value: 'asterisk', label: 'asterisk' },
+        { value: 'compress', label: 'compress' },
+        { value: 'eye', label: 'eye' },
+        { value: 'alert', label: 'alert' },
+        { value: 'category', label: 'category' },
+        { value: 'comments', label: 'comments' },
+        { value: 'unlock', label: 'unlock' },
+        { value: 'arrow-circle-left', label: 'arrow-circle-left' },
+        { value: 'arrow-circle-right', label: 'arrow-circle-righ' },
+        { value: 'arrow-circle-up', label: 'arrow-circle-up' },
+        { value: 'arrow-circle-down', label: 'arrow-circle-down' },
+        { value: 'world', label: 'world' },
+        { value: 'wrench', label: 'wrench' },
+        { value: 'group', label: 'group' },
+        { value: 'menu', label: 'menu' },
+        { value: 'wand', label: 'wand' },
+        { value: 'envelope', label: 'envelope' },
+        { value: 'lightbulb', label: 'lightbulb' },
+        { value: 'download', label: 'download' },
+        { value: 'upload', label: 'upload' },
+        { value: 'bell', label: 'bell' },
+        { value: 'left-angle', label: 'left-angle' },
+        { value: 'right-angle', label: 'right-angle' },
+        { value: 'up-angle', label: 'up-angle' },
+        { value: 'down-angle', label: 'down-angle' },
+        { value: 'disabled', label: 'disabled' },
+        { value: 'enabled', label: 'enabled' },
+        { value: 'calendar', label: 'calendar' },
+        { value: 'sort-amount-asc', label: 'sort-amount-asc' },
+        { value: 'sort-amount-desc', label: 'sort-amount-desc' },
+        { value: 'bug', label: 'bug' },
+        { value: 'database', label: 'database' },
+        { value: 'template', label: 'template' },
+        { value: 'file', label: 'file' },
+        { value: 'draft', label: 'draft' },
+        { value: 'sliders', label: 'sliders' },
+        { value: 'plugin', label: 'plugin' },
+        { value: 'section', label: 'section' },
+        { value: 'brush', label: 'brush' },
+        { value: 'routes', label: 'routes' },
+        { value: 'question', label: 'question' },
+    ] %}
+
+    {{ forms.selectField({
+        label: 'Craft Icon' | t('cp-nav'),
+        instructions: 'Specify an in-built Craft icon for this menu item.' | t('cp-nav'),
+        id: 'craft-icon',
+        name: 'icon',
+        value: nav.icon,
+        options: options,
+    }) }}
 {% endif %}
+
+<script>
+
+(function($) {
+    $('#craft-icon-field select').on('change', function(e) {
+        var value = $(this).val();
+        var $iconElement = $('#craft-icon-field .input').find('.icon-element');
+
+        if ($iconElement.length == 0) {
+            $iconElement = $('<span class="icon-element"></span>').appendTo('#craft-icon-field .input');
+        }
+
+        $iconElement.html('<span data-icon="' + value + '"></span>');
+    });
+
+    $('#craft-icon-field select').trigger('change');
+})(jQuery);
+
+</script>
+
+<style>
+
+.icon-element {
+    padding-left: 5px;
+    font-size: 16px;
+}
+
+</style>
 
 <input type="hidden" name="layoutId" value="{{ nav.layoutId }}" />
 <input type="hidden" name="id" value="{{ nav.id }}" />

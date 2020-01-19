@@ -154,8 +154,8 @@ class NavigationController extends Controller
         $footHtml = Craft::$app->view->clearJsBuffer();
 
         return $this->asJson([
-            'html'     => $bodyHtml,
-            'footerJs' => $footHtml,
+            'bodyHtml' => $bodyHtml,
+            'footHtml' => $footHtml,
         ]);
     }
 
@@ -178,7 +178,7 @@ class NavigationController extends Controller
         $navigation->order = 99;
         $navigation->url = $request->getParam('url');
         $navigation->prevUrl = $request->getParam('url');
-        $navigation->icon = null;
+        $navigation->icon = $request->getParam('icon', null);
         $navigation->customIcon = $customIcon;
         $navigation->type = $request->getParam('type');
         $navigation->newWindow = (bool)$request->getParam('newWindow');
@@ -209,6 +209,7 @@ class NavigationController extends Controller
         $navigation->currLabel = $request->getParam('currLabel');
         $navigation->url = $request->getParam('url');
         $navigation->newWindow = (bool)$request->getParam('newWindow');
+        $navigation->icon = $request->getParam('icon', $navigation->icon);
 
         // json encode custom icon id
         $customIcon = $request->getParam('customIcon') ? json_encode($request->getParam('customIcon')) : null;

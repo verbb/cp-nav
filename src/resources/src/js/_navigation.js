@@ -84,7 +84,7 @@ Craft.CpNav.AddMenuItem = Garnish.Base.extend({
             this.$form = $('<div/>');
             $fieldsContainer = $('<div class="fields"/>').appendTo(this.$form);
 
-            $fieldsContainer.html(response.html)
+            $fieldsContainer.html(response.bodyHtml)
             Craft.initUiElements($fieldsContainer);
 
             var $footer = $('<div class="hud-footer"/>').appendTo(this.$form),
@@ -276,7 +276,7 @@ Craft.CpNav.EditNavItem = Garnish.Base.extend({
             this.$form = $('<div/>');
             $fieldsContainer = $('<div class="fields"/>').appendTo(this.$form);
 
-            $fieldsContainer.html(response.html)
+            $fieldsContainer.html(response.bodyHtml)
             Craft.initUiElements($fieldsContainer);
 
             var $footer = $('<div class="hud-footer"/>').appendTo(this.$form),
