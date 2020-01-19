@@ -29,12 +29,7 @@ class NavigationsService extends Component
         $navigations = [];
 
         $query = $this->_createNavigationsQuery()
-            ->where(['layoutId' => $layoutId])
-            ->andFilterWhere([
-                'or',
-                ['is', 'manualNav', null],
-                ['<>', 'manualNav', '1'],
-            ])
+            ->where(['layoutId' => $layoutId, 'type' => NavigationModel::TYPE_MANUAL])
             ->orderBy(['order' => SORT_ASC])
             ->all();
 
@@ -125,7 +120,7 @@ class NavigationsService extends Component
         $navigationRecord->prevUrl = $navigation->prevUrl;
         $navigationRecord->icon = $navigation->icon;
         $navigationRecord->customIcon = $navigation->customIcon;
-        $navigationRecord->manualNav = $navigation->manualNav;
+        $navigationRecord->type = $navigation->type;
         $navigationRecord->newWindow = $navigation->newWindow;
 
         // Save the record
@@ -242,7 +237,7 @@ class NavigationsService extends Component
                 'url',
                 'icon',
                 'customIcon',
-                'manualNav',
+                'type',
                 'newWindow',
                 'dateUpdated',
                 'dateCreated',

@@ -19,15 +19,15 @@
     name: 'url',
     autofocus: true,
     value: nav.url,
-    disabled: not nav.manualNav,
-    class: (nav.manualNav) ? '' : 'disabled',
+    disabled: not nav.isManual(),
+    class: (nav.isManual()) ? '' : 'disabled',
 }) }}
 
-{% if not nav.manualNav %}
+{% if not nav.isManual() %}
     <input type="hidden" name="url" value="{{ nav.url }}" style="display: none;" />
 {% endif %}
 
-{% if nav.manualNav %}
+{% if nav.isManual() %}
     {{ forms.lightswitchField({
         label: 'New window' | t('cp-nav'),
         instructions: 'Whether to open this page in a new window.' | t('cp-nav'),

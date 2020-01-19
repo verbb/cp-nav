@@ -191,7 +191,7 @@ class Service extends Component
         $navigation->url = $pluginNavItem['url'] ?? '';
         $navigation->prevUrl = $pluginNavItem['url'] ?? '';
         $navigation->icon = $pluginNavItem['icon'] ?? $pluginNavItem['fontIcon'] ?? '';
-        $navigation->manualNav = false;
+        $navigation->type = '';
         $navigation->newWindow = false;
 
         return $navigation;

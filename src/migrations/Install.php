@@ -44,7 +44,7 @@ class Install extends Migration
             'url' => $this->string(255),
             'icon' => $this->string(255),
             'customIcon' => $this->string(255),
-            'manualNav' => $this->boolean()->notNull()->defaultValue(false),
+            'type' => $this->string(),
             'newWindow' => $this->boolean()->notNull()->defaultValue(false),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),

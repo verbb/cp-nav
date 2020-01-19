@@ -11,6 +11,12 @@ use craft\helpers\UrlHelper;
 
 class Navigation extends Model
 {
+    // Constants
+    // =========================================================================
+
+    const TYPE_MANUAL = 'manual';
+
+
     // Public Properties
     // =========================================================================
 
@@ -25,7 +31,7 @@ class Navigation extends Model
     public $url;
     public $icon;
     public $customIcon;
-    public $manualNav;
+    public $type;
     public $newWindow;
     public $dateCreated;
     public $dateUpdated;
@@ -55,7 +61,6 @@ class Navigation extends Model
 
             ['icon', 'string'],
             ['customIcon', 'string'],
-            ['manualNav', 'boolean'],
             ['newWindow', 'boolean'],
 
             // built-in "required" validator
@@ -191,6 +196,11 @@ class Navigation extends Model
         }
 
         return $item;
+    }
+
+    public function isManual()
+    {
+        return (bool)$this->type == self::TYPE_MANUAL;
     }
 
 

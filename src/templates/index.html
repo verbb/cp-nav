@@ -75,7 +75,7 @@
                 </td>
 
                 <td class="thin">
-                    {% if nav.manualNav %}
+                    {% if nav.isManual() %}
                         <a class="delete icon" title="{{ 'Delete' | t('cp-nav') }}" role="button"></a>
                     {% endif %}
                 </td>

@@ -89,7 +89,7 @@ class LayoutController extends Controller
                 'url'        => $nav->url,
                 'icon'       => $nav->icon,
                 'customIcon' => $nav->customIcon,
-                'manualNav'  => $nav->manualNav,
+                'type'       => $nav->type,
                 'newWindow'  => $nav->newWindow,
             ]);
 

@@ -117,7 +117,7 @@ class NavigationController extends Controller
         } else {
             $navigation = new NavigationModel();
             $navigation->layoutId = $layoutId;
-            $navigation->manualNav = true;
+            $navigation->type = NavigationModel::TYPE_MANUAL;
         }
 
         $volumes = Craft::$app->getVolumes()->getAllVolumes();
@@ -186,7 +186,7 @@ class NavigationController extends Controller
         $navigation->prevUrl = $url;
         $navigation->icon = null;
         $navigation->customIcon = $customIcon;
-        $navigation->manualNav = true;
+        $navigation->type = NavigationModel::TYPE_MANUAL;
         $navigation->newWindow = $newWindow;
 
         if (!CpNav::$plugin->getNavigations()->saveNavigation($navigation)) {
