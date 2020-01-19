@@ -4,7 +4,7 @@
 
 {% if allGroups is defined %}
     {% for user in allGroups %}
-        {% set users = users | merge([{ label: user.name, value: user.id }]) %}
+        {% set users = users | merge([{ label: user.name, value: user.uid }]) %}
     {% endfor %}
 {% endif %}
 

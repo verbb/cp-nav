@@ -7,6 +7,7 @@ use verbb\cpnav\models\Navigation as NavigationModel;
 
 use Craft;
 use craft\elements\User;
+use craft\helpers\Json;
 use craft\web\Controller;
 
 use yii\web\Response;
@@ -70,7 +71,7 @@ class LayoutController extends Controller
 
         $layout = new LayoutModel();
         $layout->name = $request->getRequiredParam('name');
-        $layout->permissions = json_encode($request->getParam('permissions'));
+        $layout->permissions = Json::encode($request->getParam('permissions'));
 
         if (!CpNav::$plugin->getLayouts()->saveLayout($layout)) {
             return $this->asJson(['error' => $this->_getErrorString($layout)]);
@@ -114,7 +115,7 @@ class LayoutController extends Controller
         }
 
         $layout->name = $request->getRequiredParam('name');
-        $layout->permissions = json_encode($request->getParam('permissions'));
+        $layout->permissions = Json::encode($request->getParam('permissions'));
 
         if (!CpNav::$plugin->getLayouts()->saveLayout($layout)) {
             return $this->asJson(['error' => $this->_getErrorString($layout)]);

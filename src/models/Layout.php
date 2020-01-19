@@ -32,7 +32,6 @@ class Layout extends Model
             ['name', 'string', 'min' => 1],
 
             ['isDefault', 'boolean'],
-            ['permissions', 'string'],
 
             // built-in "required" validator
             [['name'], 'required'],

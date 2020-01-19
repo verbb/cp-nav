@@ -10,6 +10,7 @@ use Craft;
 use craft\base\Component;
 use craft\db\Query;
 use craft\elements\User;
+use craft\helpers\Json;
 
 class LayoutsService extends Component
 {
@@ -56,7 +57,7 @@ class LayoutsService extends Component
             // Is there even a solo account?
             if ($solo) {
                 foreach ($layouts as $key => $layout) {
-                    $permissions = json_decode($layout->permissions);
+                    $permissions = Json::decode($layout->permissions);
 
                     if (is_array($permissions) && in_array('solo', $permissions, false)) {
                         $layoutForUser = $layout;
@@ -71,9 +72,9 @@ class LayoutsService extends Component
 
             foreach ($groups as $index => $group) {
                 foreach ($layouts as $key => $layout) {
-                    $permissions = json_decode($layout->permissions);
+                    $permissions = Json::decode($layout->permissions);
 
-                    if (is_array($permissions) && in_array($group->id, $permissions, false)) {
+                    if (is_array($permissions) && in_array($group->uid, $permissions, false)) {
                         $layoutForUser = $layout;
 
                         break 2;
