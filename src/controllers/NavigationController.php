@@ -166,28 +166,22 @@ class NavigationController extends Controller
 
         $request = Craft::$app->getRequest();
 
-        $layoutId = $request->getParam('layoutId', 1);
-        $label = $request->getParam('currLabel');
-        $url = $request->getParam('url');
-        $handle = $request->getParam('handle');
-        $newWindow = (bool)$request->getParam('newWindow');
-
         // json encode custom icon id
         $customIcon = $request->getParam('customIcon') ? json_encode($request->getParam('customIcon')) : null;
 
         $navigation = new NavigationModel();
-        $navigation->layoutId = $layoutId;
-        $navigation->handle = $handle;
-        $navigation->currLabel = $label;
-        $navigation->prevLabel = $label;
+        $navigation->layoutId = $request->getParam('layoutId', 1);
+        $navigation->handle = $request->getParam('handle');
+        $navigation->currLabel = $request->getParam('currLabel');
+        $navigation->prevLabel = $request->getParam('currLabel');
         $navigation->enabled = true;
         $navigation->order = 99;
-        $navigation->url = $url;
-        $navigation->prevUrl = $url;
+        $navigation->url = $request->getParam('url');
+        $navigation->prevUrl = $request->getParam('url');
         $navigation->icon = null;
         $navigation->customIcon = $customIcon;
-        $navigation->type = NavigationModel::TYPE_MANUAL;
-        $navigation->newWindow = $newWindow;
+        $navigation->type = $request->getParam('type');
+        $navigation->newWindow = (bool)$request->getParam('newWindow');
 
         if (!CpNav::$plugin->getNavigations()->saveNavigation($navigation)) {
             return $this->asJson(['error' => $this->_getErrorString($navigation)]);

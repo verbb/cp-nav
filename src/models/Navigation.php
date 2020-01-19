@@ -15,6 +15,7 @@ class Navigation extends Model
     // =========================================================================
 
     const TYPE_MANUAL = 'manual';
+    const TYPE_DIVIDER = 'divider';
 
 
     // Public Properties
@@ -195,12 +196,21 @@ class Navigation extends Model
             $this->_insertJsForEmptyUrl();
         }
 
+        if ($this->isDivider()) {
+            $this->_insertJsForDivider();
+        }
+
         return $item;
     }
 
     public function isManual()
     {
-        return (bool)$this->type == self::TYPE_MANUAL;
+        return (bool)($this->type == self::TYPE_MANUAL);
+    }
+
+    public function isDivider()
+    {
+        return (bool)($this->type == self::TYPE_DIVIDER);
     }
 
 
@@ -214,9 +224,7 @@ class Navigation extends Model
             return;
         }
 
-        $navElement = '#global-sidebar #nav li#nav-' . $this->handle . ' a';
-        $js = 'new Craft.CpNav.NewWindow("' . $navElement . '");';
-        
+        $js = 'Craft.CpNav.NewWindows.push("' . $this->handle . '");';
         Craft::$app->view->registerJs($js);
     }
 
@@ -227,9 +235,18 @@ class Navigation extends Model
             return;
         }
         
-        $navElement = '#global-sidebar #nav li#nav-' . $this->handle . ' a';
-        $js = 'new Craft.CpNav.EmptyUrl("' . $navElement . '");';
+        $js = 'Craft.CpNav.EmptyUrls.push("' . $this->handle . '");';
+        Craft::$app->view->registerJs($js);
+    }
+
+    private function _insertJsForDivider()
+    {
+        // Prevent this from loading when opening a modal window
+        if (Craft::$app->getRequest()->isAjax) {
+            return;
+        }
         
+        $js = 'Craft.CpNav.Dividers.push("' . $this->handle . '");';
         Craft::$app->view->registerJs($js);
     }
 

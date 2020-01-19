@@ -60,13 +60,19 @@ Craft.CpNav.AddMenuItem = Garnish.Base.extend({
     init: function($element, $data) {
         this.$element = $element;
 
+        var type = $element.data('type');
+
         this.data = {
             layoutId: $('.layout-select select').val(),
         };
 
         this.$element.addClass('loading');
 
-        Craft.postActionRequest('cp-nav/navigation/get-hud-html', this.data, $.proxy(this, 'showHud'));
+        if (type == 'divider') {
+            this.addDivider();
+        } else {
+            Craft.postActionRequest('cp-nav/navigation/get-hud-html', this.data, $.proxy(this, 'showHud'));
+        }
     },
 
     showHud: function(response, textStatus) {
@@ -105,12 +111,30 @@ Craft.CpNav.AddMenuItem = Garnish.Base.extend({
         }
     },
 
+    addDivider: function() {
+        this.data.type = 'divider';
+        this.data.handle = 'divider';
+        this.data.currLabel = Craft.t('cp-nav', 'Divider');
+
+        Craft.postActionRequest('cp-nav/navigation/new', this.data, $.proxy(function(response, textStatus) {
+            if (textStatus === 'success' && response.success) {
+                Craft.cp.displayNotice(Craft.t('cp-nav', 'Menu saved.'));
+
+                updateAllNav(response.navHtml);
+                this.addNavItem(response.nav);
+            } else {
+                Craft.cp.displayError(response.error);
+            }
+        }, this));
+    },
+
     saveGroupField: function(ev) {
         ev.preventDefault();
 
         this.$spinner.removeClass('hidden');
 
         var data = this.hud.$body.serialize();
+        data.type = 'manual';
 
         Craft.postActionRequest('cp-nav/navigation/new', data, $.proxy(function(response, textStatus) {
             this.$spinner.addClass('hidden');
@@ -119,42 +143,7 @@ Craft.CpNav.AddMenuItem = Garnish.Base.extend({
                 Craft.cp.displayNotice(Craft.t('cp-nav', 'Menu saved.'));
 
                 updateAllNav(response.navHtml);
-
-                // The newly added menu item will always be at the end...
-                var newMenuItem = response.nav;
-
-                var $tr = AdminTable.addRow('<tr class="nav-item" data-id="' + newMenuItem.id + '" data-currlabel="' + newMenuItem.currLabel + '" data-name="' + newMenuItem.currLabel + '">' + 
-                    '<td class="thin">' + 
-                        '<div class="field">' + 
-                            '<div class="input ltr">' + 
-                                '<div class="lightswitch on" tabindex="0">' + 
-                                    '<div class="lightswitch-container">' + 
-                                        '<div class="label on"></div>' + 
-                                        '<div class="handle"></div>' + 
-                                        '<div class="label off"></div>' + 
-                                    '</div>' + 
-                                    '<input type="hidden" name="navEnabled" value="1">' + 
-                                '</div>' + 
-                            '</div>' + 
-                        '</div>' + 
-                    '</td>' +
-
-                    '<td data-title="' + newMenuItem.currLabel + '">' + 
-                        '<a class="move icon" title="' + Craft.t('app', 'Reorder') + '" role="button"></a>' + 
-                        '<a class="edit-nav">' + newMenuItem.currLabel + '</a>' + 
-                        '<span class="original-nav">(' + newMenuItem.currLabel + ')</span>' + 
-                    '</td>' + 
-                    
-                    '<td data-title="' + newMenuItem.currLabel + '">' + 
-                        '<span class="original-nav-link">' + newMenuItem.url + '</span>' + 
-                    '</td>' + 
-                    
-                    '<td class="thin">' + 
-                        '<a class="delete icon" title="' + Craft.t('app', 'Delete') + '" role="button"></a>' + 
-                    '</td>' + 
-                '</tr>');
-
-                Craft.initUiElements($tr);
+                this.addNavItem(response.nav);
 
                 this.closeHud();
             } else {
@@ -167,7 +156,42 @@ Craft.CpNav.AddMenuItem = Garnish.Base.extend({
     closeHud: function() {
         this.hud.$shade.remove();
         this.hud.$hud.remove();
-    }
+    },
+
+    addNavItem: function(newMenuItem) {
+        var $tr = AdminTable.addRow('<tr class="nav-item" data-id="' + newMenuItem.id + '" data-currlabel="' + newMenuItem.currLabel + '" data-name="' + newMenuItem.currLabel + '">' + 
+            '<td class="thin">' + 
+                '<div class="field">' + 
+                    '<div class="input ltr">' + 
+                        '<div class="lightswitch on" tabindex="0">' + 
+                            '<div class="lightswitch-container">' + 
+                                '<div class="label on"></div>' + 
+                                '<div class="handle"></div>' + 
+                                '<div class="label off"></div>' + 
+                            '</div>' + 
+                            '<input type="hidden" name="navEnabled" value="1">' + 
+                        '</div>' + 
+                    '</div>' + 
+                '</div>' + 
+            '</td>' +
+
+            '<td data-title="' + newMenuItem.currLabel + '">' + 
+                '<a class="move icon" title="' + Craft.t('app', 'Reorder') + '" role="button"></a>' + 
+                '<a class="edit-nav">' + newMenuItem.currLabel + '</a>' + 
+                '<span class="original-nav">(' + newMenuItem.currLabel + ')</span>' + 
+            '</td>' + 
+            
+            '<td data-title="' + newMenuItem.currLabel + '">' + 
+                '<span class="original-nav-link">' + newMenuItem.url + '</span>' + 
+            '</td>' + 
+            
+            '<td class="thin">' + 
+                '<a class="delete icon" title="' + Craft.t('app', 'Delete') + '" role="button"></a>' + 
+            '</td>' + 
+        '</tr>');
+
+        Craft.initUiElements($tr);
+    },
 });
 
 
@@ -390,6 +414,9 @@ var AdminTable = new Craft.CpNav.AlternateAdminTable({
 // var badgeHandleIndex = {};
 var updateAllNav = function(navHtml) {
     $('#global-sidebar nav#nav ul').html(navHtml);
+
+    // Refresh any JS modifications
+    new Craft.CpNav.ModifyItems();
 }
 
 

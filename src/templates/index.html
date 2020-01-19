@@ -21,8 +21,19 @@
 {% endif %}
 
 {% block actionButton %}
-    <div class="buttons right">
+    <div class="btngroup">
         <a class="btn submit add icon add-new-menu-item">{{ 'New menu item' | t('cp-nav') }}</a>
+
+        <div class="btn submit menubtn"></div>
+        <div class="menu">
+            <ul>
+                <li>
+                    <a class="add-new-menu-item" data-type="divider">
+                        {{ 'New divider item' | t('cp-nav') }}
+                    </a>
+                </li>
+            </ul>
+        </div>
     </div>
 {% endblock %}
 
@@ -51,6 +62,7 @@
         <th scope="col">{{ 'Visible' | t('cp-nav') }}</th>
         <th scope="col">{{ 'Label' | t('cp-nav') }}</th>
         <th scope="col">{{ 'URL' | t('cp-nav') }}</th>
+        <th scope="col">{{ 'Type' | t('cp-nav') }}</th>
         <th></th>
     </thead>
     <tbody>
@@ -72,6 +84,14 @@
 
                 <td data-title="{{ nav.currLabel | t('cp-nav') }}">
                     <span class="original-nav-link">{{ nav.url }}</span>
+                </td>
+
+                <td>
+                    {% if nav.type %}
+                        <div class="nav-type">
+                            <span class="nav-type-{{ nav.type }}">{{ nav.type }}</span>
+                        </div>
+                    {% endif %}
                 </td>
 
                 <td class="thin">
