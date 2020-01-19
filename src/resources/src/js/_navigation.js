@@ -134,7 +134,6 @@ Craft.CpNav.AddMenuItem = Garnish.Base.extend({
         this.$spinner.removeClass('hidden');
 
         var data = this.hud.$body.serialize();
-        data.type = 'manual';
 
         Craft.postActionRequest('cp-nav/navigation/new', data, $.proxy(function(response, textStatus) {
             this.$spinner.addClass('hidden');
@@ -182,7 +181,13 @@ Craft.CpNav.AddMenuItem = Garnish.Base.extend({
             '</td>' + 
             
             '<td data-title="' + newMenuItem.currLabel + '">' + 
-                '<span class="original-nav-link">' + newMenuItem.url + '</span>' + 
+                '<span class="original-nav-link">' + ((newMenuItem.url) ? newMenuItem.url : '') + '</span>' + 
+            '</td>' + 
+            
+            '<td>' + 
+                '<div class="nav-type">' + 
+                    '<span class="nav-type-' + newMenuItem.type + '">' + newMenuItem.type + '</span>' + 
+                '</div>' + 
             '</td>' + 
             
             '<td class="thin">' + 

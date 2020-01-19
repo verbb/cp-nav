@@ -144,12 +144,19 @@ class Navigation extends Model
                 $asset = Craft::$app->assets->getAssetById($customIcon);
 
                 if ($asset) {
-                    $path = FileHelper::normalizePath($asset->getVolume()->path . DIRECTORY_SEPARATOR . $asset->folderPath . DIRECTORY_SEPARATOR . $asset->filename);
-                    $path = Craft::getAlias($path);
+                    // Check if this volume supports the path (ie, local volume)
+                    $volumePath = $asset->getVolume()->path ?? null;
 
-                    if (@file_exists($path)) {
-                        return $path;
+                    if ($volumePath) {
+                        $path = FileHelper::normalizePath($volumePath . DIRECTORY_SEPARATOR . $asset->folderPath . DIRECTORY_SEPARATOR . $asset->filename);
+                        $path = Craft::getAlias($path);
+
+                        if (@file_exists($path)) {
+                            return $path;
+                        }
                     }
+
+                    return $asset->url;
                 }
             }
         } catch (\Throwable $e) {
