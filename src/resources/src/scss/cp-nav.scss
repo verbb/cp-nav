@@ -17,6 +17,10 @@
 }
 
 .cpn-divider {
+    &.loaded {
+        opacity: 1 !important;
+    }
+    
     a {
         position: relative;
     }

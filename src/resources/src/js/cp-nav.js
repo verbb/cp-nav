@@ -46,7 +46,7 @@ Craft.CpNav.ModifyItems = Garnish.Base.extend({
     },
 
     divider: function(id) {
-        $(id).addClass('cpn-divider');
+        $(id).addClass('cpn-divider loaded');
         $(id).find('a').removeAttr('href');
     },
 });

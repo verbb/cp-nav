@@ -255,6 +255,10 @@ class Navigation extends Model
         
         $js = 'Craft.CpNav.Dividers.push("' . $this->handle . '");';
         Craft::$app->view->registerJs($js);
+
+        // Add some CSS to hide it initially
+        $css = '#global-sidebar #nav li#nav-' . $this->handle . ' { opacity: 0; }';
+        Craft::$app->view->registerCss($css);
     }
 
     private function _checkPermission()
