@@ -70,6 +70,13 @@ class LayoutsService extends Component
         $layoutForUser = null;
         $layouts = $this->getAllLayouts();
 
+        // Check if we're editing
+        $layoutId = Craft::$app->getRequest()->getParam('layoutId');
+
+        if ($layoutId) {
+            return $this->getLayoutById($layoutId);
+        }
+
         if (Craft::$app->getEdition() == Craft::Solo) {
             $solo = User::find()->status(null)->one();
 
@@ -77,9 +84,7 @@ class LayoutsService extends Component
             if ($solo) {
                 foreach ($layouts as $key => $layout) {
                     if (is_array($layout->permissions) && in_array('solo', $layout->permissions, false)) {
-                        $layoutForUser = $layout;
-
-                        break;
+                        return $layout;
                     }
                 }
             }
@@ -90,19 +95,13 @@ class LayoutsService extends Component
             foreach ($groups as $index => $group) {
                 foreach ($layouts as $key => $layout) {
                     if (is_array($layout->permissions) && in_array($group->uid, $layout->permissions, false)) {
-                        $layoutForUser = $layout;
-
-                        break 2;
+                        return $layout;
                     }
                 }
             }
         }
 
-        if (!$layoutForUser) {
-            return $this->getLayoutById(1);
-        }
-
-        return $layoutForUser;
+        return $this->getLayoutById(1);
     }
 
     public function saveLayout(LayoutModel $layout, bool $runValidation = true): bool
