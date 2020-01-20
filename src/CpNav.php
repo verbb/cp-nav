@@ -3,6 +3,8 @@ namespace verbb\cpnav;
 
 use verbb\cpnav\base\PluginTrait;
 use verbb\cpnav\assetbundles\CpNavAsset;
+use verbb\cpnav\services\LayoutsService;
+use verbb\cpnav\services\NavigationsService;
 
 use Craft;
 use craft\base\Plugin;
@@ -11,6 +13,7 @@ use craft\events\RegisterCpNavItemsEvent;
 use craft\events\RegisterUrlRulesEvent;
 use craft\helpers\UrlHelper;
 use craft\services\Plugins;
+use craft\services\ProjectConfig;
 use craft\web\UrlManager;
 use craft\web\twig\variables\Cp;
 
@@ -46,6 +49,7 @@ class CpNav extends Plugin
         $this->_registerCpRoutes();
         $this->_registerCpNavItems();
         $this->_registerEventHandlers();
+        $this->_registerProjectConfigEventListeners();
 
         if (Craft::$app->getRequest()->getIsCpRequest()) {
             Craft::$app->getView()->registerAssetBundle(CpNavAsset::class);
@@ -97,6 +101,17 @@ class CpNav extends Plugin
 
         Event::on(Plugins::class, Plugins::EVENT_AFTER_ENABLE_PLUGIN, [$this->getService(), 'afterPluginInstall']);
         Event::on(Plugins::class, Plugins::EVENT_AFTER_DISABLE_PLUGIN, [$this->getService(), 'afterPluginUninstall']);
+    }
+
+    private function _registerProjectConfigEventListeners()
+    {
+        Craft::$app->getProjectConfig()->onAdd(NavigationsService::CONFIG_NAVIGATION_KEY . '.{uid}', [$this->getNavigations(), 'handleChangedNavigation'])
+            ->onUpdate(NavigationsService::CONFIG_NAVIGATION_KEY . '.{uid}', [$this->getNavigations(), 'handleChangedNavigation'])
+            ->onRemove(NavigationsService::CONFIG_NAVIGATION_KEY . '.{uid}', [$this->getNavigations(), 'handleDeletedNavigation']);
+
+        Craft::$app->getProjectConfig()->onAdd(LayoutsService::CONFIG_LAYOUT_KEY . '.{uid}', [$this->getLayouts(), 'handleChangedLayout'])
+            ->onUpdate(LayoutsService::CONFIG_LAYOUT_KEY . '.{uid}', [$this->getLayouts(), 'handleChangedLayout'])
+            ->onRemove(LayoutsService::CONFIG_LAYOUT_KEY . '.{uid}', [$this->getLayouts(), 'handleDeletedLayout']);
     }
 
 }

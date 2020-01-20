@@ -71,31 +71,14 @@ class LayoutController extends Controller
 
         $layout = new LayoutModel();
         $layout->name = $request->getRequiredParam('name');
-        $layout->permissions = Json::encode($request->getParam('permissions'));
+        $layout->isDefault = false;
+        $layout->permissions = $request->getParam('permissions');
 
         if (!CpNav::$plugin->getLayouts()->saveLayout($layout)) {
             return $this->asJson(['error' => $this->_getErrorString($layout)]);
         }
 
-        // Copy default layout navigation
-        foreach (CpNav::$plugin->getNavigations()->getNavigationsByLayoutId(1) as $nav) {
-            $navigation = new NavigationModel([
-                'layoutId'   => $layout->id,
-                'handle'     => $nav->handle,
-                'prevLabel'  => $nav->prevLabel,
-                'currLabel'  => $nav->currLabel,
-                'enabled'    => $nav->enabled,
-                'order'      => $nav->order,
-                'prevUrl'    => $nav->prevUrl,
-                'url'        => $nav->url,
-                'icon'       => $nav->icon,
-                'customIcon' => $nav->customIcon,
-                'type'       => $nav->type,
-                'newWindow'  => $nav->newWindow,
-            ]);
-
-            CpNav::$plugin->getNavigations()->saveNavigation($navigation);
-        }
+        CpNav::$plugin->getService()->populateOriginalNavigationItems($layout->id);
 
         return $this->asJson(['success' => true, 'layouts' => $layout]);
     }
@@ -115,7 +98,8 @@ class LayoutController extends Controller
         }
 
         $layout->name = $request->getRequiredParam('name');
-        $layout->permissions = Json::encode($request->getParam('permissions'));
+        $layout->isDefault = false;
+        $layout->permissions = $request->getParam('permissions');
 
         if (!CpNav::$plugin->getLayouts()->saveLayout($layout)) {
             return $this->asJson(['error' => $this->_getErrorString($layout)]);

@@ -5,6 +5,7 @@ use verbb\cpnav\CpNav;
 
 use Craft;
 use craft\base\Model;
+use craft\helpers\Json;
 
 class Layout extends Model
 {
@@ -23,6 +24,13 @@ class Layout extends Model
     // Public Methods
     // =========================================================================
 
+    public function init()
+    {
+        parent::init();
+
+        $this->permissions = Json::decodeIfJson($this->permissions, true);
+    }
+
     public function rules(): array
     {
         return [
@@ -30,8 +38,6 @@ class Layout extends Model
 
             // built-in "string" validator
             ['name', 'string', 'min' => 1],
-
-            ['isDefault', 'boolean'],
 
             // built-in "required" validator
             [['name'], 'required'],

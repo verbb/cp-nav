@@ -10,7 +10,12 @@ use Craft;
 use craft\base\Component;
 use craft\db\Query;
 use craft\elements\User;
+use craft\events\ConfigEvent;
+use craft\helpers\ArrayHelper;
+use craft\helpers\Db;
 use craft\helpers\Json;
+use craft\helpers\StringHelper;
+use craft\models\Structure;
 
 class LayoutsService extends Component
 {
@@ -19,8 +24,17 @@ class LayoutsService extends Component
 
     const EVENT_BEFORE_SAVE_LAYOUT = 'beforeSaveLayout';
     const EVENT_AFTER_SAVE_LAYOUT = 'afterSaveLayout';
+    const EVENT_BEFORE_APPLY_LAYOUT_DELETE = 'beforeApplyLayoutDelete';
     const EVENT_BEFORE_DELETE_LAYOUT = 'beforeDeleteLayout';
     const EVENT_AFTER_DELETE_LAYOUT = 'afterDeleteLayout';
+
+    const CONFIG_LAYOUT_KEY = 'cp-nav.layouts';
+
+
+    // Properties
+    // =========================================================================
+
+    private $_layouts;
 
 
     // Public Methods
@@ -28,22 +42,27 @@ class LayoutsService extends Component
 
     public function getAllLayouts(): array
     {
-        $layouts = [];
-
-        foreach ($this->_createLayoutsQuery()->all() as $result) {
-            $layouts[] = new LayoutModel($result);
+        if ($this->_layouts !== null) {
+            return $this->_layouts;
         }
 
-        return $layouts;
+        $this->_layouts = [];
+
+        foreach ($this->_createLayoutQuery()->all() as $result) {
+            $this->_layouts[] = new LayoutModel($result);
+        }
+
+        return $this->_layouts;
     }
 
     public function getLayoutById(int $id)
     {
-        $result = $this->_createLayoutsQuery()
-            ->where(['id' => $id])
-            ->one();
+        return ArrayHelper::firstWhere($this->getAllLayouts(), 'id', $id);
+    }
 
-        return $result ? new LayoutModel($result) : null;
+    public function getLayoutByUid(string $uid)
+    {
+        return ArrayHelper::firstWhere($this->getAllLayouts(), 'uid', $uid, true);
     }
 
     public function getLayoutForCurrentUser()
@@ -57,9 +76,7 @@ class LayoutsService extends Component
             // Is there even a solo account?
             if ($solo) {
                 foreach ($layouts as $key => $layout) {
-                    $permissions = Json::decode($layout->permissions);
-
-                    if (is_array($permissions) && in_array('solo', $permissions, false)) {
+                    if (is_array($layout->permissions) && in_array('solo', $layout->permissions, false)) {
                         $layoutForUser = $layout;
 
                         break;
@@ -72,9 +89,7 @@ class LayoutsService extends Component
 
             foreach ($groups as $index => $group) {
                 foreach ($layouts as $key => $layout) {
-                    $permissions = Json::decode($layout->permissions);
-
-                    if (is_array($permissions) && in_array($group->uid, $permissions, false)) {
+                    if (is_array($layout->permissions) && in_array($group->uid, $layout->permissions, false)) {
                         $layoutForUser = $layout;
 
                         break 2;
@@ -106,27 +121,63 @@ class LayoutsService extends Component
             return false;
         }
 
-        $layoutRecord = $this->_getLayoutRecordById($layout->id);
-
-        $layoutRecord->name = $layout->name;
-        $layoutRecord->permissions = $layout->permissions;
-
-        // Save the record
-        $layoutRecord->save(false);
-
-        // Now that we have a ID, save it on the model
         if ($isNewLayout) {
-            $layout->id = $layoutRecord->id;
+            $layout->uid = StringHelper::UUID();
+        } else {
+            $layout->uid = Db::uidById('{{%cpnav_layout}}', $layout->id);
         }
 
-        if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_LAYOUT)) {
-            $this->trigger(self::EVENT_AFTER_SAVE_LAYOUT, new LayoutEvent([
-                'layout' => $layout,
-                'isNew' => $isNewLayout,
-            ]));
+        $projectConfig = Craft::$app->getProjectConfig();
+
+        $configData = [
+            'name' => $layout->name,
+            'isDefault' => $layout->isDefault,
+            'permissions' => Json::encode($layout->permissions),
+        ];
+
+        $configPath = self::CONFIG_LAYOUT_KEY . '.' . $layout->uid;
+        $projectConfig->set($configPath, $configData);
+
+        if ($isNewLayout) {
+            $layout->id = Db::idByUid('{{%cpnav_layout}}', $layout->uid);
         }
 
         return true;
+    }
+
+    public function handleChangedLayout(ConfigEvent $event)
+    {
+        $layoutUid = $event->tokenMatches[0];
+        $data = $event->newValue;
+
+        $transaction = Craft::$app->getDb()->beginTransaction();
+
+        try {
+            $layoutRecord = $this->_getLayoutRecord($layoutUid);
+            $isNewLayout = $layoutRecord->getIsNewRecord();
+
+            $layoutRecord->name = $data['name'];
+            $layoutRecord->isDefault = $data['isDefault'];
+            $layoutRecord->permissions = $data['permissions'];
+            $layoutRecord->uid = $layoutUid;
+
+            $layoutRecord->save(false);
+
+            $transaction->commit();
+        } catch (\Throwable $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
+
+        // Clear caches
+        $this->_layouts = null;
+
+        if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_LAYOUT)) {
+            $this->trigger(self::EVENT_AFTER_SAVE_LAYOUT, new LayoutEvent([
+                'layout' => $this->getLayoutById($layoutRecord->id),
+                'isNew' => $isNewLayout,
+            ]));
+        }
     }
 
     public function deleteLayoutById(int $layoutId): bool
@@ -148,8 +199,29 @@ class LayoutsService extends Component
             ]));
         }
 
+        Craft::$app->getProjectConfig()->remove(self::CONFIG_LAYOUT_KEY . '.' . $layout->uid);
+
+        return true;
+    }
+
+    public function handleDeletedLayout(ConfigEvent $event)
+    {
+        $layoutUid = $event->tokenMatches[0];
+
+        $layout = $this->getLayoutByUid($layoutUid);
+
+        if (!$layout) {
+            return;
+        }
+
+        if ($this->hasEventHandlers(self::EVENT_BEFORE_APPLY_LAYOUT_DELETE)) {
+            $this->trigger(self::EVENT_BEFORE_APPLY_LAYOUT_DELETE, new LayoutEvent([
+                'layout' => $layout,
+            ]));
+        }
+
         Craft::$app->getDb()->createCommand()
-            ->delete('{{%cpnav_layout}}', ['id' => $layout->id])
+            ->delete('{{%cpnav_layout}}', ['uid' => $layoutUid])
             ->execute();
 
         if ($this->hasEventHandlers(self::EVENT_AFTER_DELETE_LAYOUT)) {
@@ -157,30 +229,18 @@ class LayoutsService extends Component
                 'layout' => $layout,
             ]));
         }
-
-        return true;
     }
 
 
     // Private Methods
     // =========================================================================
 
-    private function _getLayoutRecordById(int $layoutId = null): LayoutRecord
+    private function _getLayoutRecord(string $uid): LayoutRecord
     {
-        if ($layoutId !== null) {
-            $layoutRecord = LayoutRecord::findOne($layoutId);
-
-            if (!$layoutRecord) {
-                $layoutRecord = new LayoutRecord();
-            }
-        } else {
-            $layoutRecord = new LayoutRecord();
-        }
-
-        return $layoutRecord;
+        return LayoutRecord::findOne(['uid' => $uid]) ?? new LayoutRecord();
     }
 
-    private function _createLayoutsQuery(): Query
+    private function _createLayoutQuery(): Query
     {
         return (new Query())
             ->select([
