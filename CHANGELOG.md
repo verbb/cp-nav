@@ -1,5 +1,27 @@
 # Changelog
 
+## 3.0.0 - 2020-01-14
+
+### Added
+- Add better support for user permissions. Previously, even if a user didn't have access to a navigation item, it'd still be shown. Now respects Craft's native user permissions.
+- Nav URLs can now contains aliases.
+- Add navigation types, for better flexibility going forward.
+- Add new divider navigation type, handy for separating items in the menu.
+- You can now select an icon from Craft's built-in icons.
+- Add Project Config support.
+
+### Changed
+- Full refactor from ground-up, focusing on performance, cleanup and best-practices.
+- Minimised overhead for CP requests, by removing changed navigation checks.
+- Modified navigation items are only checked when enabling/installing or disabling/uninstalling plugins.
+- Nav URL is now optional, and also acts like a heading.
+- Nav regeneration has been changed to nav resetting. This will completely reset your layout back to stock Craft.
+
+### Fixed
+- Fix empty navigation handle issue. (thanks @fThues).
+- Layout user group IDs now correctly use their UIDs.
+- Fix error for non-local volumes when using a custom icon.
+
 ## 2.0.9 - 2018-11-10
 
 ### Added
