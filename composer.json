@@ -2,7 +2,7 @@
     "name": "verbb/cp-nav",
     "description": "Control Panel Nav helps you managing your Control Panel navigation.",
     "type": "craft-plugin",
-    "version": "3.0.0",
+    "version": "3.0.1",
     "keywords": [
         "craft",
         "cms",

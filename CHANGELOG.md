@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.1 - 2020-02-02
+
+### Fixed
+- Fix error on brand-new installs, where the default layout wasn’t being created.
+
 ## 3.0.0 - 2020-01-14
 
 ### Added
