@@ -153,7 +153,7 @@ class Service extends Component
             $layout->name = 'Default';
             $layout->isDefault = true;
 
-            $layoutService->saveLayout($layout);
+            $layoutService->saveLayout($layout, true);
         }
 
         // Populate navs with 'stock' navigation

@@ -104,9 +104,11 @@ class LayoutsService extends Component
         return $this->getLayoutById(1);
     }
 
-    public function saveLayout(LayoutModel $layout, bool $runValidation = true): bool
+    public function saveLayout(LayoutModel $layout, $isNewLayout = null, bool $runValidation = true): bool
     {
-        $isNewLayout = !$layout->id;
+        if ($isNewLayout === null) {
+            $isNewLayout = !$layout->id;
+        }
 
         if ($this->hasEventHandlers(self::EVENT_BEFORE_SAVE_LAYOUT)) {
             $this->trigger(self::EVENT_BEFORE_SAVE_LAYOUT, new LayoutEvent([
