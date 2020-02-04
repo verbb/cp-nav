@@ -8,7 +8,7 @@ class NavigationEvent extends Event
     // Properties
     // =========================================================================
 
-    public $layout;
+    public $navigation;
 
     public $isNew = false;
 }
