@@ -168,7 +168,7 @@ class Navigation extends Model
 
     public function generateNavItem()
     {
-        // Depsite having a custom, set menu for all users, we still need to check permissions
+        // Despite having a custom, set menu for all users, we still need to check permissions
         // based on the current users' permision level. We wouldn't want to show a plugin nav item
         // if the user doesn't have access to it (even if defined in CP Nav).
         if (!$this->_checkPermission()) {

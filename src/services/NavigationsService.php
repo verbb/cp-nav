@@ -159,6 +159,14 @@ class NavigationsService extends Component
 
     public function handleChangedNavigation(ConfigEvent $event)
     {
+        // Ensure any layouts have been processed first
+        $projectConfig = Craft::$app->getProjectConfig();
+        $layouts = $projectConfig->get(LayoutsService::CONFIG_LAYOUT_KEY, true) ?? [];
+    
+        foreach ($layouts as $layoutUid => $layoutData) {
+            $projectConfig->processConfigChanges(LayoutsService::CONFIG_LAYOUT_KEY . '.' . $layoutUid);
+        }
+        
         $navigationUid = $event->tokenMatches[0];
         $data = $event->newValue;
 
