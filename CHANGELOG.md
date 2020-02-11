@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.0.3 - 2020-02-12
+
+### Changed
+- Update icons and sort alphabetically by label. (thanks @dennisfrank).
+
+### Fixed
+- Fix situations where saving a node throws an error because its layout doesn’t exist.
+
 ## 3.0.2 - 2020-02-05
 
 ### Fixed
