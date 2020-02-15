@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.4 - 2020-02-15
+
+### Fixed
+- Fix migration errors from Craft 2 > Craft 3.
+
 ## 3.0.3 - 2020-02-12
 
 ### Changed
