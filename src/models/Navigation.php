@@ -125,9 +125,9 @@ class Navigation extends Model
                             return $navItem['icon'];
                         }
                     }
-                } else {
-                    return $this->icon;
                 }
+
+                return $this->icon;
             }
         } catch (\Throwable $e) {
             CpNav::error(Craft::t('app', '{e} - {f}: {l}.', ['e' => $e->getMessage(), 'f' => $e->getFile(), 'l' => $e->getLine()]));
