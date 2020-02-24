@@ -9,6 +9,7 @@ use Craft;
 use craft\base\Component;
 use craft\events\PluginEvent;
 use craft\events\RegisterCpNavItemsEvent;
+use craft\helpers\Json;
 use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
 use craft\web\twig\variables\Cp;
@@ -20,16 +21,17 @@ class Service extends Component
     // Properties
     // =========================================================================
 
-    private $_originalnavItems = [];
+    private $_originalNavItems = [];
     private $_subNavs = [];
     private $_badges = [];
+
 
     // Public Methods
     // =========================================================================
 
     public function generateNavigation($event)
     {
-        $this->_originalnavItems = $event->navItems;
+        $this->_originalNavItems = $event->navItems;
 
         try {
             $newNavItems = [];
@@ -61,26 +63,41 @@ class Service extends Component
         }
     }
 
-    public function afterPluginInstall(PluginEvent $event)
+    public function checkUpdatedNavItems($event)
     {
-        try {
-            $plugin = $event->plugin;
+        $settings = CpNav::$plugin->getSettings();
 
-            // Add the plugin's nav item
-            if ($plugin->hasCpSection && ($pluginNavItem = $plugin->getCpNavItem()) !== null) {
-                // So this is a bit annoying. At this point, new plugin items are added at the bottom
-                // of the nav, which probably has to do with how new plugins are stored in the internal cache
-                // So - in order to get the correct order to insert, save the info for later, on the next page request
-                //
-                // It'd be nice if we could ditch this, but requires investigation into Craft core
-                CpNav::$plugin->getPendingNavigations()->set($pluginNavItem);
+        $currentHash = $this->_encodeHash($event->navItems);
+
+        // If there's no saved record of the original nav, store it
+        if (!$settings->originalNavHash) {
+            $this->_saveHash($currentHash);
+        }
+
+        // Check to see if something has changed
+        if ($settings->originalNavHash !== $currentHash) {
+            $oldNavItems = $this->_decodeHash($settings->originalNavHash);
+            $newNavItems = $event->navItems;
+
+            // Let's find out what's changed! Are the new navs bigger than the old - we've added
+            if (count($oldNavItems) < count($newNavItems)) {
+                // A new nav has been added, find it
+                $result = $this->_findMissingItem($newNavItems, $oldNavItems);
+
+                CpNav::$plugin->getPendingNavigations()->set($result);
+            } else {
+                // A node has been removed
+                $result = $this->_findMissingItem($oldNavItems, $newNavItems);
+                $handle = $result['url'] ?? '';
+
+                CpNav::$plugin->getNavigations()->deleteNavigationFromAllLayouts($handle);
             }
-        } catch (\Throwable $e) {
-            CpNav::error(Craft::t('app', '{e} - {f}: {l}.', ['e' => $e->getMessage(), 'f' => $e->getFile(), 'l' => $e->getLine()]));
+
+            $this->_saveHash($currentHash);
         }
     }
 
-    public function processPendingPluginInstall($event)
+    public function processPendingNavItems($event)
     {
         // Check to see if we've installed any plugins that have updates for us to apply. We have to use the DB 
         // to store these (as opposed to sessions) so we can support installing plugins via the console
@@ -123,24 +140,6 @@ class Service extends Component
         }
     }
 
-    public function afterPluginUninstall(PluginEvent $event)
-    {
-        try {
-            $plugin = $event->plugin;
-
-            // Remove the plugin's nav item
-            if ($plugin->hasCpSection && ($pluginNavItem = $plugin->getCpNavItem()) !== null) {
-                $handle = $pluginNavItem['url'] ?? '';
-
-                if ($handle) {
-                    CpNav::$plugin->getNavigations()->deleteNavigationFromAllLayouts($handle);
-                }
-            }
-        } catch (\Throwable $e) {
-            CpNav::error(Craft::t('app', '{e} - {f}: {l}.', ['e' => $e->getMessage(), 'f' => $e->getFile(), 'l' => $e->getLine()]));
-        }
-    }
-
     public function populateOriginalNavigationItems($layoutId = 1)
     {
         $layoutService = CpNav::$plugin->getLayouts();
@@ -179,7 +178,7 @@ class Service extends Component
         // variable, for final use here. Might be a better way?
         (new Cp())->nav();
 
-        return $this->_originalnavItems;
+        return $this->_originalNavItems;
     }
     
     private function _createNavigationModelForNavItem($pluginNavItem)
@@ -222,5 +221,40 @@ class Service extends Component
         if (isset($this->_badges[$newNavItem['url']])) {
             $newNavItem['badgeCount'] = $this->_badges[$newNavItem['url']];
         }
+    }
+
+    private function _findMissingItem($array1, $array2)
+    {
+        $result = [];
+
+        foreach ($array1 as $key => $value) {
+            if ($value != $array2[$key]) {
+                $result = $value;
+
+                break;
+            }
+        }
+
+        return $result;
+    }
+
+    private function _encodeHash($object)
+    {
+        return base64_encode(Json::encode($object));
+    }
+
+    private function _decodeHash($object)
+    {
+        return Json::decode(base64_decode($object));
+    }
+
+    private function _saveHash($hash)
+    {
+        $settings = CpNav::$plugin->getSettings();
+        $settings->originalNavHash = $hash;
+
+        $plugin = Craft::$app->getPlugins()->getPlugin('cp-nav');
+
+        Craft::$app->getPlugins()->savePluginSettings($plugin, $settings->toArray());
     }
 }

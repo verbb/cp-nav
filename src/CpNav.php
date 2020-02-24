@@ -3,6 +3,7 @@ namespace verbb\cpnav;
 
 use verbb\cpnav\base\PluginTrait;
 use verbb\cpnav\assetbundles\CpNavAsset;
+use verbb\cpnav\models\Settings;
 use verbb\cpnav\services\LayoutsService;
 use verbb\cpnav\services\NavigationsService;
 
@@ -48,7 +49,6 @@ class CpNav extends Plugin
         $this->_setLogging();
         $this->_registerCpRoutes();
         $this->_registerCpNavItems();
-        $this->_registerEventHandlers();
         $this->_registerProjectConfigEventListeners();
 
         if (Craft::$app->getRequest()->getIsCpRequest()) {
@@ -59,6 +59,15 @@ class CpNav extends Plugin
     public function getSettingsResponse()
     {
         return Craft::$app->getResponse()->redirect(UrlHelper::cpUrl('cp-nav'));
+    }
+
+
+    // Protected Methods
+    // =========================================================================
+
+    protected function createSettingsModel(): Settings
+    {
+        return new Settings();
     }
 
 
@@ -85,22 +94,15 @@ class CpNav extends Plugin
         if ($request->isCpRequest) {
             Event::on(Cp::class, Cp::EVENT_REGISTER_CP_NAV_ITEMS, function(RegisterCpNavItemsEvent $event) {
                 // Check to see if the nav needs to be updated
-                $this->getService()->processPendingPluginInstall($event);
+                $this->getService()->checkUpdatedNavItems($event);
+
+                // Check to see if the nav needs to be updated
+                $this->getService()->processPendingNavItems($event);
 
                 // Generate our custom nav instead
                 $this->getService()->generateNavigation($event);
             });
         }
-    }
-
-    private function _registerEventHandlers()
-    {
-        // When installing/enabling or uninstalling/disabling plugins, update the nav
-        Event::on(Plugins::class, Plugins::EVENT_AFTER_INSTALL_PLUGIN, [$this->getService(), 'afterPluginInstall']);
-        Event::on(Plugins::class, Plugins::EVENT_AFTER_UNINSTALL_PLUGIN, [$this->getService(), 'afterPluginUninstall']);
-
-        Event::on(Plugins::class, Plugins::EVENT_AFTER_ENABLE_PLUGIN, [$this->getService(), 'afterPluginInstall']);
-        Event::on(Plugins::class, Plugins::EVENT_AFTER_DISABLE_PLUGIN, [$this->getService(), 'afterPluginUninstall']);
     }
 
     private function _registerProjectConfigEventListeners()
