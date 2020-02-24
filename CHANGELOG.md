@@ -1,5 +1,14 @@
 # Changelog
 
+## 3.0.5 - 2020-02-24
+
+### Changed
+- Add better handling and detection of changed nav, rather than just plugin install/uninstall. For instance, when adding your first section or global.
+
+### Fixed
+- Fix some icons (including GraphQL) not showing correctly.
+- Fix missing order value when resetting nav.
+
 ## 3.0.4 - 2020-02-15
 
 ### Fixed
