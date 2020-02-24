@@ -159,9 +159,10 @@ class Service extends Component
         // Populate navs with 'stock' navigation
         $originalNavItems = $this->_getOriginalNav();
 
-        foreach ($originalNavItems as $originalNavItem) {
+        foreach ($originalNavItems as $index => $originalNavItem) {
             $navigation = $this->_createNavigationModelForNavItem($originalNavItem);
             $navigation->layoutId = $layoutId;
+            $navigation->order = $index;
 
             CpNav::$plugin->getNavigations()->saveNavigation($navigation);
         }
