@@ -65,7 +65,13 @@ class Service extends Component
 
     public function checkUpdatedNavItems($event)
     {
+        $generalConfig = Craft::$app->getConfig()->getGeneral();
         $settings = CpNav::$plugin->getSettings();
+
+        // Don't proceed if admin changes are disallowed
+        if (!$generalConfig->allowAdminChanges) {
+            return;
+        }
 
         $currentHash = $this->_encodeHash($event->navItems);
 
