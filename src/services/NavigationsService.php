@@ -201,7 +201,7 @@ class NavigationsService extends Component
 
         if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_NAVIGATION)) {
             $this->trigger(self::EVENT_AFTER_SAVE_NAVIGATION, new NavigationEvent([
-                'navigation' => $this->getLayoutById($navigationRecord->id),
+                'navigation' => $this->getNavigationById($navigationRecord->id),
                 'isNew' => $isNewNavigation,
             ]));
         }
