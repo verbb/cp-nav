@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.0.6 - 2020-02-25
+
+### Fixed
+- Fix error thrown on saving a navigation in some instances.
+- Fix triggering project config changes when `allowAdminChanges` is set to false.
+
 ## 3.0.5 - 2020-02-24
 
 ### Changed
