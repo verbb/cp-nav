@@ -90,13 +90,18 @@ class Service extends Component
                 // A new nav has been added, find it
                 $result = $this->_findMissingItem($newNavItems, $oldNavItems);
 
-                CpNav::$plugin->getPendingNavigations()->set($result);
+                if ($result) {
+                    CpNav::$plugin->getPendingNavigations()->set($result);
+                }
             } else {
                 // A node has been removed
                 $result = $this->_findMissingItem($oldNavItems, $newNavItems);
-                $handle = $result['url'] ?? '';
 
-                CpNav::$plugin->getNavigations()->deleteNavigationFromAllLayouts($handle);
+                if ($result) {
+                    $handle = $result['url'] ?? '';
+                    
+                    CpNav::$plugin->getNavigations()->deleteNavigationFromAllLayouts($handle);
+                }
             }
 
             $this->_saveHash($currentHash);
@@ -234,7 +239,7 @@ class Service extends Component
         $result = [];
 
         foreach ($array1 as $key => $value) {
-            if ($value != $array2[$key]) {
+            if ($value['url'] != $array2[$key]['url']) {
                 $result = $value;
 
                 break;
