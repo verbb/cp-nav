@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.7 - 2020-02-28
+
+### Fixed
+- Fix nav re-generating in some circumstances, when it didn't need to.
+
 ## 3.0.6 - 2020-02-25
 
 ### Fixed
