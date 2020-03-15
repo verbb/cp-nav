@@ -54,6 +54,7 @@
 - Add Project Config support.
 
 ### Changed
+- Now requires Craft 3.4.x and greater.
 - Full refactor from ground-up, focusing on performance, cleanup and best-practices.
 - Minimised overhead for CP requests, by removing changed navigation checks.
 - Modified navigation items are only checked when enabling/installing or disabling/uninstalling plugins.
