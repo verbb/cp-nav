@@ -65,46 +65,50 @@ class Service extends Component
 
     public function checkUpdatedNavItems($event)
     {
-        $generalConfig = Craft::$app->getConfig()->getGeneral();
-        $settings = CpNav::$plugin->getSettings();
+        try {
+            $generalConfig = Craft::$app->getConfig()->getGeneral();
+            $settings = CpNav::$plugin->getSettings();
 
-        // Don't proceed if admin changes are disallowed
-        if (!$generalConfig->allowAdminChanges) {
-            return;
-        }
-
-        $currentHash = $this->_encodeHash($event->navItems);
-
-        // If there's no saved record of the original nav, store it
-        if (!$settings->originalNavHash) {
-            $this->_saveHash($currentHash);
-        }
-
-        // Check to see if something has changed
-        if ($settings->originalNavHash !== $currentHash) {
-            $oldNavItems = $this->_decodeHash($settings->originalNavHash);
-            $newNavItems = $event->navItems;
-
-            // Let's find out what's changed! Are the new navs bigger than the old - we've added
-            if (count($oldNavItems) < count($newNavItems)) {
-                // A new nav has been added, find it
-                $result = $this->_findMissingItem($newNavItems, $oldNavItems);
-
-                if ($result) {
-                    CpNav::$plugin->getPendingNavigations()->set($result);
-                }
-            } else {
-                // A node has been removed
-                $result = $this->_findMissingItem($oldNavItems, $newNavItems);
-
-                if ($result) {
-                    $handle = $result['url'] ?? '';
-                    
-                    CpNav::$plugin->getNavigations()->deleteNavigationFromAllLayouts($handle);
-                }
+            // Don't proceed if admin changes are disallowed
+            if (!$generalConfig->allowAdminChanges) {
+                return;
             }
 
-            $this->_saveHash($currentHash);
+            $currentHash = $this->_encodeHash($event->navItems);
+
+            // If there's no saved record of the original nav, store it
+            if (!$settings->originalNavHash) {
+                $this->_saveHash($currentHash);
+            }
+
+            // Check to see if something has changed
+            if ($settings->originalNavHash !== $currentHash) {
+                $oldNavItems = $this->_decodeHash($settings->originalNavHash);
+                $newNavItems = $event->navItems;
+
+                // Let's find out what's changed! Are the new navs bigger than the old - we've added
+                if (count($oldNavItems) < count($newNavItems)) {
+                    // A new nav has been added, find it
+                    $result = $this->_findMissingItem($newNavItems, $oldNavItems);
+
+                    if ($result) {
+                        CpNav::$plugin->getPendingNavigations()->set($result);
+                    }
+                } else {
+                    // A node has been removed
+                    $result = $this->_findMissingItem($oldNavItems, $newNavItems);
+
+                    if ($result) {
+                        $handle = $result['url'] ?? '';
+                        
+                        CpNav::$plugin->getNavigations()->deleteNavigationFromAllLayouts($handle);
+                    }
+                }
+
+                $this->_saveHash($currentHash);
+            }
+        } catch (\Throwable $e) {
+            CpNav::error(Craft::t('app', '{e} - {f}: {l}.', ['e' => $e->getMessage(), 'f' => $e->getFile(), 'l' => $e->getLine()]));
         }
     }
 
