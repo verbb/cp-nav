@@ -11,6 +11,6 @@ class Settings extends Model
     // Public Properties
     // =========================================================================
 
-    public $originalNavHash = '';
+    public $originalNavHash = [];
 
 }

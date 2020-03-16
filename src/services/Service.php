@@ -67,7 +67,6 @@ class Service extends Component
     {
         try {
             $generalConfig = Craft::$app->getConfig()->getGeneral();
-            $settings = CpNav::$plugin->getSettings();
 
             // Don't proceed if admin changes are disallowed
             if (!$generalConfig->allowAdminChanges) {
@@ -75,15 +74,16 @@ class Service extends Component
             }
 
             $currentHash = $this->_encodeHash($event->navItems);
+            $originalNavHash = $this->_getOriginalNavHash();
 
             // If there's no saved record of the original nav, store it
-            if (!$settings->originalNavHash) {
+            if (!$originalNavHash) {
                 $this->_saveHash($currentHash);
             }
 
             // Check to see if something has changed
-            if ($settings->originalNavHash !== $currentHash) {
-                $oldNavItems = $this->_decodeHash($settings->originalNavHash);
+            if ($originalNavHash !== $currentHash) {
+                $oldNavItems = $this->_decodeHash($originalNavHash);
                 $newNavItems = $event->navItems;
 
                 // Let's find out what's changed! Are the new navs bigger than the old - we've added
@@ -243,7 +243,9 @@ class Service extends Component
         $result = [];
 
         foreach ($array1 as $key => $value) {
-            if ($value['url'] != $array2[$key]['url']) {
+            $oldIndex = $array2[$key]['url'] ?? '';
+
+            if ($value['url'] != $oldIndex) {
                 $result = $value;
 
                 break;
@@ -263,10 +265,20 @@ class Service extends Component
         return Json::decode(base64_decode($object));
     }
 
+    private function _getOriginalNavHash()
+    {
+        $currentUser = Craft::$app->getUser()->getIdentity();
+        $settings = CpNav::$plugin->getSettings();
+
+        return $settings->originalNavHash[$currentUser->uid] ?? '';
+    }
+
     private function _saveHash($hash)
     {
+        $currentUser = Craft::$app->getUser()->getIdentity();
         $settings = CpNav::$plugin->getSettings();
-        $settings->originalNavHash = $hash;
+
+        $settings->originalNavHash[$currentUser->uid] = $hash;
 
         $plugin = Craft::$app->getPlugins()->getPlugin('cp-nav');
 

@@ -26,7 +26,7 @@ class CpNav extends Plugin
     // Public Properties
     // =========================================================================
 
-    public $schemaVersion = '2.0.4';
+    public $schemaVersion = '2.0.5';
     public $hasCpSettings = true;
     
 
