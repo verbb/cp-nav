@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.0.8 - 2020-03-16
+
+### Fixed
+- Add better support for multi-users. Previously, nav's could get confused with multiple CP-enabled users logging in, and being able to run change-detection.
+- Add error-handling to `checkUpdatedNavItems` to prevent fatal errors.
+
 ## 3.0.7 - 2020-02-28
 
 ### Fixed
