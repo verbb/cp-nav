@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.8.1 - 2020-03-16
+
+### Fixed
+- Fix migration introduced in 3.0.8.
+
 ## 3.0.8 - 2020-03-16
 
 ### Fixed

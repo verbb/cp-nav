@@ -29,7 +29,9 @@ class m200316_000000_multi_hash extends Migration
         $currentUser = Craft::$app->getUser()->getIdentity();
         $originalNavHash = Craft::$app->getProjectConfig()->get('plugins.cp-nav.settings.originalNavHash') ?? '';
 
-        Craft::$app->getProjectConfig()->set('plugins.cp-nav.settings.originalNavHash', [$currentUser->uid => $originalNavHash]);
+        if ($currentUser) {
+            Craft::$app->getProjectConfig()->set('plugins.cp-nav.settings.originalNavHash', [$currentUser->uid => $originalNavHash]);
+        }
     }
 
     public function safeDown()
