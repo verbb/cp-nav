@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.8.2 - 2020-04-01
+
+### Fixed
+- Fix permissions migration causing errors for user group permissions.
+
 ## 3.0.8.1 - 2020-03-16
 
 ### Fixed
