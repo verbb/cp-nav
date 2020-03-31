@@ -26,7 +26,15 @@ class m200119_000000_permissions_uid extends Migration
 
             if (is_array($permissions)) {
                 foreach ($permissions as $permission) {
-                    $newPermissions[] = Db::uidById(Table::USERGROUPS, $permission);
+                    try {
+                        $newPermission = Db::uidById(Table::USERGROUPS, (int)$permission) ?? '';
+
+                        if ($newPermission) {
+                            $newPermissions[] = $newPermission;
+                        }
+                    } catch (\Throwable $e) {
+                        continue;
+                    }
                 }
             }
 
