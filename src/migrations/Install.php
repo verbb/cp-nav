@@ -13,11 +13,16 @@ class Install extends Migration
     {
         $this->createTables();
         $this->addForeignKeys();
+
+        return true;
     }
 
     public function safeDown()
     {
         $this->removeTables();
+        $this->dropProjectConfig();
+
+        return true;
     }
 
     public function createTables()
@@ -70,5 +75,10 @@ class Install extends Migration
         $this->dropTableIfExists('{{%cpnav_navigation}}');
         $this->dropTableIfExists('{{%cpnav_layout}}');
         $this->dropTableIfExists('{{%cpnav_pending_navigations}}');
+    }
+
+    public function dropProjectConfig()
+    {
+        Craft::$app->projectConfig->remove('cp-nav');
     }
 }
