@@ -73,10 +73,7 @@ trait PluginTrait
 
     private function _setLogging()
     {
-        Craft::getLogger()->dispatcher->targets[] = new FileTarget([
-            'logFile' => Craft::getAlias('@storage/logs/cp-nav.log'),
-            'categories' => ['cp-nav'],
-        ]);
+        BaseHelper::setFileLogging('cp-nav');
     }
 
 }
