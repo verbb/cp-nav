@@ -1,5 +1,15 @@
 # Changelog
 
+## 3.0.9 - 2020-04-15
+
+### Changed
+- File logging now checks if the overall Craft app uses file logging.
+- Log files now only include `GET` and `POST` additional variables.
+- Ensure plugin project config is removed when uninstalling.
+
+### Fixed
+- Add checks to prevent multiple nav items being added in some instances.
+
 ## 3.0.8.2 - 2020-04-01
 
 ### Fixed
