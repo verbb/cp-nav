@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.0.11 - 2020-04-21
+
+### Fixed
+- Fix directory separator checks on Windows, causing icon issues.
+- Fix over-zealous updates to `originalNavHash`.
+
 ## 3.0.10 - 2020-04-16
 
 ### Fixed
