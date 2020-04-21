@@ -83,6 +83,7 @@ class Service extends Component
 
             // Check to see if something has changed
             if ($originalNavHash !== $currentHash) {
+                $changedHash = false;
                 $oldNavItems = $this->_decodeHash($originalNavHash);
                 $newNavItems = $event->navItems;
 
@@ -93,6 +94,8 @@ class Service extends Component
 
                     if ($result) {
                         CpNav::$plugin->getPendingNavigations()->set($result);
+
+                        $changedHash = true;
                     }
                 } else {
                     // A node has been removed
@@ -102,10 +105,14 @@ class Service extends Component
                         $handle = $result['url'] ?? '';
                         
                         CpNav::$plugin->getNavigations()->deleteNavigationFromAllLayouts($handle);
+
+                        $changedHash = true;
                     }
                 }
 
-                $this->_saveHash($currentHash);
+                if ($changedHash) {
+                    $this->_saveHash($currentHash);
+                }
             }
         } catch (\Throwable $e) {
             CpNav::error(Craft::t('app', '{e} - {f}: {l}.', ['e' => $e->getMessage(), 'f' => $e->getFile(), 'l' => $e->getLine()]));
