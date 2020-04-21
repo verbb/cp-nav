@@ -113,7 +113,7 @@ class Navigation extends Model
         try {
             if ($this->icon) {
                 // If this is a path (plugin), set the correct key
-                if (strpos($this->icon, '/') !== false) {
+                if (strpos($this->icon, DIRECTORY_SEPARATOR) !== false) {
                     // We've stored the full path to the icon-mask.svg file in our nav.
                     // But - this will change for each environment, so we need to fetch it properly!
                     $plugin = Craft::$app->getPlugins()->getPlugin($this->handle);
@@ -182,7 +182,7 @@ class Navigation extends Model
         ];
 
         if ($icon = $this->getIconPath()) {
-            if (strpos($icon, '/') !== false) {
+            if (strpos($icon, DIRECTORY_SEPARATOR) !== false) {
                 $item['icon'] = $icon;
             } else {
                 $item['fontIcon'] = $icon;
