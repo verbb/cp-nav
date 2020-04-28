@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.12 - 2020-04-28
+
+### Fixed
+- Fix custom icon not working when editing items.
+
 ## 3.0.11 - 2020-04-21
 
 ### Fixed
