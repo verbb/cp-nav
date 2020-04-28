@@ -104,7 +104,7 @@ Craft.CpNav.AddMenuItem = Garnish.Base.extend({
 
             new Craft.HandleGenerator('#currLabel', '#handle');
 
-            Garnish.$bod.append(response.footerJs);
+            Garnish.$bod.append(response.footHtml);
 
             this.addListener(this.$saveBtn, 'click', 'saveGroupField');
             this.addListener(this.$cancelBtn, 'click', 'closeHud');
@@ -294,7 +294,7 @@ Craft.CpNav.EditNavItem = Garnish.Base.extend({
 
             this.hud.on('hide', $.proxy(this, 'closeHud'));
 
-            Garnish.$bod.append(response.footerJs);
+            Garnish.$bod.append(response.footHtml);
 
             this.addListener(this.$saveBtn, 'click', 'saveGroupField');
             this.addListener(this.$cancelBtn, 'click', 'closeHud');
