@@ -132,17 +132,8 @@ class Service extends Component
             try {
                 $navigation = $this->_createNavigationModelForNavItem($pluginNavItem);
 
-                // Its a bit of effort, but the only real way to get the correct order of the new nav item
-                // is to look at how its placed normally, and use that. Better than appending though.
-                $navItems = $event->navItems;
-
-                foreach ($navItems as $orderIndex => $navItem) {
-                    if ($navItem['url'] === $pluginNavItem['url']) {
-                        $navigation->order = $orderIndex;
-
-                        break;
-                    }
-                }
+                // Just add to the end of the list for now, too tricky to sort out otherwise
+                $navigation->order = 9999;
 
                 // Create nav item for all layouts
                 CpNav::$plugin->getNavigations()->saveNavigationToAllLayouts($navigation);
