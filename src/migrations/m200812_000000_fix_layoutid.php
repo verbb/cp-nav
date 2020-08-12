@@ -31,22 +31,24 @@ class m200812_000000_fix_layoutid extends Migration
         // Remove `layoutId` and add `layout` for its UID
         $navs = Craft::$app->getProjectConfig()->get(NavigationsService::CONFIG_NAVIGATION_KEY);
 
-        foreach ($navs as $navUid => $nav) {
-            $layoutId = ArrayHelper::remove($nav, 'layoutId');
+        if (is_array($navs)) {
+            foreach ($navs as $navUid => $nav) {
+                $layoutId = ArrayHelper::remove($nav, 'layoutId');
 
-            if (!$layoutId) {
-                continue;
+                if (!$layoutId) {
+                    continue;
+                }
+
+                $layout = CpNav::$plugin->getLayouts()->getLayoutById($layoutId);
+
+                if (!$layout) {
+                    continue;
+                }
+
+                $nav['layout'] = $layout->uid;
+
+                Craft::$app->getProjectConfig()->set(NavigationsService::CONFIG_NAVIGATION_KEY . '.' . $navUid, $nav);
             }
-
-            $layout = CpNav::$plugin->getLayouts()->getLayoutById($layoutId);
-
-            if (!$layout) {
-                continue;
-            }
-
-            $nav['layout'] = $layout->uid;
-
-            Craft::$app->getProjectConfig()->set(NavigationsService::CONFIG_NAVIGATION_KEY . '.' . $navUid, $nav);
         }
 
         return true;

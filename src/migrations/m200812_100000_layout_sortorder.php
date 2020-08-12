@@ -37,10 +37,12 @@ class m200812_100000_layout_sortorder extends Migration
 
         $sortOrder = 0;
 
-        foreach ($layouts as $layoutUid => $layout) {
-            $layout['sortOrder'] = ++$sortOrder;
+        if (is_array($layouts)) {
+            foreach ($layouts as $layoutUid => $layout) {
+                $layout['sortOrder'] = ++$sortOrder;
 
-            Craft::$app->getProjectConfig()->set(LayoutsService::CONFIG_LAYOUT_KEY . '.' . $layoutUid, $layout);
+                Craft::$app->getProjectConfig()->set(LayoutsService::CONFIG_LAYOUT_KEY . '.' . $layoutUid, $layout);
+            }
         }
 
         return true;
