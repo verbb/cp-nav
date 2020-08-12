@@ -3,6 +3,7 @@ namespace verbb\cpnav\services;
 
 use verbb\cpnav\CpNav;
 use verbb\cpnav\events\NavigationEvent;
+use verbb\cpnav\helpers\ProjectConfig as ProjectConfigHelper;
 use verbb\cpnav\models\Navigation as NavigationModel;
 use verbb\cpnav\records\Navigation as NavigationRecord;
 
@@ -133,7 +134,7 @@ class NavigationsService extends Component
         $projectConfig = Craft::$app->getProjectConfig();
 
         $configData = [
-            'layoutId' => $navigation->layoutId,
+            'layout' => $navigation->getLayout()->uid,
             'handle' => $navigation->handle,
             'currLabel' => $navigation->currLabel,
             'prevLabel' => $navigation->prevLabel,
@@ -159,25 +160,25 @@ class NavigationsService extends Component
 
     public function handleChangedNavigation(ConfigEvent $event)
     {
-        // Ensure any layouts have been processed first
-        $projectConfig = Craft::$app->getProjectConfig();
-        $layouts = $projectConfig->get(LayoutsService::CONFIG_LAYOUT_KEY, true) ?? [];
-    
-        foreach ($layouts as $layoutUid => $layoutData) {
-            $projectConfig->processConfigChanges(LayoutsService::CONFIG_LAYOUT_KEY . '.' . $layoutUid);
-        }
-        
         $navigationUid = $event->tokenMatches[0];
         $data = $event->newValue;
+
+        // Make sure layouts are processed
+        ProjectConfigHelper::ensureAllLayoutsProcessed();
+
+        $layout = CpNav::$plugin->getLayouts()->getLayoutByUid($data['layout']);
+        $navigationRecord = $this->_getNavigationRecord($navigationUid, true);
+
+        if (!$layout || !$navigationRecord) {
+            return;
+        }
 
         $transaction = Craft::$app->getDb()->beginTransaction();
 
         try {
-            // Basic data
-            $navigationRecord = $this->_getNavigationRecord($navigationUid);
             $isNewNavigation = $navigationRecord->getIsNewRecord();
 
-            $navigationRecord->layoutId = $data['layoutId'];
+            $navigationRecord->layoutId = $layout->id;
             $navigationRecord->handle = $data['handle'];
             $navigationRecord->currLabel = $data['currLabel'];
             $navigationRecord->prevLabel = $data['prevLabel'];

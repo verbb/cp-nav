@@ -9,6 +9,8 @@ use craft\base\Plugin;
 use craft\helpers\FileHelper;
 use craft\helpers\UrlHelper;
 
+use yii\base\InvalidConfigException;
+
 class Navigation extends Model
 {
     // Constants
@@ -69,6 +71,19 @@ class Navigation extends Model
         ];
     }
 
+    public function getLayout()
+    {
+        if ($this->layoutId === null) {
+            throw new InvalidConfigException('Navigation is missing its layout ID');
+        }
+
+        if (($layout = CpNav::$plugin->getLayouts()->getLayoutById($this->layoutId)) === null) {
+            throw new InvalidConfigException('Invalid layout ID: ' . $this->layoutId);
+        }
+
+        return $layout;
+    }
+
     public function getFullUrl()
     {
         // An empty URL is okay
@@ -79,8 +94,8 @@ class Navigation extends Model
         // Do some extra work on the url if needed
         $url = trim($this->url);
 
-        // Support alias
-        $url = Craft::getAlias($url);
+        // Support alias and env variables
+        $url = Craft::parseEnv($url);
 
         // Allow Environment Variables to be used in the URL
         foreach (Craft::$app->getConfig()->getConfigFromFile('general') as $key => $value) {
@@ -149,7 +164,7 @@ class Navigation extends Model
 
                     if ($volumePath) {
                         $path = FileHelper::normalizePath($volumePath . DIRECTORY_SEPARATOR . $asset->folderPath . DIRECTORY_SEPARATOR . $asset->filename);
-                        $path = Craft::getAlias($path);
+                        $path = Craft::parseEnv($path);
 
                         if (@file_exists($path)) {
                             return $path;

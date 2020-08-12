@@ -126,6 +126,14 @@
 		"oAP": "/build/src/events",
 		"oF": 0
 		},
+	"/src/helpers/ProjectConfig.php": {
+		"cB": 0,
+		"ft": 8192,
+		"hM": 0,
+		"oA": 2,
+		"oAP": "/src/helpers/ProjectConfig.php",
+		"oF": 0
+		},
 	"/src/icon.svg": {
 		"ft": 2097152,
 		"miP": 0,
