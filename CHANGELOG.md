@@ -1,5 +1,14 @@
 # Changelog
 
+## 3.0.13 - 2020-08-12
+
+### Added
+- Layouts can now be sorted in the control panel.
+
+### Fixed
+- Fix project config storing layoutId instead of layoutUid.
+- Fix layout and navigation items getting out of sync with project config.
+
 ## 3.0.12 - 2020-04-28
 
 ### Fixed
