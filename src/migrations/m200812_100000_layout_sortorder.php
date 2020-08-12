@@ -24,14 +24,23 @@ class m200812_100000_layout_sortorder extends Migration
             $this->addColumn('{{%cpnav_layout}}', 'sortOrder', $this->smallInteger()->unsigned()->after('permissions'));
         }
 
-        $layouts = (new Query())
-            ->from('{{%cpnav_layout}}')
-            ->all();
+        $projectConfig = Craft::$app->getProjectConfig();
+
+        // Don't make the same config changes twice
+        $schemaVersion = $projectConfig->get('plugins.cp-nav.schemaVersion', true);
+        if (version_compare($schemaVersion, '2.0.7', '>=')) {
+            return;
+        }
+
+        // Populate `sortOrder` 
+        $layouts = Craft::$app->getProjectConfig()->get(LayoutsService::CONFIG_LAYOUT_KEY);
 
         $sortOrder = 0;
 
-        foreach ($layouts as $layout) {
-            $this->update('{{%cpnav_layout}}', ['sortOrder' => $sortOrder++], ['id' => $layout['id']]);
+        foreach ($layouts as $layoutUid => $layout) {
+            $layout['sortOrder'] = ++$sortOrder;
+
+            Craft::$app->getProjectConfig()->set(LayoutsService::CONFIG_LAYOUT_KEY . '.' . $layoutUid, $layout);
         }
 
         return true;

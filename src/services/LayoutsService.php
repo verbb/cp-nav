@@ -281,18 +281,24 @@ class LayoutsService extends Component
 
     private function _createLayoutQuery(): Query
     {
-        return (new Query())
+        $query = (new Query())
             ->select([
                 'id',
                 'name',
                 'isDefault',
                 'permissions',
-                'sortOrder',
                 'dateUpdated',
                 'dateCreated',
                 'uid',
             ])
-            ->from(['{{%cpnav_layout}}'])
-            ->orderBy(['sortOrder' => SORT_ASC]);
+            ->from(['{{%cpnav_layout}}']);
+
+        $schemaVersion = Craft::$app->getProjectConfig()->get('plugins.cp-nav.schemaVersion', true);
+        if (version_compare($schemaVersion, '2.0.7', '>=')) {
+            $query->addSelect(['sortOrder']);
+            $query->orderBy(['sortOrder' => SORT_ASC]);
+        }
+
+        return $query;
     }
 }
