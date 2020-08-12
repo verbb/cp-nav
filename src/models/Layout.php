@@ -16,6 +16,7 @@ class Layout extends Model
     public $name;
     public $isDefault;
     public $permissions;
+    public $sortOrder = 1;
     public $dateCreated;
     public $dateUpdated;
     public $uid;

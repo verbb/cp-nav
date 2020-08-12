@@ -32,6 +32,7 @@ class Install extends Migration
             'name' => $this->string(255),
             'isDefault' => $this->boolean()->notNull()->defaultValue(false),
             'permissions' => $this->text(),
+            'sortOrder' => $this->smallInteger()->unsigned(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),

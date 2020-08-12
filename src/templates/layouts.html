@@ -7,6 +7,7 @@
 ] %}
 
 {% set selectedTab = 'layouts' %}
+{% set canSort = layouts | length %}
 
 {% block actionButton %}
     <div class="buttons right">
@@ -19,6 +20,11 @@
 <table id="layoutItems" class="data fullwidth collapsible">
     <thead>
         <th scope="col">{{ 'Name' | t('cp-nav') }}</th>
+
+        {% if canSort %}
+            <td class="thin"></td>
+        {% endif %}
+
         <th></th>
     </thead>
     <tbody>
@@ -33,9 +39,15 @@
                         {% endif %}
                     </td>
 
+                    {% if canSort %}
+                        <td class="thin">
+                            <a class="move icon" title="{{ 'Reorder' | t('app') }}" role="button"></a>
+                        </td>
+                    {% endif %}
+
                     <td class="thin">
                         {% if not layout.isDefault %}
-                            <a class="delete icon" title="{{ 'Delete' | t('cp-nav') }}" role="button"></a>
+                            <a class="delete icon" title="{{ 'Delete' | t('app') }}" role="button"></a>
                         {% endif %}
                     </td>
                 </tr>

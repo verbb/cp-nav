@@ -10,7 +10,8 @@ if (typeof Craft.CpNav === typeof undefined) {
 
 var LayoutAdminTable = new Craft.AdminTable({
     tableSelector: '#layoutItems',
-    sortable: false,
+    sortable: true,
+    reorderAction: 'cp-nav/layout/reorder',
     deleteAction: 'cp-nav/layout/delete',
     confirmDeleteMessage: Craft.t('cp-nav', 'Are you sure you want to permanently delete this layout and all its settings? This cannot be undone.'),
 });
@@ -201,6 +202,9 @@ Craft.CpNav.CreateLayoutItem = Garnish.Base.extend({
                 var $tr = LayoutAdminTable.addRow('<tr class="layout-item" data-id="'+newLayout.id+'" data-name="'+newLayout.name+'">' +
                     '<td>' +
                         '<a class="edit-layout"><strong>'+newLayout.name+'</strong></a>' +
+                    '</td>' +
+                    '<td class="thin">' +
+                        '<a class="move icon" title="' + Craft.t('app', 'Reorder') + '" role="button"></a>' +
                     '</td>' +
                     '<td class="thin">' +
                         '<a class="delete icon" title="' + Craft.t('app', 'Delete') + '" role="button"></a>' +

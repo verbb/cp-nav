@@ -130,6 +130,17 @@ class LayoutController extends Controller
 
         return $this->asJson(['success' => true, 'layouts' => $layouts]);
     }
+
+    public function actionReorder(): Response
+    {
+        $this->requirePostRequest();
+        $this->requireAcceptsJson();
+
+        $layoutIds = Json::decode($this->request->getRequiredBodyParam('ids'));
+        CpNav::$plugin->getLayouts()->reorderLayouts($layoutIds);
+
+        return $this->asJson(['success' => true]);
+    }
     
 
     // Private Methods

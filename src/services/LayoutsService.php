@@ -3,6 +3,7 @@ namespace verbb\cpnav\services;
 
 use verbb\cpnav\CpNav;
 use verbb\cpnav\events\LayoutEvent;
+use verbb\cpnav\events\ReorderLayoutsEvent;
 use verbb\cpnav\models\Layout as LayoutModel;
 use verbb\cpnav\records\Layout as LayoutRecord;
 
@@ -27,6 +28,8 @@ class LayoutsService extends Component
     const EVENT_BEFORE_APPLY_LAYOUT_DELETE = 'beforeApplyLayoutDelete';
     const EVENT_BEFORE_DELETE_LAYOUT = 'beforeDeleteLayout';
     const EVENT_AFTER_DELETE_LAYOUT = 'afterDeleteLayout';
+    const EVENT_BEFORE_REORDER_LAYOUTS = 'beforeReorderLayouts';
+    const EVENT_AFTER_REORDER_LAYOUTS = 'afterReorderLayouts';
 
     const CONFIG_LAYOUT_KEY = 'cp-nav.layouts';
 
@@ -124,6 +127,10 @@ class LayoutsService extends Component
 
         if ($isNewLayout) {
             $layout->uid = StringHelper::UUID();
+
+            $layout->sortOrder = ((int)(new Query())
+                    ->from(['{{%cpnav_layout}}'])
+                    ->max('[[sortOrder]]')) + 1;
         } else {
             $layout->uid = Db::uidById('{{%cpnav_layout}}', $layout->id);
         }
@@ -134,6 +141,7 @@ class LayoutsService extends Component
             'name' => $layout->name,
             'isDefault' => $layout->isDefault,
             'permissions' => Json::encode($layout->permissions),
+            'sortOrder' => (int)$layout->sortOrder,
         ];
 
         $configPath = self::CONFIG_LAYOUT_KEY . '.' . $layout->uid;
@@ -160,6 +168,7 @@ class LayoutsService extends Component
             $layoutRecord->name = $data['name'];
             $layoutRecord->isDefault = $data['isDefault'];
             $layoutRecord->permissions = $data['permissions'];
+            $layoutRecord->sortOrder = $data['sortOrder'];
             $layoutRecord->uid = $layoutUid;
 
             $layoutRecord->save(false);
@@ -179,6 +188,35 @@ class LayoutsService extends Component
                 'isNew' => $isNewLayout,
             ]));
         }
+    }
+
+    public function reorderLayouts(array $layoutIds): bool
+    {
+        // Fire a 'beforeReorderLayouts' event
+        if ($this->hasEventHandlers(self::EVENT_BEFORE_REORDER_LAYOUTS)) {
+            $this->trigger(self::EVENT_BEFORE_REORDER_LAYOUTS, new ReorderLayoutsEvent([
+                'layoutIds' => $layoutIds,
+            ]));
+        }
+
+        $projectConfig = Craft::$app->getProjectConfig();
+
+        $uidsByIds = Db::uidsByIds('{{%cpnav_layout}}', $layoutIds);
+
+        foreach ($layoutIds as $sortOrder => $layoutId) {
+            if (!empty($uidsByIds[$layoutId])) {
+                $layoutUid = $uidsByIds[$layoutId];
+                $projectConfig->set(self::CONFIG_LAYOUT_KEY . '.' . $layoutUid . '.sortOrder', $sortOrder + 1, 'Reorder layouts');
+            }
+        }
+
+        if ($this->hasEventHandlers(self::EVENT_AFTER_REORDER_LAYOUTS)) {
+            $this->trigger(self::EVENT_AFTER_REORDER_LAYOUTS, new ReorderLayoutsEvent([
+                'layoutIds' => $layoutIds,
+            ]));
+        }
+
+        return true;
     }
 
     public function deleteLayoutById(int $layoutId): bool
@@ -249,10 +287,12 @@ class LayoutsService extends Component
                 'name',
                 'isDefault',
                 'permissions',
+                'sortOrder',
                 'dateUpdated',
                 'dateCreated',
                 'uid',
             ])
-            ->from(['{{%cpnav_layout}}']);
+            ->from(['{{%cpnav_layout}}'])
+            ->orderBy(['sortOrder' => SORT_ASC]);
     }
 }
