@@ -25,9 +25,7 @@ Get in touch with us via the [CP Nav Support page](https://verbb.io/craft-plugin
 
 ## Show your Support
 
-CP Nav is licensed under the MIT license, meaning it will always be free and open source – we love free stuff! If you'd like to show your support to the plugin regardless, buy us a :beers:. Please note that this does not entitle you to any form of support, and is completely optional.
-
-[![Beerpay](https://beerpay.io/verbb/cp-nav/badge.svg?style=beer-square)](https://beerpay.io/verbb/cp-nav)
+CP Nav is licensed under the MIT license, meaning it will always be free and open source – we love free stuff! If you'd like to show your support to the plugin regardless, [Sponsor](https://github.com/sponsors/verbb) development.
 
 <h2></h2>
 
