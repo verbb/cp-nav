@@ -219,7 +219,11 @@ class Navigation extends Model
         }
 
         if ($this->isDivider()) {
-            $this->_insertJsForDivider();
+            // Ensure dividor items have unique IDs
+            $id = $this->handle . '-' . uniqid();
+            $item['id'] = 'nav-' . $id;
+
+            $this->_insertJsForDivider($id);
         }
 
         return $item;
@@ -261,18 +265,18 @@ class Navigation extends Model
         Craft::$app->view->registerJs($js);
     }
 
-    private function _insertJsForDivider()
+    private function _insertJsForDivider($id)
     {
         // Prevent this from loading when opening a modal window
         if (Craft::$app->getRequest()->isAjax) {
             return;
         }
         
-        $js = 'Craft.CpNav.Dividers.push("' . $this->handle . '");';
+        $js = 'Craft.CpNav.Dividers.push("' . $id . '");';
         Craft::$app->view->registerJs($js);
 
         // Add some CSS to hide it initially
-        $css = '#global-sidebar #nav li#nav-' . $this->handle . ' { opacity: 0; }';
+        $css = '#global-sidebar #nav li#nav-' . $id . ' { opacity: 0; }';
         Craft::$app->view->registerCss($css);
     }
 
