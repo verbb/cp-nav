@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.14 - 2021-01-22
+
+### Fixed
+- Fixed potential error for layouts without a `sortOrder` setting.
+
 ## 3.0.13.1 - 2020-08-12
 
 ### Fixed
