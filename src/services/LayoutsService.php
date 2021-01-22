@@ -168,7 +168,7 @@ class LayoutsService extends Component
             $layoutRecord->name = $data['name'];
             $layoutRecord->isDefault = $data['isDefault'];
             $layoutRecord->permissions = $data['permissions'];
-            $layoutRecord->sortOrder = $data['sortOrder'];
+            $layoutRecord->sortOrder = $data['sortOrder'] ?? 0;
             $layoutRecord->uid = $layoutUid;
 
             $layoutRecord->save(false);
