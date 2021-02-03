@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.0.15 - 2021-02-03
+
+### Added
+- Allow CpNav plugin services to be used in console requests. (thanks @jamesmacwhite).
+
+### Fixed
+- Fix an error with PHP 7.2+ in some cases.
+
 ## 3.0.14 - 2021-01-22
 
 ### Fixed
