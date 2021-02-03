@@ -84,8 +84,16 @@ class Service extends Component
             // Check to see if something has changed
             if ($originalNavHash !== $currentHash) {
                 $changedHash = false;
-                $oldNavItems = $this->_decodeHash($originalNavHash);
-                $newNavItems = $event->navItems;
+                $oldNavItems = $this->_decodeHash($originalNavHash) ?? [];
+                $newNavItems = $event->navItems ?? [];
+
+                if (!is_array($oldNavItems)) {
+                    $oldNavItems = [];
+                }
+
+                if (!is_array($newNavItems)) {
+                    $newNavItems = [];
+                }
 
                 // Let's find out what's changed! Are the new navs bigger than the old - we've added
                 if (count($oldNavItems) < count($newNavItems)) {
