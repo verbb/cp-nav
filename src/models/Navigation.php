@@ -111,15 +111,6 @@ class Navigation extends Model
             $url = str_replace('{siteUrl}', $siteUrl, $url);
         }
 
-        // And a special case for global - always direct to first global set
-        if ($this->handle == 'globals') {
-            $globals = Craft::$app->globals->getEditableSets();
-
-            if ($globals) {
-                $url = 'globals/' . $globals[0]->handle;
-            }
-        }
-
         return $url;
     }
 
