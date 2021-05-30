@@ -166,7 +166,9 @@ class NavigationsService extends Component
         // Make sure layouts are processed
         ProjectConfigHelper::ensureAllLayoutsProcessed();
 
-        $layout = CpNav::$plugin->getLayouts()->getLayoutByUid($data['layout']);
+        $layoutUid = $data['layout'] ?? '';
+
+        $layout = CpNav::$plugin->getLayouts()->getLayoutByUid($layoutUid);
         $navigationRecord = $this->_getNavigationRecord($navigationUid, true);
 
         if (!$layout || !$navigationRecord) {
@@ -179,17 +181,17 @@ class NavigationsService extends Component
             $isNewNavigation = $navigationRecord->getIsNewRecord();
 
             $navigationRecord->layoutId = $layout->id;
-            $navigationRecord->handle = $data['handle'];
-            $navigationRecord->currLabel = $data['currLabel'];
-            $navigationRecord->prevLabel = $data['prevLabel'];
-            $navigationRecord->enabled = $data['enabled'];
-            $navigationRecord->order = $data['order'];
-            $navigationRecord->url = $data['url'];
-            $navigationRecord->prevUrl = $data['prevUrl'];
-            $navigationRecord->icon = $data['icon'];
-            $navigationRecord->customIcon = $data['customIcon'];
-            $navigationRecord->type = $data['type'];
-            $navigationRecord->newWindow = $data['newWindow'];
+            $navigationRecord->handle = $data['handle'] ?? '';
+            $navigationRecord->currLabel = $data['currLabel'] ?? '';
+            $navigationRecord->prevLabel = $data['prevLabel'] ?? '';
+            $navigationRecord->enabled = $data['enabled'] ?? '';
+            $navigationRecord->order = $data['order'] ?? '';
+            $navigationRecord->url = $data['url'] ?? '';
+            $navigationRecord->prevUrl = $data['prevUrl'] ?? '';
+            $navigationRecord->icon = $data['icon'] ?? '';
+            $navigationRecord->customIcon = $data['customIcon'] ?? '';
+            $navigationRecord->type = $data['type'] ?? '';
+            $navigationRecord->newWindow = $data['newWindow'] ?? '';
             $navigationRecord->uid = $navigationUid;
 
             $navigationRecord->save(false);
