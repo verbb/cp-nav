@@ -16,6 +16,7 @@
     }
 }
 
+#nav li[id^="nav-divider-"],
 .cpn-divider {
     &.loaded {
         opacity: 1 !important;
@@ -23,6 +24,7 @@
     
     a {
         position: relative;
+        pointer-events: none;
     }
 
     .icon {
