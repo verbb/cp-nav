@@ -95,7 +95,7 @@
                 </td>
 
                 <td class="thin">
-                    {% if nav.isManual() %}
+                    {% if nav.isManual() or nav.isDivider() %}
                         <a class="delete icon" title="{{ 'Delete' | t('cp-nav') }}" role="button"></a>
                     {% endif %}
                 </td>
