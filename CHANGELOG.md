@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.0.16 - 2021-05-30
+
+### Fixed
+- Fix being unable to remove dividers.
+- Fix divider’s not always displaying correctly.
+- Fix selected state not being set for Globals.
+
 ## 3.0.15 - 2021-02-03
 
 ### Added
