@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.0.17 - 2021-06-30
+
+### Fixed
+- Fix Plugin Store link being hidden for `allowAdminChanges = false`.
+- Fix potential error when migrating nav items.
+
 ## 3.0.16 - 2021-05-30
 
 ### Fixed
