@@ -289,7 +289,7 @@ class Navigation extends Model
 
             'graphql' => $isAdmin && $craftPro && $generalConfig->enableGql,
             'settings' => $isAdmin && $generalConfig->allowAdminChanges,
-            'plugin-store' => $isAdmin && $generalConfig->allowAdminChanges,
+            'plugin-store' => $isAdmin,
         ];
 
         // Add each plugin
