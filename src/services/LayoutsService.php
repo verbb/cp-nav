@@ -104,7 +104,8 @@ class LayoutsService extends Component
             }
         }
 
-        return $this->getLayoutById(1);
+        // Otherwise, fetch the default layout
+        return ArrayHelper::firstWhere($layouts, 'isDefault', true);
     }
 
     public function saveLayout(LayoutModel $layout, $isNewLayout = null, bool $runValidation = true): bool
