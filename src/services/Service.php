@@ -107,7 +107,7 @@ class Service extends Component
 
                     if ($result) {
                         $handle = $result['url'] ?? '';
-                        
+
                         CpNav::$plugin->getNavigations()->deleteNavigationFromAllLayouts($handle);
 
                         $changedHash = true;
@@ -192,7 +192,7 @@ class Service extends Component
     {
         // Allow CpNav services to be called by console requests
         // https://github.com/verbb/cp-nav/issues/85
-        if(!Craft::$app->getRequest()->getIsConsoleRequest()) {
+        if (!Craft::$app->getRequest()->getIsConsoleRequest()) {
 
             // Just call it - we don't want the result of this function, we just want the hook called,
             // which in turn calls our function above. Our hook will store the original nav in a private
@@ -202,7 +202,7 @@ class Service extends Component
 
         return $this->_originalNavItems;
     }
-    
+
     private function _createNavigationModelForNavItem($pluginNavItem): NavigationModel
     {
         $navigation = new NavigationModel();

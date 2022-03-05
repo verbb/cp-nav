@@ -18,7 +18,7 @@ class NavigationController extends Controller
     // =========================================================================
 
     public function beforeAction($action): bool
-    {   
+    {
         // Are we trying to load the index page? Check we have defaults setup
         if ($action->actionMethod === 'actionIndex') {
             $request = Craft::$app->getRequest();
@@ -45,8 +45,8 @@ class NavigationController extends Controller
         $navItems = CpNav::$plugin->getNavigations()->getNavigationsByLayoutId($layoutId);
 
         return $this->renderTemplate('cp-nav/index', [
-            'layouts'  => $layouts,
-            'layout'  => $layout,
+            'layouts' => $layouts,
+            'layout' => $layout,
             'navItems' => $navItems,
         ]);
     }
@@ -70,7 +70,7 @@ class NavigationController extends Controller
                 $navigation = CpNav::$plugin->getNavigations()->saveNavigation($navigation);
             }
         }
-        
+
         return $this->asJson(['success' => true, 'navHtml' => $this->_getNavHtml()]);
     }
 
@@ -127,7 +127,7 @@ class NavigationController extends Controller
                 'value' => $volume->id,
             ];
         }
-        
+
         $variables = [
             'nav' => $navigation,
             'sources' => $sourcesOptions,
@@ -279,7 +279,7 @@ class NavigationController extends Controller
     {
         return Craft::$app->view->renderTemplate('cp-nav/_layouts/navs');
     }
-    
+
     private function _getErrorString($object)
     {
         return $object->getErrorSummary(true)[0] ?? '';

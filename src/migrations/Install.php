@@ -56,7 +56,7 @@ class Install extends Migration
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
         ]);
-        
+
         $this->createTable('{{%cpnav_pending_navigations}}', [
             'id' => $this->primaryKey(),
             'pluginNavItem' => $this->text(),

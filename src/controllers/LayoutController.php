@@ -56,7 +56,7 @@ class LayoutController extends Controller
         $footHtml = Craft::$app->view->clearJsBuffer();
 
         return $this->asJson([
-            'html'     => $bodyHtml,
+            'html' => $bodyHtml,
             'footerJs' => $footHtml,
         ]);
     }
@@ -140,7 +140,7 @@ class LayoutController extends Controller
 
         return $this->asJson(['success' => true]);
     }
-    
+
 
     // Private Methods
     // =========================================================================

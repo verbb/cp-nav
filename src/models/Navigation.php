@@ -246,7 +246,7 @@ class Navigation extends Model
         if (Craft::$app->getRequest()->isAjax) {
             return;
         }
-        
+
         $js = 'Craft.CpNav.EmptyUrls.push("' . $this->handle . '");';
         Craft::$app->view->registerJs($js);
     }
@@ -257,7 +257,7 @@ class Navigation extends Model
         if (Craft::$app->getRequest()->isAjax) {
             return;
         }
-        
+
         $js = 'Craft.CpNav.Dividers.push("' . $id . '");';
         Craft::$app->view->registerJs($js);
 
