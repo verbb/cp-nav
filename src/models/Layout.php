@@ -18,19 +18,28 @@ class Layout extends Model
     public bool $isDefault = false;
     public array $permissions = [];
     public ?int $sortOrder = null;
-    public ?DateTime $dateCreated;
-    public ?DateTime $dateUpdated;
+    public ?DateTime $dateCreated = null;
+    public ?DateTime $dateUpdated = null;
     public ?string $uid = null;
 
 
     // Public Methods
     // =========================================================================
 
-    public function init(): void
+    public function __construct($config = [])
     {
-        parent::init();
+        // Config normalization
+        if (array_key_exists('permissions', $config)) {
+            if (is_string($config['permissions'])) {
+                $config['permissions'] = Json::decodeIfJson($config['permissions']);
+            }
 
-        $this->permissions = Json::decodeIfJson($this->permissions, true);
+            if (!is_array($config['permissions'])) {
+                unset($config['permissions']);
+            }
+        }
+
+        parent::__construct($config);
     }
 
     public function rules(): array
