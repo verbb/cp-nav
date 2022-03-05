@@ -1,13 +1,12 @@
 <?php
 namespace verbb\cpnav\records;
 
+use craft\db\ActiveQuery;
 use craft\db\ActiveRecord;
-
-use yii\db\ActiveQueryInterface;
 
 class Layout extends ActiveRecord
 {
-    // Public Static Methods
+    // Static Methods
     // =========================================================================
 
     public static function tableName(): string
@@ -15,7 +14,11 @@ class Layout extends ActiveRecord
         return '{{%cpnav_layout}}';
     }
 
-    public function getNavigations(): ActiveQueryInterface
+
+    // Public Methods
+    // =========================================================================
+
+    public function getNavigations(): ActiveQuery
     {
         return $this->hasMany(Navigation::className(), ['navId' => 'id'])->inverseOf('layout');
     }

@@ -1,24 +1,14 @@
 <?php
 namespace verbb\cpnav\migrations;
 
-use verbb\cpnav\CpNav;
 use verbb\cpnav\services\LayoutsService;
-use verbb\cpnav\services\NavigationsService;
 
 use Craft;
 use craft\db\Migration;
-use craft\db\Query;
-use craft\db\Table;
-use craft\helpers\ArrayHelper;
-use craft\helpers\Db;
-use craft\helpers\Json;
-use craft\helpers\MigrationHelper;
-use craft\helpers\Component as ComponentHelper;
-use craft\helpers\StringHelper;
 
 class m200812_100000_layout_sortorder extends Migration
 {
-    public function safeUp()
+    public function safeUp(): bool
     {
         if (!$this->db->columnExists('{{%cpnav_layout}}', 'sortOrder')) {
             $this->addColumn('{{%cpnav_layout}}', 'sortOrder', $this->smallInteger()->unsigned()->after('permissions'));
@@ -29,7 +19,7 @@ class m200812_100000_layout_sortorder extends Migration
         // Don't make the same config changes twice
         $schemaVersion = $projectConfig->get('plugins.cp-nav.schemaVersion', true);
         if (version_compare($schemaVersion, '2.0.7', '>=')) {
-            return;
+            return true;
         }
 
         // Populate `sortOrder` 
@@ -48,7 +38,7 @@ class m200812_100000_layout_sortorder extends Migration
         return true;
     }
 
-    public function safeDown()
+    public function safeDown(): bool
     {
         echo "m200812_100000_layout_sortorder cannot be reverted.\n";
         return false;

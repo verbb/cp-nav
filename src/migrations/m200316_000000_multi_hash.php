@@ -1,29 +1,19 @@
 <?php
 namespace verbb\cpnav\migrations;
 
-use verbb\cpnav\services\LayoutsService;
-use verbb\cpnav\services\NavigationsService;
-
 use Craft;
 use craft\db\Migration;
-use craft\db\Query;
-use craft\db\Table;
-use craft\helpers\Db;
-use craft\helpers\Json;
-use craft\helpers\MigrationHelper;
-use craft\helpers\Component as ComponentHelper;
-use craft\helpers\StringHelper;
 
 class m200316_000000_multi_hash extends Migration
 {
-    public function safeUp()
+    public function safeUp(): bool
     {
         $projectConfig = Craft::$app->getProjectConfig();
 
         // Don't make the same config changes twice
         $schemaVersion = $projectConfig->get('plugins.cp-nav.schemaVersion', true);
         if (version_compare($schemaVersion, '2.0.5', '>=')) {
-            return;
+            return true;
         }
 
         $currentUser = Craft::$app->getUser()->getIdentity();
@@ -32,9 +22,11 @@ class m200316_000000_multi_hash extends Migration
         if ($currentUser) {
             Craft::$app->getProjectConfig()->set('plugins.cp-nav.settings.originalNavHash', [$currentUser->uid => $originalNavHash]);
         }
+
+        return true;
     }
 
-    public function safeDown()
+    public function safeDown(): bool
     {
         echo "m200316_000000_multi_hash cannot be reverted.\n";
         return false;

@@ -1,6 +1,8 @@
 <?php
 namespace verbb\cpnav\events;
 
+use verbb\cpnav\models\Navigation;
+
 use yii\base\Event;
 
 class NavigationEvent extends Event
@@ -8,7 +10,6 @@ class NavigationEvent extends Event
     // Properties
     // =========================================================================
 
-    public $navigation;
-
-    public $isNew = false;
+    public Navigation $navigation;
+    public bool $isNew = false;
 }

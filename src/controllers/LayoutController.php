@@ -3,7 +3,6 @@ namespace verbb\cpnav\controllers;
 
 use verbb\cpnav\CpNav;
 use verbb\cpnav\models\Layout as LayoutModel;
-use verbb\cpnav\models\Navigation as NavigationModel;
 
 use Craft;
 use craft\elements\User;
@@ -17,7 +16,7 @@ class LayoutController extends Controller
     // Public Methods
     // =========================================================================
 
-    public function actionIndex()
+    public function actionIndex(): void
     {
         $layouts = CpNav::$plugin->getLayouts()->getAllLayouts();
 

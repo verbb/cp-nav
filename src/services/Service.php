@@ -7,29 +7,25 @@ use verbb\cpnav\models\Navigation as NavigationModel;
 
 use Craft;
 use craft\base\Component;
-use craft\events\PluginEvent;
-use craft\events\RegisterCpNavItemsEvent;
 use craft\helpers\Json;
-use craft\helpers\StringHelper;
-use craft\helpers\UrlHelper;
 use craft\web\twig\variables\Cp;
 
-use yii\web\UserEvent;
+use Throwable;
 
 class Service extends Component
 {
     // Properties
     // =========================================================================
 
-    private $_originalNavItems = [];
-    private $_subNavs = [];
-    private $_badges = [];
+    private ?array $_originalNavItems = null;
+    private ?array $_subNavs = null;
+    private ?array $_badges = null;
 
 
     // Public Methods
     // =========================================================================
 
-    public function generateNavigation($event)
+    public function generateNavigation($event): void
     {
         $this->_originalNavItems = $event->navItems;
 
@@ -58,12 +54,12 @@ class Service extends Component
             if ($newNavItems) {
                 $event->navItems = $newNavItems;
             }
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             CpNav::error(Craft::t('app', '{e} - {f}: {l}.', ['e' => $e->getMessage(), 'f' => $e->getFile(), 'l' => $e->getLine()]));
         }
     }
 
-    public function checkUpdatedNavItems($event)
+    public function checkUpdatedNavItems($event): void
     {
         try {
             $generalConfig = Craft::$app->getConfig()->getGeneral();
@@ -122,12 +118,12 @@ class Service extends Component
                     $this->_saveHash($currentHash);
                 }
             }
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             CpNav::error(Craft::t('app', '{e} - {f}: {l}.', ['e' => $e->getMessage(), 'f' => $e->getFile(), 'l' => $e->getLine()]));
         }
     }
 
-    public function processPendingNavItems($event)
+    public function processPendingNavItems($event): void
     {
         // Check to see if we've installed any plugins that have updates for us to apply. We have to use the DB 
         // to store these (as opposed to sessions) so we can support installing plugins via the console
@@ -145,7 +141,7 @@ class Service extends Component
 
                 // Create nav item for all layouts
                 CpNav::$plugin->getNavigations()->saveNavigationToAllLayouts($navigation);
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 $error = Craft::t('app', '{e} - {f}: {l}.', ['e' => $e->getMessage(), 'f' => $e->getFile(), 'l' => $e->getLine()]);
 
                 CpNav::error($error);
@@ -161,7 +157,7 @@ class Service extends Component
         }
     }
 
-    public function populateOriginalNavigationItems($layoutId = 1)
+    public function populateOriginalNavigationItems($layoutId = 1): void
     {
         $layoutService = CpNav::$plugin->getLayouts();
         $navigationService = CpNav::$plugin->getNavigations();
@@ -184,7 +180,7 @@ class Service extends Component
             $navigation->layoutId = $layoutId;
             $navigation->order = $index;
 
-            CpNav::$plugin->getNavigations()->saveNavigation($navigation);
+            $navigationService->saveNavigation($navigation);
         }
     }
 
@@ -192,7 +188,7 @@ class Service extends Component
     // Private Methods
     // =========================================================================
 
-    private function _getOriginalNav()
+    private function _getOriginalNav(): array
     {
         // Allow CpNav services to be called by console requests
         // https://github.com/verbb/cp-nav/issues/85
@@ -207,7 +203,7 @@ class Service extends Component
         return $this->_originalNavItems;
     }
     
-    private function _createNavigationModelForNavItem($pluginNavItem)
+    private function _createNavigationModelForNavItem($pluginNavItem): NavigationModel
     {
         $navigation = new NavigationModel();
         $navigation->handle = $pluginNavItem['url'] ?? '';
@@ -223,7 +219,7 @@ class Service extends Component
         return $navigation;
     }
 
-    private function _saveSubNavsAndBadges($originalNav)
+    private function _saveSubNavsAndBadges($originalNav): void
     {
         foreach ($originalNav as $value) {
             if (isset($value['subnav'])) {
@@ -236,7 +232,7 @@ class Service extends Component
         }
     }
 
-    private function _applySubNavsAndBadges(&$newNavItem)
+    private function _applySubNavsAndBadges(&$newNavItem): void
     {
         // Check for plugin sub-navs
         if (isset($this->_subNavs[$newNavItem['url']])) {
@@ -249,7 +245,7 @@ class Service extends Component
         }
     }
 
-    private function _findMissingItem($array1, $array2)
+    private function _findMissingItem($array1, $array2): array
     {
         $result = [];
 
@@ -266,7 +262,7 @@ class Service extends Component
         return $result;
     }
 
-    private function _encodeHash($object)
+    private function _encodeHash($object): string
     {
         return base64_encode(Json::encode($object));
     }
@@ -284,7 +280,7 @@ class Service extends Component
         return $settings->originalNavHash[$currentUser->uid] ?? '';
     }
 
-    private function _saveHash($hash)
+    private function _saveHash($hash): void
     {
         $currentUser = Craft::$app->getUser()->getIdentity();
         $settings = CpNav::$plugin->getSettings();

@@ -1,19 +1,17 @@
 <?php
 namespace verbb\cpnav\migrations;
 
-use Craft;
 use craft\db\Migration;
 use craft\db\Query;
 use craft\db\Table;
 use craft\helpers\Db;
 use craft\helpers\Json;
-use craft\helpers\MigrationHelper;
-use craft\helpers\Component as ComponentHelper;
-use craft\helpers\StringHelper;
+
+use Throwable;
 
 class m200119_000000_permissions_uid extends Migration
 {
-    public function safeUp()
+    public function safeUp(): bool
     {
         $layouts = (new Query())
             ->from('{{%cpnav_layout}}')
@@ -32,7 +30,7 @@ class m200119_000000_permissions_uid extends Migration
                         if ($newPermission) {
                             $newPermissions[] = $newPermission;
                         }
-                    } catch (\Throwable $e) {
+                    } catch (Throwable) {
                         continue;
                     }
                 }
@@ -42,9 +40,11 @@ class m200119_000000_permissions_uid extends Migration
                 $this->update('{{%cpnav_layout}}', ['permissions' => Json::encode($newPermissions)], ['id' => $layout['id']]);
             }
         }
+
+        return true;
     }
 
-    public function safeDown()
+    public function safeDown(): bool
     {
         echo "m200119_000000_permissions_uid cannot be reverted.\n";
         return false;

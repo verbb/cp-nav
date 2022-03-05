@@ -8,26 +8,23 @@ use verbb\cpnav\services\LayoutsService;
 use verbb\cpnav\services\NavigationsService;
 
 use Craft;
+use craft\base\Model;
 use craft\base\Plugin;
-use craft\events\PluginEvent;
 use craft\events\RegisterCpNavItemsEvent;
 use craft\events\RegisterUrlRulesEvent;
 use craft\helpers\UrlHelper;
-use craft\services\Plugins;
-use craft\services\ProjectConfig;
 use craft\web\UrlManager;
 use craft\web\twig\variables\Cp;
 
 use yii\base\Event;
-use yii\web\User;
 
 class CpNav extends Plugin
 {
     // Public Properties
     // =========================================================================
 
-    public $schemaVersion = '2.0.7';
-    public $hasCpSettings = true;
+    public string $schemaVersion = '2.0.7';
+    public bool $hasCpSettings = true;
     
 
     // Traits
@@ -39,7 +36,7 @@ class CpNav extends Plugin
     // Public Methods
     // =========================================================================
 
-    public function init()
+    public function init(): void
     {
         parent::init();
 
@@ -56,7 +53,7 @@ class CpNav extends Plugin
         }
     }
 
-    public function getSettingsResponse()
+    public function getSettingsResponse(): mixed
     {
         return Craft::$app->getResponse()->redirect(UrlHelper::cpUrl('cp-nav'));
     }
@@ -65,7 +62,7 @@ class CpNav extends Plugin
     // Protected Methods
     // =========================================================================
 
-    protected function createSettingsModel(): Settings
+    protected function createSettingsModel(): ?Model
     {
         return new Settings();
     }
@@ -74,7 +71,7 @@ class CpNav extends Plugin
     // Private Methods
     // =========================================================================
 
-    private function _registerCpRoutes()
+    private function _registerCpRoutes(): void
     {
         Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_CP_URL_RULES, function(RegisterUrlRulesEvent $event) {
             $event->rules = array_merge($event->rules, [
@@ -87,7 +84,7 @@ class CpNav extends Plugin
         });
     }
 
-    private function _registerCpNavItems()
+    private function _registerCpNavItems(): void
     {
         $request = Craft::$app->getRequest();
 
@@ -105,7 +102,7 @@ class CpNav extends Plugin
         }
     }
 
-    private function _registerProjectConfigEventListeners()
+    private function _registerProjectConfigEventListeners(): void
     {
         Craft::$app->getProjectConfig()->onAdd(NavigationsService::CONFIG_NAVIGATION_KEY . '.{uid}', [$this->getNavigations(), 'handleChangedNavigation'])
             ->onUpdate(NavigationsService::CONFIG_NAVIGATION_KEY . '.{uid}', [$this->getNavigations(), 'handleChangedNavigation'])

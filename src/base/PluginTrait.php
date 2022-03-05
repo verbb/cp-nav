@@ -8,7 +8,6 @@ use verbb\cpnav\services\PendingNavigationsService;
 use verbb\cpnav\services\Service;
 
 use Craft;
-use craft\log\FileTarget;
 
 use yii\log\Logger;
 
@@ -16,41 +15,41 @@ use verbb\base\BaseHelper;
 
 trait PluginTrait
 {
-    // Static Properties
+    // Properties
     // =========================================================================
 
-    public static $plugin;
+    public static CpNav $plugin;
 
 
     // Public Methods
     // =========================================================================
 
-    public function getLayouts()
+    public function getLayouts(): LayoutsService
     {
         return $this->get('layouts');
     }
 
-    public function getNavigations()
+    public function getNavigations(): NavigationsService
     {
         return $this->get('navigations');
     }
 
-    public function getPendingNavigations()
+    public function getPendingNavigations(): PendingNavigationsService
     {
         return $this->get('pendingNavigations');
     }
 
-    public function getService()
+    public function getService(): Service
     {
         return $this->get('service');
     }
 
-    public static function log($message)
+    public static function log($message): void
     {
         Craft::getLogger()->log($message, Logger::LEVEL_INFO, 'cp-nav');
     }
 
-    public static function error($message)
+    public static function error($message): void
     {
         Craft::getLogger()->log($message, Logger::LEVEL_ERROR, 'cp-nav');
     }
@@ -59,7 +58,7 @@ trait PluginTrait
     // Private Methods
     // =========================================================================
 
-    private function _setPluginComponents()
+    private function _setPluginComponents(): void
     {
         $this->setComponents([
             'layouts' => LayoutsService::class,
@@ -71,7 +70,7 @@ trait PluginTrait
         BaseHelper::registerModule();
     }
 
-    private function _setLogging()
+    private function _setLogging(): void
     {
         BaseHelper::setFileLogging('cp-nav');
     }

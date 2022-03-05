@@ -5,12 +5,10 @@ use verbb\cpnav\CpNav;
 use verbb\cpnav\models\Navigation as NavigationModel;
 
 use Craft;
-use craft\base\Volume;
 use craft\elements\Asset;
 use craft\helpers\Html;
 use craft\helpers\Json;
 use craft\web\Controller;
-use craft\web\twig\variables\Cp;
 
 use yii\web\Response;
 
@@ -19,7 +17,7 @@ class NavigationController extends Controller
     // Public Methods
     // =========================================================================
 
-    public function beforeAction($action)
+    public function beforeAction($action): bool
     {   
         // Are we trying to load the index page? Check we have defaults setup
         if ($action->actionMethod === 'actionIndex') {
@@ -36,7 +34,7 @@ class NavigationController extends Controller
         return parent::beforeAction($action);
     }
 
-    public function actionIndex()
+    public function actionIndex(): Response
     {
         $request = Craft::$app->getRequest();
 
@@ -138,7 +136,7 @@ class NavigationController extends Controller
 
         if ($navigation->customIcon) {
             // json decode custom icon id
-            $customIconId = json_decode($navigation->customIcon)[0];
+            $customIconId = Json::decode($navigation->customIcon)[0];
 
             $entry = Asset::find()
                 ->id($customIconId)
@@ -167,7 +165,7 @@ class NavigationController extends Controller
         $request = Craft::$app->getRequest();
 
         // json encode custom icon id
-        $customIcon = $request->getParam('customIcon') ? json_encode($request->getParam('customIcon')) : null;
+        $customIcon = $request->getParam('customIcon') ? Json::encode($request->getParam('customIcon')) : null;
 
         $navigation = new NavigationModel();
         $navigation->layoutId = $request->getParam('layoutId', 1);
@@ -212,7 +210,7 @@ class NavigationController extends Controller
         $navigation->icon = $request->getParam('icon', $navigation->icon);
 
         // json encode custom icon id
-        $customIcon = $request->getParam('customIcon') ? json_encode($request->getParam('customIcon')) : null;
+        $customIcon = $request->getParam('customIcon') ? Json::encode($request->getParam('customIcon')) : null;
         $navigation->customIcon = $customIcon;
 
         if (!CpNav::$plugin->getNavigations()->saveNavigation($navigation)) {
@@ -245,7 +243,7 @@ class NavigationController extends Controller
         return $this->asJson(['success' => true, 'navHtml' => $this->_getNavHtml()]);
     }
 
-    public function actionReset()
+    public function actionReset(): ?Response
     {
         $request = Craft::$app->getRequest();
         $layoutId = $request->getRequiredParam('layoutId');
@@ -277,7 +275,7 @@ class NavigationController extends Controller
     // Private Methods
     // =========================================================================
 
-    private function _getNavHtml()
+    private function _getNavHtml(): string
     {
         return Craft::$app->view->renderTemplate('cp-nav/_layouts/navs');
     }

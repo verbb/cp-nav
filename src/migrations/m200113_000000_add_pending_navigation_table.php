@@ -1,16 +1,11 @@
 <?php
 namespace verbb\cpnav\migrations;
 
-use Craft;
 use craft\db\Migration;
-use craft\db\Query;
-use craft\helpers\MigrationHelper;
-use craft\helpers\Component as ComponentHelper;
-use craft\helpers\StringHelper;
 
 class m200113_000000_add_pending_navigation_table extends Migration
 {
-    public function safeUp()
+    public function safeUp(): bool
     {
         if (!$this->db->tableExists('{{%cpnav_pending_navigations}}')) {
             $this->createTable('{{%cpnav_pending_navigations}}', [
@@ -21,9 +16,11 @@ class m200113_000000_add_pending_navigation_table extends Migration
                 'uid' => $this->uid(),
             ]);
         }
+
+        return true;
     }
 
-    public function safeDown()
+    public function safeDown(): bool
     {
         echo "m200113_000000_add_pending_navigation_table cannot be reverted.\n";
         return false;

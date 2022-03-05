@@ -1,16 +1,12 @@
 <?php
 namespace verbb\cpnav\migrations;
 
-use Craft;
 use craft\db\Migration;
-use craft\db\Query;
 use craft\helpers\MigrationHelper;
-use craft\helpers\Component as ComponentHelper;
-use craft\helpers\StringHelper;
 
 class m200119_000000_add_type extends Migration
 {
-    public function safeUp()
+    public function safeUp(): bool
     {
         if ($this->db->columnExists('{{%cpnav_navigation}}', 'manualNav')) {
             MigrationHelper::renameColumn('{{%cpnav_navigation}}', 'manualNav', 'type', $this);
@@ -19,9 +15,11 @@ class m200119_000000_add_type extends Migration
             $this->update('{{%cpnav_navigation}}', ['type' => 'manual'], ['type' => '1'], [], false);
             $this->update('{{%cpnav_navigation}}', ['type' => ''], ['type' => null], [], false);
         }
+
+        return true;
     }
 
-    public function safeDown()
+    public function safeDown(): bool
     {
         echo "m200119_000000_add_type cannot be reverted.\n";
         return false;

@@ -5,5 +5,5 @@ use yii\base\Event;
 
 class ReorderLayoutsEvent extends Event
 {
-    public $layoutIds;
+    public array $layoutIds = [];
 }

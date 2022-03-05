@@ -3,29 +3,30 @@ namespace verbb\cpnav\models;
 
 use verbb\cpnav\CpNav;
 
-use Craft;
 use craft\base\Model;
 use craft\helpers\Json;
+
+use DateTime;
 
 class Layout extends Model
 {
     // Public Properties
     // =========================================================================
 
-    public $id;
-    public $name;
-    public $isDefault;
-    public $permissions;
-    public $sortOrder = 1;
-    public $dateCreated;
-    public $dateUpdated;
-    public $uid;
+    public ?int $id = null;
+    public ?string $name = null;
+    public bool $isDefault = false;
+    public array $permissions = [];
+    public ?int $sortOrder = null;
+    public ?DateTime $dateCreated;
+    public ?DateTime $dateUpdated;
+    public ?string $uid = null;
 
 
     // Public Methods
     // =========================================================================
 
-    public function init()
+    public function init(): void
     {
         parent::init();
 
@@ -45,7 +46,7 @@ class Layout extends Model
         ];
     }
 
-    public function getNavigations()
+    public function getNavigations(): array
     {
         return CpNav::$plugin->getNavigations()->getNavigationsByLayoutId($this->id, true) ?? [];
     }

@@ -10,13 +10,13 @@ class ProjectConfig
     // Properties
     // =========================================================================
 
-    private static $_processedLayouts = false;
+    private static bool $_processedLayouts = false;
 
 
     // Public Methods
     // =========================================================================
 
-    public static function ensureAllLayoutsProcessed()
+    public static function ensureAllLayoutsProcessed(): void
     {
         if (static::$_processedLayouts) {
             return;

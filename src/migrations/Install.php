@@ -9,7 +9,7 @@ class Install extends Migration
     // Public Methods
     // =========================================================================
 
-    public function safeUp()
+    public function safeUp(): bool
     {
         $this->createTables();
         $this->addForeignKeys();
@@ -17,7 +17,7 @@ class Install extends Migration
         return true;
     }
 
-    public function safeDown()
+    public function safeDown(): bool
     {
         $this->removeTables();
         $this->dropProjectConfig();
@@ -25,7 +25,7 @@ class Install extends Migration
         return true;
     }
 
-    public function createTables()
+    public function createTables(): void
     {
         $this->createTable('{{%cpnav_layout}}', [
             'id' => $this->primaryKey(),
@@ -66,19 +66,19 @@ class Install extends Migration
         ]);
     }
 
-    public function addForeignKeys()
+    public function addForeignKeys(): void
     {
         $this->addForeignKey(null, '{{%cpnav_navigation}}', ['layoutId'], '{{%cpnav_layout}}', ['id'], 'CASCADE', null);
     }
 
-    public function removeTables()
+    public function removeTables(): void
     {
         $this->dropTableIfExists('{{%cpnav_navigation}}');
         $this->dropTableIfExists('{{%cpnav_layout}}');
         $this->dropTableIfExists('{{%cpnav_pending_navigations}}');
     }
 
-    public function dropProjectConfig()
+    public function dropProjectConfig(): void
     {
         Craft::$app->projectConfig->remove('cp-nav');
     }

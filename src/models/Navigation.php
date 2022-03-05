@@ -5,11 +5,13 @@ use verbb\cpnav\CpNav;
 
 use Craft;
 use craft\base\Model;
-use craft\base\Plugin;
+use craft\helpers\Json;
 use craft\helpers\FileHelper;
-use craft\helpers\UrlHelper;
 
 use yii\base\InvalidConfigException;
+
+use DateTime;
+use Throwable;
 
 class Navigation extends Model
 {
@@ -23,22 +25,22 @@ class Navigation extends Model
     // Public Properties
     // =========================================================================
 
-    public $id;
-    public $layoutId;
-    public $handle;
-    public $prevLabel;
-    public $currLabel;
-    public $enabled;
-    public $order;
-    public $prevUrl;
-    public $url;
-    public $icon;
-    public $customIcon;
-    public $type;
-    public $newWindow;
-    public $dateCreated;
-    public $dateUpdated;
-    public $uid;
+    public ?int $id = null;
+    public ?int $layoutId = null;
+    public ?string $handle = null;
+    public ?string $prevLabel = null;
+    public ?string $currLabel = null;
+    public ?bool $enabled = null;
+    public ?int $order = null;
+    public ?string $prevUrl = null;
+    public ?string $url = null;
+    public ?string $icon = null;
+    public ?string $customIcon = null;
+    public ?string $type = null;
+    public bool $newWindow = false;
+    public ?DateTime $dateCreated = null;
+    public ?DateTime $dateUpdated = null;
+    public ?string $uid = null;
 
 
     // Public Methods
@@ -84,7 +86,7 @@ class Navigation extends Model
         return $layout;
     }
 
-    public function getFullUrl()
+    public function getFullUrl(): ?string
     {
         // An empty URL is okay
         if ($this->url === '') {
@@ -119,7 +121,7 @@ class Navigation extends Model
         try {
             if ($this->icon) {
                 // If this is a path (plugin), set the correct key
-                if (strpos($this->icon, DIRECTORY_SEPARATOR) !== false) {
+                if (str_contains($this->icon, DIRECTORY_SEPARATOR)) {
                     // We've stored the full path to the icon-mask.svg file in our nav.
                     // But - this will change for each environment, so we need to fetch it properly!
                     $plugin = Craft::$app->getPlugins()->getPlugin($this->handle);
@@ -135,18 +137,18 @@ class Navigation extends Model
 
                 return $this->icon;
             }
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             CpNav::error(Craft::t('app', '{e} - {f}: {l}.', ['e' => $e->getMessage(), 'f' => $e->getFile(), 'l' => $e->getLine()]));
         }
 
         return '';
     }
 
-    public function getCustomIconPath()
+    public function getCustomIconPath(): bool|string|null
     {
         try {
             if ($this->customIcon) {
-                $customIcon = json_decode($this->customIcon)[0];
+                $customIcon = Json::decode($this->customIcon)[0];
                 $asset = Craft::$app->assets->getAssetById($customIcon);
 
                 if ($asset) {
@@ -165,20 +167,20 @@ class Navigation extends Model
                     return $asset->url;
                 }
             }
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             CpNav::error(Craft::t('app', '{e} - {f}: {l}.', ['e' => $e->getMessage(), 'f' => $e->getFile(), 'l' => $e->getLine()]));
         }
 
         return '';
     }
 
-    public function generateNavItem()
+    public function generateNavItem(): array|bool
     {
         // Despite having a custom, set menu for all users, we still need to check permissions
-        // based on the current users' permision level. We wouldn't want to show a plugin nav item
+        // based on the current users' permission level. We wouldn't want to show a plugin nav item
         // if the user doesn't have access to it (even if defined in CP Nav).
         if (!$this->_checkPermission()) {
-            return;
+            return true;
         }
 
         $item = [
@@ -188,7 +190,7 @@ class Navigation extends Model
         ];
 
         if ($icon = $this->getIconPath()) {
-            if (strpos($icon, DIRECTORY_SEPARATOR) !== false) {
+            if (str_contains($icon, DIRECTORY_SEPARATOR)) {
                 $item['icon'] = $icon;
             } else {
                 $item['fontIcon'] = $icon;
@@ -210,7 +212,7 @@ class Navigation extends Model
         }
 
         if ($this->isDivider()) {
-            // Ensure dividor items have unique IDs
+            // Ensure divider items have unique IDs
             $id = $this->handle . '-' . uniqid();
             $item['id'] = 'nav-' . $id;
 
@@ -220,21 +222,21 @@ class Navigation extends Model
         return $item;
     }
 
-    public function isManual()
+    public function isManual(): bool
     {
-        return (bool)($this->type == self::TYPE_MANUAL);
+        return $this->type == self::TYPE_MANUAL;
     }
 
-    public function isDivider()
+    public function isDivider(): bool
     {
-        return (bool)($this->type == self::TYPE_DIVIDER);
+        return $this->type == self::TYPE_DIVIDER;
     }
 
 
     // Private Methods
     // =========================================================================
 
-    private function _insertJsForNewWindow()
+    private function _insertJsForNewWindow(): void
     {
         // Prevent this from loading when opening a modal window
         if (Craft::$app->getRequest()->isAjax) {
@@ -245,7 +247,7 @@ class Navigation extends Model
         Craft::$app->view->registerJs($js);
     }
 
-    private function _insertJsForEmptyUrl()
+    private function _insertJsForEmptyUrl(): void
     {
         // Prevent this from loading when opening a modal window
         if (Craft::$app->getRequest()->isAjax) {
@@ -256,7 +258,7 @@ class Navigation extends Model
         Craft::$app->view->registerJs($js);
     }
 
-    private function _insertJsForDivider($id)
+    private function _insertJsForDivider($id): void
     {
         // Prevent this from loading when opening a modal window
         if (Craft::$app->getRequest()->isAjax) {
@@ -271,7 +273,7 @@ class Navigation extends Model
         Craft::$app->view->registerCss($css);
     }
 
-    private function _checkPermission()
+    private function _checkPermission(): bool
     {
         $craftPro = Craft::$app->getEdition() === Craft::Pro;
         $isAdmin = Craft::$app->getUser()->getIsAdmin();
@@ -300,13 +302,9 @@ class Navigation extends Model
         }
 
         // Check if explicitly false
-        if (isset($permissionMap[$this->handle])) {
-            if ((bool)$permissionMap[$this->handle] === false) {
-                return false;
-            }
-        }
+        $permission = $permissionMap[$this->handle] ?? null;
 
-        return true;
+        return $permission !== false;
     }
 
 }

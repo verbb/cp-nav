@@ -10,13 +10,12 @@ use verbb\cpnav\records\Navigation as NavigationRecord;
 use Craft;
 use craft\base\Component;
 use craft\db\Query;
-use craft\elements\User;
 use craft\events\ConfigEvent;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
-use craft\helpers\Json;
 use craft\helpers\StringHelper;
-use craft\models\Structure;
+
+use Throwable;
 
 class NavigationsService extends Component
 {
@@ -35,7 +34,7 @@ class NavigationsService extends Component
     // Properties
     // =========================================================================
 
-    private $_navigations;
+    private ?array $_navigations = null;
 
 
     // Public Methods
@@ -56,7 +55,7 @@ class NavigationsService extends Component
         return $this->_navigations;
     }
 
-    public function getNavigationsByLayoutId(int $layoutId, $enabledOnly = false)
+    public function getNavigationsByLayoutId(int $layoutId, $enabledOnly = false): array
     {
         $navigations = [];
 
@@ -75,7 +74,7 @@ class NavigationsService extends Component
         return $navigations;
     }
 
-    public function getAllNavigationsByHandle(string $handle)
+    public function getAllNavigationsByHandle(string $handle): array
     {
         $navigations = [];
 
@@ -100,7 +99,7 @@ class NavigationsService extends Component
         return ArrayHelper::firstWhere($this->getAllNavigations(), 'uid', $uid, true);
     }
 
-    public function getNavigationByHandle(int $layoutId, string $handle)
+    public function getNavigationByHandle(int $layoutId, string $handle): ?NavigationModel
     {
         $result = $this->_createNavigationQuery()
             ->where(['layoutId' => $layoutId, 'handle' => $handle])
@@ -158,7 +157,7 @@ class NavigationsService extends Component
         return true;
     }
 
-    public function handleChangedNavigation(ConfigEvent $event)
+    public function handleChangedNavigation(ConfigEvent $event): void
     {
         $navigationUid = $event->tokenMatches[0];
         $data = $event->newValue;
@@ -169,7 +168,7 @@ class NavigationsService extends Component
         $layoutUid = $data['layout'] ?? '';
 
         $layout = CpNav::$plugin->getLayouts()->getLayoutByUid($layoutUid);
-        $navigationRecord = $this->_getNavigationRecord($navigationUid, true);
+        $navigationRecord = $this->_getNavigationRecord($navigationUid);
 
         if (!$layout || !$navigationRecord) {
             return;
@@ -197,7 +196,7 @@ class NavigationsService extends Component
             $navigationRecord->save(false);
 
             $transaction->commit();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $transaction->rollBack();
             throw $e;
         }
@@ -210,11 +209,11 @@ class NavigationsService extends Component
         }
     }
 
-    public function saveNavigationToAllLayouts(NavigationModel $navigation)
+    public function saveNavigationToAllLayouts(NavigationModel $navigation): void
     {
         $layouts = CpNav::$plugin->getLayouts()->getAllLayouts();
 
-        // Sanity check, in case its already there
+        // Sanity check, in case it's already there
         $navigations = $this->getAllNavigationsByHandle($navigation->handle);
 
         if ($navigations) {
@@ -264,7 +263,7 @@ class NavigationsService extends Component
         return true;
     }
 
-    public function handleDeletedNavigation(ConfigEvent $event)
+    public function handleDeletedNavigation(ConfigEvent $event): void
     {
         $navigationUid = $event->tokenMatches[0];
 

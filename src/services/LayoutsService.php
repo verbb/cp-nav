@@ -1,7 +1,6 @@
 <?php
 namespace verbb\cpnav\services;
 
-use verbb\cpnav\CpNav;
 use verbb\cpnav\events\LayoutEvent;
 use verbb\cpnav\events\ReorderLayoutsEvent;
 use verbb\cpnav\models\Layout as LayoutModel;
@@ -16,7 +15,8 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use craft\helpers\Json;
 use craft\helpers\StringHelper;
-use craft\models\Structure;
+
+use Throwable;
 
 class LayoutsService extends Component
 {
@@ -37,7 +37,7 @@ class LayoutsService extends Component
     // Properties
     // =========================================================================
 
-    private $_layouts;
+    private ?array $_layouts = null;
 
 
     // Public Methods
@@ -70,7 +70,6 @@ class LayoutsService extends Component
 
     public function getLayoutForCurrentUser()
     {
-        $layoutForUser = null;
         $layouts = $this->getAllLayouts();
 
         // Check if we're editing
@@ -85,7 +84,7 @@ class LayoutsService extends Component
 
             // Is there even a solo account?
             if ($solo) {
-                foreach ($layouts as $key => $layout) {
+                foreach ($layouts as $layout) {
                     if (is_array($layout->permissions) && in_array('solo', $layout->permissions, false)) {
                         return $layout;
                     }
@@ -95,8 +94,8 @@ class LayoutsService extends Component
             $userId = Craft::$app->getUser()->id;
             $groups = Craft::$app->userGroups->getGroupsByUserId($userId);
 
-            foreach ($groups as $index => $group) {
-                foreach ($layouts as $key => $layout) {
+            foreach ($groups as $group) {
+                foreach ($layouts as $layout) {
                     if (is_array($layout->permissions) && in_array($group->uid, $layout->permissions, false)) {
                         return $layout;
                     }
@@ -142,7 +141,7 @@ class LayoutsService extends Component
             'name' => $layout->name,
             'isDefault' => $layout->isDefault,
             'permissions' => Json::encode($layout->permissions),
-            'sortOrder' => (int)$layout->sortOrder,
+            'sortOrder' => $layout->sortOrder,
         ];
 
         $configPath = self::CONFIG_LAYOUT_KEY . '.' . $layout->uid;
@@ -155,7 +154,7 @@ class LayoutsService extends Component
         return true;
     }
 
-    public function handleChangedLayout(ConfigEvent $event)
+    public function handleChangedLayout(ConfigEvent $event): void
     {
         $layoutUid = $event->tokenMatches[0];
         $data = $event->newValue;
@@ -175,7 +174,7 @@ class LayoutsService extends Component
             $layoutRecord->save(false);
 
             $transaction->commit();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $transaction->rollBack();
             throw $e;
         }
@@ -244,7 +243,7 @@ class LayoutsService extends Component
         return true;
     }
 
-    public function handleDeletedLayout(ConfigEvent $event)
+    public function handleDeletedLayout(ConfigEvent $event): void
     {
         $layoutUid = $event->tokenMatches[0];
 

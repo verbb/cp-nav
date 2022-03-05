@@ -11,7 +11,7 @@ class PendingNavigationsService extends Component
     // Public Methods
     // =========================================================================
 
-    public function get()
+    public function get(): array
     {
         $navItems = (new Query())
             ->select(['pluginNavItem'])
@@ -27,7 +27,7 @@ class PendingNavigationsService extends Component
         return $items;
     }
 
-    public function set($pluginNavItem)
+    public function set($pluginNavItem): void
     {
         $exists = false;
 
@@ -54,7 +54,7 @@ class PendingNavigationsService extends Component
             ->execute();
     }
 
-    public function remove()
+    public function remove(): void
     {
         Craft::$app->getDb()->createCommand()
             ->delete('{{%cpnav_pending_navigations}}')

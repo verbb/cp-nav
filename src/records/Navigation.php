@@ -1,13 +1,12 @@
 <?php
 namespace verbb\cpnav\records;
 
+use craft\db\ActiveQuery;
 use craft\db\ActiveRecord;
-
-use yii\db\ActiveQueryInterface;
 
 class Navigation extends ActiveRecord
 {
-    // Public Static Methods
+    // Static Methods
     // =========================================================================
 
     public static function tableName(): string
@@ -15,7 +14,11 @@ class Navigation extends ActiveRecord
         return '{{%cpnav_navigation}}';
     }
 
-    public function getLayout(): ActiveQueryInterface
+
+    // Public Methods
+    // =========================================================================
+
+    public function getLayout(): ActiveQuery
     {
         return $this->hasOne(Layout::className(), ['id' => 'navId']);
     }
