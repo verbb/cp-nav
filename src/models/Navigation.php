@@ -106,13 +106,6 @@ class Navigation extends Model
             }
         }
 
-        // Support siteUrl
-        $siteUrl = Craft::$app->getConfig()->getGeneral()->siteUrl;
-
-        if (is_string($siteUrl)) {
-            $url = str_replace('{siteUrl}', $siteUrl, $url);
-        }
-
         return $url;
     }
 
