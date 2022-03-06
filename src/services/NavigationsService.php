@@ -22,13 +22,13 @@ class NavigationsService extends Component
     // Constants
     // =========================================================================
 
-    const EVENT_BEFORE_SAVE_NAVIGATION = 'beforeSaveNavigation';
-    const EVENT_AFTER_SAVE_NAVIGATION = 'afterSaveNavigation';
-    const EVENT_BEFORE_APPLY_NAVIGATION_DELETE = 'beforeApplyNavigationDelete';
-    const EVENT_BEFORE_DELETE_NAVIGATION = 'beforeDeleteNavigation';
-    const EVENT_AFTER_DELETE_NAVIGATION = 'afterDeleteNavigation';
+    public const EVENT_BEFORE_SAVE_NAVIGATION = 'beforeSaveNavigation';
+    public const EVENT_AFTER_SAVE_NAVIGATION = 'afterSaveNavigation';
+    public const EVENT_BEFORE_APPLY_NAVIGATION_DELETE = 'beforeApplyNavigationDelete';
+    public const EVENT_BEFORE_DELETE_NAVIGATION = 'beforeDeleteNavigation';
+    public const EVENT_AFTER_DELETE_NAVIGATION = 'afterDeleteNavigation';
 
-    const CONFIG_NAVIGATION_KEY = 'cp-nav.navigations';
+    public const CONFIG_NAVIGATION_KEY = 'cp-nav.navigations';
     
 
     // Properties

@@ -18,8 +18,8 @@ class Navigation extends Model
     // Constants
     // =========================================================================
 
-    const TYPE_MANUAL = 'manual';
-    const TYPE_DIVIDER = 'divider';
+    public const TYPE_MANUAL = 'manual';
+    public const TYPE_DIVIDER = 'divider';
 
 
     // Properties

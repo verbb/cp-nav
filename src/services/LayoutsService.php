@@ -23,15 +23,15 @@ class LayoutsService extends Component
     // Constants
     // =========================================================================
 
-    const EVENT_BEFORE_SAVE_LAYOUT = 'beforeSaveLayout';
-    const EVENT_AFTER_SAVE_LAYOUT = 'afterSaveLayout';
-    const EVENT_BEFORE_APPLY_LAYOUT_DELETE = 'beforeApplyLayoutDelete';
-    const EVENT_BEFORE_DELETE_LAYOUT = 'beforeDeleteLayout';
-    const EVENT_AFTER_DELETE_LAYOUT = 'afterDeleteLayout';
-    const EVENT_BEFORE_REORDER_LAYOUTS = 'beforeReorderLayouts';
-    const EVENT_AFTER_REORDER_LAYOUTS = 'afterReorderLayouts';
+    public const EVENT_BEFORE_SAVE_LAYOUT = 'beforeSaveLayout';
+    public const EVENT_AFTER_SAVE_LAYOUT = 'afterSaveLayout';
+    public const EVENT_BEFORE_APPLY_LAYOUT_DELETE = 'beforeApplyLayoutDelete';
+    public const EVENT_BEFORE_DELETE_LAYOUT = 'beforeDeleteLayout';
+    public const EVENT_AFTER_DELETE_LAYOUT = 'afterDeleteLayout';
+    public const EVENT_BEFORE_REORDER_LAYOUTS = 'beforeReorderLayouts';
+    public const EVENT_AFTER_REORDER_LAYOUTS = 'afterReorderLayouts';
 
-    const CONFIG_LAYOUT_KEY = 'cp-nav.layouts';
+    public const CONFIG_LAYOUT_KEY = 'cp-nav.layouts';
 
 
     // Properties
