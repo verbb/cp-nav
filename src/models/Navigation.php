@@ -22,7 +22,7 @@ class Navigation extends Model
     const TYPE_DIVIDER = 'divider';
 
 
-    // Public Properties
+    // Properties
     // =========================================================================
 
     public ?int $id = null;

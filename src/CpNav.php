@@ -20,7 +20,7 @@ use yii\base\Event;
 
 class CpNav extends Plugin
 {
-    // Public Properties
+    // Properties
     // =========================================================================
 
     public bool $hasCpSettings = true;

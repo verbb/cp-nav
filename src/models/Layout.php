@@ -10,7 +10,7 @@ use DateTime;
 
 class Layout extends Model
 {
-    // Public Properties
+    // Properties
     // =========================================================================
 
     public ?int $id = null;
