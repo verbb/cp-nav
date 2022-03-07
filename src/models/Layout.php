@@ -26,22 +26,6 @@ class Layout extends Model
     // Public Methods
     // =========================================================================
 
-    public function __construct($config = [])
-    {
-        // Config normalization
-        if (array_key_exists('permissions', $config)) {
-            if (is_string($config['permissions'])) {
-                $config['permissions'] = Json::decodeIfJson($config['permissions']);
-            }
-
-            if (!is_array($config['permissions'])) {
-                $config['permissions'] = [];
-            }
-        }
-
-        parent::__construct($config);
-    }
-
     public function rules(): array
     {
         return [
