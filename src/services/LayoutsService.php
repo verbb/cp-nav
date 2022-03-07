@@ -17,6 +17,7 @@ use craft\helpers\Json;
 use craft\helpers\StringHelper;
 
 use Throwable;
+use verbb\cpnav\models\Layout;
 
 class LayoutsService extends Component
 {
@@ -58,17 +59,17 @@ class LayoutsService extends Component
         return $this->_layouts;
     }
 
-    public function getLayoutById(int $id)
+    public function getLayoutById(int $id): ?Layout
     {
         return ArrayHelper::firstWhere($this->getAllLayouts(), 'id', $id);
     }
 
-    public function getLayoutByUid(string $uid)
+    public function getLayoutByUid(string $uid): ?Layout
     {
         return ArrayHelper::firstWhere($this->getAllLayouts(), 'uid', $uid, true);
     }
 
-    public function getLayoutForCurrentUser()
+    public function getLayoutForCurrentUser(): ?Layout
     {
         $layouts = $this->getAllLayouts();
 

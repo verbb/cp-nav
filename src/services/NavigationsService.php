@@ -16,6 +16,7 @@ use craft\helpers\Db;
 use craft\helpers\StringHelper;
 
 use Throwable;
+use verbb\cpnav\models\Navigation;
 
 class NavigationsService extends Component
 {
@@ -89,12 +90,12 @@ class NavigationsService extends Component
         return $navigations;
     }
 
-    public function getNavigationById(int $id)
+    public function getNavigationById(int $id): ?Navigation
     {
         return ArrayHelper::firstWhere($this->getAllNavigations(), 'id', $id);
     }
 
-    public function getNavigationByUid(string $uid)
+    public function getNavigationByUid(string $uid): ?Navigation
     {
         return ArrayHelper::firstWhere($this->getAllNavigations(), 'uid', $uid, true);
     }
