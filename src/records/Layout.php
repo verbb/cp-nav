@@ -20,6 +20,6 @@ class Layout extends ActiveRecord
 
     public function getNavigations(): ActiveQuery
     {
-        return $this->hasMany(Navigation::className(), ['navId' => 'id'])->inverseOf('layout');
+        return $this->hasMany(Navigation::class, ['navId' => 'id'])->inverseOf('layout');
     }
 }

@@ -20,6 +20,6 @@ class Navigation extends ActiveRecord
 
     public function getLayout(): ActiveQuery
     {
-        return $this->hasOne(Layout::className(), ['id' => 'navId']);
+        return $this->hasOne(Layout::class, ['id' => 'navId']);
     }
 }

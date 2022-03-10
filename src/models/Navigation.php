@@ -5,8 +5,10 @@ use verbb\cpnav\CpNav;
 
 use Craft;
 use craft\base\Model;
+use craft\helpers\App;
 use craft\helpers\Json;
 use craft\helpers\FileHelper;
+use craft\helpers\StringHelper;
 
 use yii\base\InvalidConfigException;
 
@@ -97,7 +99,7 @@ class Navigation extends Model
         $url = trim($this->url);
 
         // Support alias and env variables
-        $url = Craft::parseEnv($url);
+        $url = App::parseEnv($url);
 
         // Allow Environment Variables to be used in the URL
         foreach (Craft::$app->getConfig()->getConfigFromFile('general') as $key => $value) {
@@ -150,7 +152,7 @@ class Navigation extends Model
 
                     if ($volumePath) {
                         $path = FileHelper::normalizePath($volumePath . DIRECTORY_SEPARATOR . $asset->folderPath . DIRECTORY_SEPARATOR . $asset->filename);
-                        $path = Craft::parseEnv($path);
+                        $path = App::parseEnv($path);
 
                         if (@file_exists($path)) {
                             return $path;
@@ -206,7 +208,7 @@ class Navigation extends Model
 
         if ($this->isDivider()) {
             // Ensure divider items have unique IDs
-            $id = $this->handle . '-' . uniqid();
+            $id = StringHelper::appendRandomString($this->handle . '-', 16);
             $item['id'] = 'nav-' . $id;
 
             $this->_insertJsForDivider($id);
