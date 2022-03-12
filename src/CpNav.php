@@ -25,7 +25,7 @@ class CpNav extends Plugin
 
     public bool $hasCpSettings = true;
     public string $schemaVersion = '2.0.7';
-    public string $minVersionRequired = '2.0.7';
+    public string $minVersionRequired = '3.0.17';
 
 
     // Traits
