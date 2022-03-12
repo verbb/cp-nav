@@ -4,6 +4,7 @@ namespace verbb\cpnav\services;
 use verbb\cpnav\CpNav;
 use verbb\cpnav\models\Layout as LayoutModel;
 use verbb\cpnav\models\Navigation as NavigationModel;
+use verbb\cpnav\models\Settings;
 
 use Craft;
 use craft\base\Component;
@@ -275,6 +276,8 @@ class Service extends Component
     private function _getOriginalNavHash()
     {
         $currentUser = Craft::$app->getUser()->getIdentity();
+
+        /* @var Settings $settings */
         $settings = CpNav::$plugin->getSettings();
 
         return $settings->originalNavHash[$currentUser->uid] ?? '';
@@ -283,6 +286,8 @@ class Service extends Component
     private function _saveHash($hash): void
     {
         $currentUser = Craft::$app->getUser()->getIdentity();
+
+        /* @var Settings $settings */
         $settings = CpNav::$plugin->getSettings();
 
         $settings->originalNavHash[$currentUser->uid] = $hash;

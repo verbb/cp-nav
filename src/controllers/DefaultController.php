@@ -2,6 +2,7 @@
 namespace verbb\cpnav\controllers;
 
 use verbb\cpnav\CpNav;
+use verbb\cpnav\models\Settings;
 
 use craft\web\Controller;
 
@@ -14,6 +15,7 @@ class DefaultController extends Controller
 
     public function actionSettings(): Response
     {
+        /* @var Settings $settings */
         $settings = CpNav::$plugin->getSettings();
 
         $layouts = CpNav::$plugin->getLayouts()->getAllLayouts();
