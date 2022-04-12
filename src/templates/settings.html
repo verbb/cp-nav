@@ -14,27 +14,36 @@
     {% set layoutItems = layoutItems | merge([{ label: layout.name, value: layout.id }]) %}
 {% endfor %}
 
-{% block actionButton %}{% endblock %}
-
 {% block blockContent %}
 
-<input type="hidden" name="action" value="cp-nav/navigation/reset">
+<input type="hidden" name="action" value="plugins/save-plugin-settings">
+<input type="hidden" name="pluginHandle" value="cp-nav">
+
+{{ forms.selectField({
+    first: true,
+    label: 'Default Subnav Behaviour' | t('cp-nav'),
+    instructions: 'Set the default behaviour for subnav items. You can configure this per-navigation item as well.' | t('cp-nav'),
+    id: 'defaultSubnavBehaviour',
+    name: 'defaultSubnavBehaviour',
+    options: settings.getSubnavBehaviourOptions(),
+}) }}
+
+<hr>
 
 <div class="field">
     <div class="heading">
-        <label id="cache-label" for="cache">{{ "Reset Navigation" | t('cp-nav') }}</label>
+        <label id="layoutId-label" for="layoutId">{{ 'Reset Navigation' | t('cp-nav') }}</label>
 
         <div class="instructions">
             <p>{{ 'To reset any layout to their original state, click the button below. You will loose any of your customisation changes, such as renaming, enable/disable and re-ordering. This will also include any manually created nav items.' | t('cp-nav') }}</p>
 
-            {{ forms.selectField({
-                first: true,
+            {{ forms.select({
                 id: 'layoutId',
                 name: 'layoutId',
                 options: layoutItems,
             }) }}
 
-            <a class="btn submit formsubmit" data-confirm="{{ 'Are you sure you want to reset the navigation? This cannot be undone.' | t('cp-nav') }}">
+            <a class="btn submit formsubmit" data-action="cp-nav/navigation/reset" data-confirm="{{ 'Are you sure you want to reset the navigation? This cannot be undone.' | t('cp-nav') }}">
                 {{ 'Reset Navigation' | t('cp-nav') }}
             </a>
         </div>

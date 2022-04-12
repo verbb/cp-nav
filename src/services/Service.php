@@ -227,8 +227,6 @@ JS;
             $navigation->layoutId = $layoutId;
             $navigation->prevLevel = 1;
             $navigation->level = 1;
-            $navigation->prevParentId = null;
-            $navigation->parentId = null;
 
             $navigationService->saveNavigation($navigation);
 

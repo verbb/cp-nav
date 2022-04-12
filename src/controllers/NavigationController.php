@@ -3,6 +3,7 @@ namespace verbb\cpnav\controllers;
 
 use verbb\cpnav\CpNav;
 use verbb\cpnav\models\Navigation;
+use verbb\cpnav\models\Settings;
 
 use Craft;
 use craft\elements\Asset;
@@ -142,6 +143,10 @@ class NavigationController extends Controller
             $variables['icons'] = $entry->all();
         }
 
+        /* @var Settings $settings */
+        $settings = CpNav::$plugin->getSettings();
+        $variables['settings'] = $settings;
+
         $view->startJsBuffer();
         $bodyHtml = $view->renderTemplate($template, $variables);
         $footHtml = $view->clearJsBuffer();
@@ -167,7 +172,6 @@ class NavigationController extends Controller
         $navigation->prevLabel = $request->getParam('currLabel');
         $navigation->enabled = true;
         $navigation->level = 1;
-        $navigation->parentId = null;
         $navigation->url = $request->getParam('url');
         $navigation->prevUrl = $request->getParam('url');
         $navigation->icon = $request->getParam('icon');
@@ -203,6 +207,7 @@ class NavigationController extends Controller
         $navigation->url = $request->getParam('url');
         $navigation->newWindow = (bool)$request->getParam('newWindow');
         $navigation->icon = $request->getParam('icon') ?: $navigation->icon;
+        $navigation->subnavBehaviour = $request->getParam('subnavBehaviour');
 
         $customIcon = $request->getParam('customIcon') ? Json::encode($request->getParam('customIcon')) : null;
         $navigation->customIcon = $customIcon;

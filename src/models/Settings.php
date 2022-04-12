@@ -9,10 +9,31 @@ use craft\web\assets\cp\CpAsset;
 
 class Settings extends Model
 {
+    // Constants
+    // =========================================================================
+
+    public const SUBNAV_DEFAULT = 'default';
+    public const SUBNAV_ALWAYS_OPEN = 'alwaysOpen';
+    public const SUBNAV_OPEN_TOGGLE = 'openToggle';
+
+
     // Properties
     // =========================================================================
 
-    public array $originalNavHash = [];
+    public string $defaultSubnavBehaviour = self::SUBNAV_DEFAULT;
+
+
+    // Public Methods
+    // =========================================================================
+
+    public function __construct($config = [])
+    {
+        // Remove deprecated settings
+        unset($config['originalNavHash']);
+
+        parent::__construct($config);
+    }
+
     public function getFontIconOptions(): array
     {
         return Craft::$app->getCache()->getOrSet('craft-font-options', function() {
@@ -67,6 +88,26 @@ class Settings extends Model
                 [ 'value' => 'title', 'label' => 'First Letter' ],
             ], $options);
         });
+    }
+
+    public function getSubnavBehaviourOptions(): array
+    {
+        $options = [
+            [
+                'label' => Craft::t('app', 'Open when active'),
+                'value' => self::SUBNAV_DEFAULT,
+            ],
+            [
+                'label' => Craft::t('app', 'Always open'),
+                'value' => self::SUBNAV_ALWAYS_OPEN,
+            ],
+            [
+                'label' => Craft::t('app', 'Toggle open'),
+                'value' => self::SUBNAV_OPEN_TOGGLE,
+            ],
+        ];
+
+        return $options;
     }
 
 }

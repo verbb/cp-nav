@@ -958,6 +958,9 @@ var NavAdminTable = new Craft.CpNav.NavAdminTable('#cp-nav-items');
 // var badgeHandleIndex = {};
 var updateAllNav = function(navHtml) {
     $('#global-sidebar nav#nav').html(navHtml);
+
+    // Refresh any JS modifications
+    new Craft.CpNav.InitMenuItems();
 }
 
 

@@ -30,6 +30,10 @@ class m220409_000000_craft_4 extends Migration
             $this->addColumn('{{%cpnav_navigation}}', 'parentId', $this->integer()->after('prevParentId'));
         }
 
+        if (!$this->db->columnExists('{{%cpnav_navigation}}', 'subnavBehaviour')) {
+            $this->addColumn('{{%cpnav_navigation}}', 'subnavBehaviour', $this->string()->after('newWindow'));
+        }
+
         $this->update('{{%cpnav_navigation}}', [
             'level' => 1,
         ]);

@@ -111,6 +111,7 @@ class NavigationsService extends Component
             'customIcon' => $navigation->customIcon,
             'type' => $navigation->type,
             'newWindow' => $navigation->newWindow,
+            'subnavBehaviour' => $navigation->subnavBehaviour,
         ];
 
         $configPath = self::CONFIG_NAVIGATION_KEY . '.' . $navigation->uid;
@@ -163,6 +164,7 @@ class NavigationsService extends Component
             $navigationRecord->customIcon = $data['customIcon'] ?? '';
             $navigationRecord->type = $data['type'] ?? '';
             $navigationRecord->newWindow = $data['newWindow'] ?? false;
+            $navigationRecord->subnavBehaviour = $data['subnavBehaviour'] ?? null;
             $navigationRecord->uid = $navigationUid;
 
             $navigationRecord->save(false);
@@ -326,6 +328,7 @@ class NavigationsService extends Component
                 'customIcon',
                 'type',
                 'newWindow',
+                'subnavBehaviour',
                 'dateUpdated',
                 'dateCreated',
                 'uid',

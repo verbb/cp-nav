@@ -5,7 +5,10 @@
 ### Added
 - Added the ability to create and manage subnav items.
 - Added "Craft" and "Plugin" navigation types, to have more fine-grained control over certain navigation items.
+- Added the ability to change the subnav behavior. Either open only when the parent is active (Craft default), always open, or toggle-state open.
+- Added plugin setting to control default subnav behaviour for all navigations.
 - Minor UI polish inline with Craft 4 (spinners, colours, shadows, etc).
+- Added better support for Craft font-icons, which now parses their icon font files for available glyphs.
 
 ### Changed
 - Improved performance when rendering navigation items.

@@ -201,6 +201,17 @@
       "sC" : 0,
       "tS" : 0
     },
+    "\/src\/resources\/src\/js\/cp-nav.js" : {
+      "bF" : 0,
+      "ft" : 64,
+      "ma" : 0,
+      "mi" : 0,
+      "oA" : 0,
+      "oAP" : "\/src\/resources\/dist\/js\/cp-nav.js",
+      "oF" : 0,
+      "sC" : 0,
+      "tS" : 0
+    },
     "\/src\/resources\/src\/scss\/cp-nav-settings.scss" : {
       "aP" : 1,
       "bl" : 0,

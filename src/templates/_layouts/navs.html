@@ -2,11 +2,13 @@
 
 <ul>
     {% for item in cpNavItems %}
+        {% set subnavBehaviour = item.getSubnavBehaviour() %}
         {% set children = item.getChildrenForCurrentUser() %}
 
         {% set itemAttributes = {
             id: item.getId(),
             'data-type': item.type,
+            'data-subnav-behaviour': subnavBehaviour,
         } %}
 
         {# Set the parent to be selected, only if there are no children selected #}
@@ -55,7 +57,7 @@
             </a>
 
             {% if children %}
-                <ul class="subnav">
+                <ul class="subnav {{ subnavBehaviour == 'openToggle' ? 'hidden' }}">
                     {% for item in children %}
                         {% set itemIsSelected = ((selectedSubnavItem is defined and selectedSubnavItem == item.handle) and loop.parent.item.isSelected()) %}
 

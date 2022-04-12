@@ -58,7 +58,6 @@
             limit: 1,
         }) }}
 
-        {% set options = [
         {{ forms.selectField({
             label: 'Craft Icon' | t('cp-nav'),
             instructions: 'Specify an in-built Craft icon for this menu item.' | t('cp-nav'),
@@ -67,6 +66,17 @@
             value: nav.icon,
             options: settings.getFontIconOptions(),
         }) }}
+
+        {% if nav.getChildren() %}
+            {{ forms.selectField({
+                label: 'Subnav Behaviour' | t('cp-nav'),
+                instructions: 'Set the behaviour for subnav items.' | t('cp-nav'),
+                id: 'subnavBehaviour',
+                name: 'subnavBehaviour',
+                value: nav.subnavBehaviour,
+                options: settings.getSubnavBehaviourOptions(),
+            }) }}
+        {% endif %}
     {% endif %}
 </div>
 

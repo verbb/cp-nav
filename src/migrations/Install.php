@@ -60,6 +60,7 @@ class Install extends Migration
             'customIcon' => $this->string(255),
             'type' => $this->string(),
             'newWindow' => $this->boolean()->defaultValue(false),
+            'subnavBehaviour' => $this->string(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),

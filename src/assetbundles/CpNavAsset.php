@@ -20,6 +20,10 @@ class CpNavAsset extends AssetBundle
             CpAsset::class,
         ];
 
+        $this->js = [
+            'js/cp-nav.js',
+        ];
+
         $this->css = [
             'css/cp-nav.css',
         ];
