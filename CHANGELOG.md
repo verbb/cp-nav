@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.0.0-beta.3 - 2022-04-13
+
+### Fixed
+- Remove leftover debug badges.
+
 ## 4.0.0-beta.2 - 2022-04-12
 
 ### Added
