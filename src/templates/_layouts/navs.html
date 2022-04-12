@@ -1,44 +1,95 @@
-{% for item in craft.cp.nav() %}
-    {% set hasSubnav = (item.subnav is defined and item.subnav) %}
-    <li id="{{ item.id }}" {% if item.sel and hasSubnav %} class="has-subnav"{% endif %}>
-        <a{% if item.sel %} class="sel"{% endif %} href="{{ item.url }}">
-            <span class="icon icon-mask">
-                {%- if item.icon is defined -%}
-                    {{ svg(item.icon, sanitize=true, namespace=true) }}
-                {%- elseif item.fontIcon is defined -%}
-                    <span data-icon="{{ item.fontIcon }}"></span>
-                {%- else -%}
-                    {% include "_includes/defaulticon.svg" with { label: item.label } %}
-                {%- endif -%}
-            </span>
+{% apply spaceless %}
 
-            <span class="label">
-                {{- item.label -}}
-            </span>
+<ul>
+    {% for item in cpNavItems %}
+        {% set children = item.getChildrenForCurrentUser() %}
 
-            {%- if not item.sel and item.badgeCount -%}
-                <span class="badge">{{ item.badgeCount|number(decimals=0) }}</span>
-            {%- endif -%}
-        </a>
-        {% if item.sel and hasSubnav %}
-            <ul class="subnav">
-                {% for itemId, item in item.subnav %}
-                    {% set itemIsSelected = (
-                        (selectedSubnavItem is defined and selectedSubnavItem == itemId) or
-                        (selectedSubnavItem is not defined and loop.first)
-                    ) -%}
+        {% set itemAttributes = {
+            id: item.getId(),
+            'data-type': item.type,
+        } %}
 
-                    <li>
-                        <a href="{{ url(item.url) }}"{% if itemIsSelected %} class="sel"{% endif %}>
-                            {{ item.label }}
+        {# Set the parent to be selected, only if there are no children selected #}
+        {# Otherwise you have two items selected, which looks odd #}
+        {% set selected = item.isSelected() %}
 
-                            {%- if not itemIsSelected and item.badgeCount is defined -%}
-                                <span class="badge">{{ item.badgeCount|number(decimals=0) }}</span>
-                            {%- endif -%}
-                        </a>
-                    </li>
-                {% endfor %}
-            </ul>
+        {% if children %}
+            {% for item in children %}
+                {% set itemIsSelected = (selectedSubnavItem is defined and selectedSubnavItem == item.handle) %}
+
+                {% if itemIsSelected %}
+                    {% set selected = false %}
+                {% endif %}
+            {% endfor %}
         {% endif %}
-    </li>
-{% endfor %}
+
+        {% set linkAttributes = {
+            href: item.getUrl() ?? false,
+            class: [
+                selected ? 'sel' : false,
+                (item.getUrl() and item.newWindow) ? 'external' : false,
+            ] | filter,
+            target: item.getUrl() and item.newWindow ? '_blank' : false,
+            rel: item.getUrl() and item.newWindow ? 'noopener' : false,
+        } %}
+
+        <li {{ attr(itemAttributes) }}>
+            <a {{ attr(linkAttributes) }}>
+                <span class="icon icon-mask" aria-hidden="true">
+                    {% if item.getIcon() %}
+                        {{ svg(item.getIcon(), sanitize=true, namespace=true) }}
+                    {% elseif item.getFontIcon() %}
+                        {% if item.getFontIcon() == 'title' %}
+                            {% include "_includes/defaulticon.svg.twig" with { label: item.label } %}
+                        {% else %}
+                            <span data-icon="{{ item.getFontIcon() }}"></span>
+                        {% endif %}
+                    {% endif %}
+                </span>
+
+                <span class="label">{{ item.label }}</span>
+
+                {% if not selected and item.badgeCount %}
+                    <span class="badge">{{ item.badgeCount | number(decimals=0) }}</span>
+                {% endif %}
+            </a>
+
+            {% if children %}
+                <ul class="subnav">
+                    {% for item in children %}
+                        {% set itemIsSelected = ((selectedSubnavItem is defined and selectedSubnavItem == item.handle) and loop.parent.item.isSelected()) %}
+
+                        {% set itemAttributes = {
+                            id: item.getId(),
+                            'data-type': item.type,
+                        } %}
+
+                        {% set linkAttributes = {
+                            href: (item.url ?? false) ? url(item.url) : false,
+                            class: [
+                                itemIsSelected ? 'sel' : false,
+                                (item.newWindow ?? false) ? 'external' : false,
+                            ] | filter,
+                            target: (item.newWindow ?? false) ? '_blank' : false,
+                            rel: (item.newWindow ?? false) ? 'noopener' : false,
+                        } %}
+
+                        <li {{ attr(itemAttributes) }}>
+                            <a {{ attr(linkAttributes) }}>
+                                <span class="label">
+                                    {{ item.label }}
+
+                                    {% if not itemIsSelected and item.badgeCount %}
+                                        <span class="badge">{{ item.badgeCount | number(decimals=0) }}</span>
+                                    {% endif %}
+                                </span>
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </li>
+    {% endfor %}
+</ul>
+
+{% endapply %}

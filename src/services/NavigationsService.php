@@ -3,12 +3,12 @@ namespace verbb\cpnav\services;
 
 use verbb\cpnav\CpNav;
 use verbb\cpnav\events\NavigationEvent;
-use verbb\cpnav\helpers\ProjectConfig as ProjectConfigHelper;
-use verbb\cpnav\models\Navigation as NavigationModel;
+use verbb\cpnav\models\Navigation;
 use verbb\cpnav\records\Navigation as NavigationRecord;
 
 use Craft;
 use craft\base\Component;
+use craft\base\MemoizableArray;
 use craft\db\Query;
 use craft\events\ConfigEvent;
 use craft\helpers\ArrayHelper;
@@ -16,7 +16,6 @@ use craft\helpers\Db;
 use craft\helpers\StringHelper;
 
 use Throwable;
-use verbb\cpnav\models\Navigation;
 
 class NavigationsService extends Component
 {
@@ -35,7 +34,7 @@ class NavigationsService extends Component
     // Properties
     // =========================================================================
 
-    private ?array $_navigations = null;
+    private ?MemoizableArray $_navigations = null;
 
 
     // Public Methods
@@ -43,73 +42,30 @@ class NavigationsService extends Component
 
     public function getAllNavigations(): array
     {
-        if ($this->_navigations !== null) {
-            return $this->_navigations;
-        }
-
-        $this->_navigations = [];
-
-        foreach ($this->_createNavigationQuery()->all() as $result) {
-            $this->_navigations[] = new NavigationModel($result);
-        }
-
-        return $this->_navigations;
+        return $this->_navigations()->all();
     }
 
-    public function getNavigationsByLayoutId(int $layoutId, $enabledOnly = false): array
+    public function getAllNavigationsByLayoutId(int $layoutId): array
     {
-        $navigations = [];
-
-        $query = $this->_createNavigationQuery()
-            ->where(['layoutId' => $layoutId])
-            ->orderBy(['order' => SORT_ASC]);
-
-        if ($enabledOnly) {
-            $query->andWhere(['enabled' => true]);
-        }
-
-        foreach ($query->all() as $result) {
-            $navigations[] = new NavigationModel($result);
-        }
-
-        return $navigations;
+        return $this->_navigations()->where('layoutId', $layoutId, true)->all();
     }
 
     public function getAllNavigationsByHandle(string $handle): array
     {
-        $navigations = [];
-
-        $query = $this->_createNavigationQuery()
-            ->where(['handle' => $handle])
-            ->all();
-
-        foreach ($query as $result) {
-            $navigations[] = new NavigationModel($result);
-        }
-
-        return $navigations;
+        return $this->_navigations()->where('handle', $handle, true)->all();
     }
 
     public function getNavigationById(int $id): ?Navigation
     {
-        return ArrayHelper::firstWhere($this->getAllNavigations(), 'id', $id);
+        return $this->_navigations()->firstWhere('id', $id);
     }
 
     public function getNavigationByUid(string $uid): ?Navigation
     {
-        return ArrayHelper::firstWhere($this->getAllNavigations(), 'uid', $uid, true);
+        return $this->_navigations()->firstWhere('uid', $uid, true);
     }
 
-    public function getNavigationByHandle(int $layoutId, string $handle): ?NavigationModel
-    {
-        $result = $this->_createNavigationQuery()
-            ->where(['layoutId' => $layoutId, 'handle' => $handle])
-            ->one();
-
-        return $result ? new NavigationModel($result) : null;
-    }
-
-    public function saveNavigation(NavigationModel $navigation, bool $runValidation = true): bool
+    public function saveNavigation(Navigation $navigation, bool $runValidation = true): bool
     {
         $isNewNavigation = !$navigation->id;
 
@@ -127,7 +83,12 @@ class NavigationsService extends Component
 
         if ($isNewNavigation) {
             $navigation->uid = StringHelper::UUID();
-        } else {
+
+            $navigation->sortOrder = (new Query())
+                ->from(['{{%cpnav_navigation}}'])
+                ->where(['layoutId' => $navigation->layoutId])
+                ->max('[[sortOrder]]') + 1;
+        } else if (!$navigation->uid) {
             $navigation->uid = Db::uidById('{{%cpnav_navigation}}', $navigation->id);
         }
 
@@ -136,12 +97,16 @@ class NavigationsService extends Component
         $configData = [
             'layout' => $navigation->getLayout()->uid,
             'handle' => $navigation->handle,
-            'currLabel' => $navigation->currLabel,
             'prevLabel' => $navigation->prevLabel,
+            'currLabel' => $navigation->currLabel,
             'enabled' => $navigation->enabled,
-            'order' => $navigation->order,
-            'url' => $navigation->url,
+            'sortOrder' => $navigation->sortOrder,
+            'prevLevel' => $navigation->prevLevel,
+            'level' => $navigation->level,
+            'prevParent' => $navigation->getPrevParent()->uid ?? null,
+            'parent' => $navigation->getParent()->uid ?? null,
             'prevUrl' => $navigation->prevUrl,
+            'url' => $navigation->url,
             'icon' => $navigation->icon,
             'customIcon' => $navigation->customIcon,
             'type' => $navigation->type,
@@ -149,7 +114,7 @@ class NavigationsService extends Component
         ];
 
         $configPath = self::CONFIG_NAVIGATION_KEY . '.' . $navigation->uid;
-        $projectConfig->set($configPath, $configData);
+        $projectConfig->set($configPath, $configData, "Saving navigation “{$navigation->handle}”", true, true);
 
         if ($isNewNavigation) {
             $navigation->id = Db::idByUid('{{%cpnav_navigation}}', $navigation->uid);
@@ -163,35 +128,41 @@ class NavigationsService extends Component
         $navigationUid = $event->tokenMatches[0];
         $data = $event->newValue;
 
-        // Make sure layouts are processed
-        ProjectConfigHelper::ensureAllLayoutsProcessed();
-
         $layoutUid = $data['layout'] ?? '';
-
         $layout = CpNav::$plugin->getLayouts()->getLayoutByUid($layoutUid);
-        $navigationRecord = $this->_getNavigationRecord($navigationUid);
 
-        if (!$layout || !$navigationRecord) {
+        if (!$layout) {
             return;
         }
 
         $transaction = Craft::$app->getDb()->beginTransaction();
 
         try {
+            $navigationRecord = $this->_getNavigationRecord($navigationUid);
             $isNewNavigation = $navigationRecord->getIsNewRecord();
+
+            $prevParentUid = $data['prevParent'] ?? '';
+            $parentUid = $data['parent'] ?? '';
+            
+            $prevParent = $this->getNavigationByUid($prevParentUid);
+            $parent = $this->getNavigationByUid($parentUid);
 
             $navigationRecord->layoutId = $layout->id;
             $navigationRecord->handle = $data['handle'] ?? '';
-            $navigationRecord->currLabel = $data['currLabel'] ?? '';
             $navigationRecord->prevLabel = $data['prevLabel'] ?? '';
-            $navigationRecord->enabled = $data['enabled'] ?? '';
-            $navigationRecord->order = $data['order'] ?? '';
-            $navigationRecord->url = $data['url'] ?? '';
+            $navigationRecord->currLabel = $data['currLabel'] ?? '';
+            $navigationRecord->enabled = $data['enabled'] ?? false;
+            $navigationRecord->sortOrder = $data['sortOrder'] ?? null;
+            $navigationRecord->prevLevel = $data['prevLevel'] ?? null;
+            $navigationRecord->level = $data['level'] ?? null;
+            $navigationRecord->prevParentId = $prevParent->id ?? null;
+            $navigationRecord->parentId = $parent->id ?? null;
             $navigationRecord->prevUrl = $data['prevUrl'] ?? '';
+            $navigationRecord->url = $data['url'] ?? '';
             $navigationRecord->icon = $data['icon'] ?? '';
             $navigationRecord->customIcon = $data['customIcon'] ?? '';
             $navigationRecord->type = $data['type'] ?? '';
-            $navigationRecord->newWindow = $data['newWindow'] ?? '';
+            $navigationRecord->newWindow = $data['newWindow'] ?? false;
             $navigationRecord->uid = $navigationUid;
 
             $navigationRecord->save(false);
@@ -202,30 +173,14 @@ class NavigationsService extends Component
             throw $e;
         }
 
+        // Clear caches
+        $this->_navigations = null;
+
         if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_NAVIGATION)) {
             $this->trigger(self::EVENT_AFTER_SAVE_NAVIGATION, new NavigationEvent([
                 'navigation' => $this->getNavigationById($navigationRecord->id),
                 'isNew' => $isNewNavigation,
             ]));
-        }
-    }
-
-    public function saveNavigationToAllLayouts(NavigationModel $navigation): void
-    {
-        $layouts = CpNav::$plugin->getLayouts()->getAllLayouts();
-
-        // Sanity check, in case it's already there
-        $navigations = $this->getAllNavigationsByHandle($navigation->handle);
-
-        if ($navigations) {
-            return;
-        }
-
-        foreach ($layouts as $layout) {
-            $nav = clone $navigation;
-            $nav->layoutId = $layout->id;
-
-            $this->saveNavigation($nav);
         }
     }
 
@@ -245,13 +200,19 @@ class NavigationsService extends Component
         $navigations = $this->getAllNavigationsByHandle($handle);
 
         foreach ($navigations as $navigation) {
+            // Remember to fetch the original children (subnav) for this navigation - not the current
+            // which are custom and might've moved around.
+            foreach ($navigation->getPrevChildren() as $child) {
+                $this->deleteNavigation($child);
+            }
+
             $this->deleteNavigation($navigation);
         }
 
         return true;
     }
 
-    public function deleteNavigation(NavigationModel $navigation): bool
+    public function deleteNavigation(Navigation $navigation): bool
     {
         if ($this->hasEventHandlers(self::EVENT_BEFORE_DELETE_NAVIGATION)) {
             $this->trigger(self::EVENT_BEFORE_DELETE_NAVIGATION, new NavigationEvent([
@@ -259,7 +220,7 @@ class NavigationsService extends Component
             ]));
         }
 
-        Craft::$app->getProjectConfig()->remove(self::CONFIG_NAVIGATION_KEY . '.' . $navigation->uid);
+        Craft::$app->getProjectConfig()->remove(self::CONFIG_NAVIGATION_KEY . '.' . $navigation->uid, "Delete navigation “{$navigation->handle}”");
 
         return true;
     }
@@ -280,20 +241,64 @@ class NavigationsService extends Component
             ]));
         }
 
-        Craft::$app->getDb()->createCommand()
-            ->delete('{{%cpnav_navigation}}', ['uid' => $navigationUid])
-            ->execute();
+        Db::delete('{{%cpnav_navigation}}', [
+            'uid' => $navigationUid,
+        ]);
 
         if ($this->hasEventHandlers(self::EVENT_AFTER_DELETE_NAVIGATION)) {
             $this->trigger(self::EVENT_AFTER_DELETE_NAVIGATION, new NavigationEvent([
                 'navigation' => $navigation,
             ]));
         }
+
+        // We also need to now update any nav's that were children of this deleted nav and reset them.
+        // Only handle manual or dividers, as all other instances will take care of themselves
+        foreach ($navigation->getChildren() as $child) {
+            if (!in_array($child->type, ['divider', 'manual'])) {
+                continue;
+            }
+
+            $child->level = 1;
+            $child->parentId = null;
+
+            $this->saveNavigation($child);
+        }
+
+        // Clear caches
+        $this->_navigations = null;
     }
 
 
     // Private Methods
     // =========================================================================
+
+    private function _navigations(): MemoizableArray
+    {
+        if (!isset($this->_navigations)) {
+            $navigations = [];
+
+            foreach ($this->_createNavigationQuery()->all() as $result) {
+                $navigations[] = new Navigation($result);
+            }
+
+            // Also prepare and child navs, by setting them as children. Basically, a simplified
+            // structure, that's limited to only 2 levels.
+            foreach ($navigations as $navigation) {
+                if ($navigation->parentId && $parentNavigation = ArrayHelper::firstWhere($navigations, 'id', $navigation->parentId)) {
+                    $parentNavigation->addChild($navigation);
+                }
+
+                // Also keep track of the previous (original) parent
+                if ($navigation->prevParentId && $parentNavigation = ArrayHelper::firstWhere($navigations, 'id', $navigation->prevParentId)) {
+                    $parentNavigation->addPrevChild($navigation);
+                }
+            }
+
+            $this->_navigations = new MemoizableArray($navigations);
+        }
+
+        return $this->_navigations;
+    }
 
     private function _getNavigationRecord(string $uid): NavigationRecord
     {
@@ -310,7 +315,11 @@ class NavigationsService extends Component
                 'prevLabel',
                 'currLabel',
                 'enabled',
-                'order',
+                'sortOrder',
+                'prevLevel',
+                'level',
+                'prevParentId',
+                'parentId',
                 'prevUrl',
                 'url',
                 'icon',
@@ -321,6 +330,7 @@ class NavigationsService extends Component
                 'dateCreated',
                 'uid',
             ])
-            ->from(['{{%cpnav_navigation}}']);
+            ->from(['{{%cpnav_navigation}}'])
+            ->orderBy(['sortOrder' => SORT_ASC]);
     }
 }

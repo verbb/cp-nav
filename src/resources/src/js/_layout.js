@@ -4,6 +4,7 @@ if (typeof Craft.CpNav === typeof undefined) {
     Craft.CpNav = {};
 }
 
+
 // ----------------------------------------
 // LAYOUTS
 // ----------------------------------------
@@ -36,7 +37,6 @@ Craft.CpNav.EditLayoutItem = Garnish.Base.extend({
     layoutId: null,
 
     $form: null,
-    $spinner: null,
 
     hud: null,
 
@@ -49,64 +49,85 @@ Craft.CpNav.EditLayoutItem = Garnish.Base.extend({
 
         this.$element.addClass('loading');
 
-        Craft.postActionRequest('cp-nav/layout/get-hud-html', this.data, $.proxy(this, 'showHud'));
+        this.$spinner = $('<div class="spinner small" />');
+        this.$element.append(this.$spinner);
+
+        Craft.sendActionRequest('POST', 'cp-nav/layout/get-hud-html', { data: this.data })
+            .then((response) => {
+                this.showHud(response);
+            });
     },
 
-    showHud: function(response, textStatus) {
+    showHud: function(response) {
         this.$element.removeClass('loading');
 
-        if (textStatus === 'success') {
-            var $hudContents = $();
+        var $hudContents = $();
 
-            this.$form = $('<div/>');
-            $fieldsContainer = $('<div class="fields"/>').appendTo(this.$form);
+        this.$spinner.remove();
 
-            $fieldsContainer.html(response.html)
-            Craft.initUiElements($fieldsContainer);
+        this.$form = $('<div/>');
+        $fieldsContainer = $('<div class="fields"/>').appendTo(this.$form);
 
-            var $footer = $('<div class="hud-footer"/>').appendTo(this.$form),
-                $buttonsContainer = $('<div class="buttons right"/>').appendTo($footer);
-            this.$cancelBtn = $('<div class="btn">'+Craft.t('app', 'Cancel')+'</div>').appendTo($buttonsContainer);
-            this.$saveBtn = $('<input class="btn submit" type="submit" value="'+Craft.t('app', 'Save')+'"/>').appendTo($buttonsContainer);
-            this.$spinner = $('<div class="spinner hidden"/>').appendTo($buttonsContainer);
+        $fieldsContainer.html(response.data.html)
+        Craft.initUiElements($fieldsContainer);
 
-            $hudContents = $hudContents.add(this.$form);
+        var $footer = $('<div class="hud-footer"/>').appendTo(this.$form),
+            $btnContainer = $('<div class="buttons right"/>').appendTo($footer);
+        
+        this.$cancelBtn = $('<button/>', {
+            type: 'button',
+            class: 'btn',
+            text: Craft.t('app', 'Cancel'),
+        }).appendTo($btnContainer);
 
-            this.hud = new Garnish.HUD(this.$element, $hudContents, {
-                bodyClass: 'body',
-                closeOtherHUDs: false
-            });
+        this.$saveBtn = Craft.ui.createSubmitButton({
+            label: Craft.t('app', 'Save'),
+            spinner: true,
+        }).appendTo($btnContainer);
 
-            this.hud.on('hide', $.proxy(this, 'closeHud'));
+        $hudContents = $hudContents.add(this.$form);
 
-            Garnish.$bod.append(response.footerJs);
+        this.hud = new Garnish.HUD(this.$element, $hudContents, {
+            bodyClass: 'body',
+            closeOtherHUDs: false
+        });
 
-            this.addListener(this.$saveBtn, 'click', 'save');
-            this.addListener(this.$cancelBtn, 'click', 'closeHud');
-        }
+        this.hud.on('hide', $.proxy(this, 'closeHud'));
+
+        Garnish.$bod.append(response.data.footerJs);
+
+        this.$form.find('input:first').focus();
+
+        this.addListener(this.$saveBtn, 'click', 'save');
+        this.addListener(this.$cancelBtn, 'click', 'closeHud');
     },
 
     save: function(ev) {
         ev.preventDefault();
 
-        this.$spinner.removeClass('hidden');
+        this.$saveBtn.addClass('loading');
 
         var data = this.hud.$body.serialize();
 
-        Craft.postActionRequest('cp-nav/layout/save', data, $.proxy(function(response, textStatus) {
-            this.$spinner.addClass('hidden');
-
-            if (textStatus === 'success' && response.success) {
-                this.$element.html('<strong>'+response.layout.name+'</strong>');
-
-                Craft.cp.displayNotice(Craft.t('cp-nav', 'Layout saved.'));
+        Craft.sendActionRequest('POST', 'cp-nav/layout/save', { data })
+            .then((response) => {
+                this.$element.html('<strong>' + response.data.layout.name + '</strong>');
 
                 this.closeHud();
-            } else {
-                Craft.cp.displayError(response.error);
+                Craft.cp.displayNotice(response.data.message);
+            })
+            .catch(({response}) => {
                 Garnish.shake(this.hud.$hud);
-            }
-        }, this));
+
+                if (response && response.data && response.data.message) {
+                    Craft.cp.displayError(response.data.message);
+                } else {
+                    Craft.cp.displayError();
+                }
+            })
+            .finally(() => {
+                this.$saveBtn.removeClass('loading');
+            });
     },
 
     closeHud: function() {
@@ -138,7 +159,6 @@ Craft.CpNav.CreateLayoutItem = Garnish.Base.extend({
     layoutId: null,
 
     $form: null,
-    $spinner: null,
 
     hud: null,
 
@@ -147,61 +167,70 @@ Craft.CpNav.CreateLayoutItem = Garnish.Base.extend({
 
         this.$element.addClass('loading');
 
-        Craft.postActionRequest('cp-nav/layout/get-hud-html', {}, $.proxy(this, 'showHud'));
+        Craft.sendActionRequest('POST', 'cp-nav/layout/get-hud-html', { })
+            .then((response) => {
+                this.showHud(response);
+            });
     },
 
-    showHud: function(response, textStatus) {
+    showHud: function(response) {
         this.$element.removeClass('loading');
 
-        if (textStatus === 'success') {
-            var $hudContents = $();
+        var $hudContents = $();
 
-            this.$form = $('<div/>');
-            $fieldsContainer = $('<div class="fields"/>').appendTo(this.$form);
+        this.$form = $('<div/>');
+        $fieldsContainer = $('<div class="fields"/>').appendTo(this.$form);
 
-            $fieldsContainer.html(response.html)
-            Craft.initUiElements($fieldsContainer);
+        $fieldsContainer.html(response.data.html)
+        Craft.initUiElements($fieldsContainer);
 
-            var $footer = $('<div class="hud-footer"/>').appendTo(this.$form),
-                $buttonsContainer = $('<div class="buttons right"/>').appendTo($footer);
-            this.$cancelBtn = $('<div class="btn">'+Craft.t('app', 'Cancel')+'</div>').appendTo($buttonsContainer);
-            this.$saveBtn = $('<input class="btn submit" type="submit" value="'+Craft.t('app', 'Save')+'"/>').appendTo($buttonsContainer);
-            this.$spinner = $('<div class="spinner hidden"/>').appendTo($buttonsContainer);
+        var $footer = $('<div class="hud-footer"/>').appendTo(this.$form),
+            $btnContainer = $('<div class="buttons right"/>').appendTo($footer);
 
-            $hudContents = $hudContents.add(this.$form);
+        this.$cancelBtn = $('<button/>', {
+            type: 'button',
+            class: 'btn',
+            text: Craft.t('app', 'Cancel'),
+        }).appendTo($btnContainer);
 
-            this.hud = new Garnish.HUD(this.$element, $hudContents, {
-                bodyClass: 'body',
-                closeOtherHUDs: false
-            });
+        this.$saveBtn = Craft.ui.createSubmitButton({
+            label: Craft.t('app', 'Save'),
+            spinner: true,
+        }).appendTo($btnContainer);
 
-            this.hud.on('hide', $.proxy(this, 'closeHud'));
+        $hudContents = $hudContents.add(this.$form);
 
-            Garnish.$bod.append(response.footerJs);
+        this.hud = new Garnish.HUD(this.$element, $hudContents, {
+            bodyClass: 'body',
+            closeOtherHUDs: false
+        });
 
-            this.addListener(this.$saveBtn, 'click', 'save');
-            this.addListener(this.$cancelBtn, 'click', 'closeHud');
-        }
+        this.hud.on('hide', $.proxy(this, 'closeHud'));
+
+        Garnish.$bod.append(response.data.footerJs);
+
+        this.$form.find('input:first').focus();
+
+        this.addListener(this.$saveBtn, 'click', 'save');
+        this.addListener(this.$cancelBtn, 'click', 'closeHud');
     },
 
     save: function(ev) {
         ev.preventDefault();
 
-        this.$spinner.removeClass('hidden');
+        this.$saveBtn.addClass('loading');
 
         var data = this.hud.$body.serialize();
 
-        Craft.postActionRequest('cp-nav/layout/new', data, $.proxy(function(response, textStatus) {
-            this.$spinner.addClass('hidden');
+        Craft.sendActionRequest('POST', 'cp-nav/layout/new', { data })
+            .then((response) => {
+                Craft.cp.displayNotice(response.data.message);
 
-            if (textStatus === 'success' && response.success) {
-                Craft.cp.displayNotice(Craft.t('cp-nav', 'Layout created.'));
+                var newLayout = response.data.layout;
 
-                var newLayout = response.layouts;
-
-                var $tr = LayoutAdminTable.addRow('<tr class="layout-item" data-id="'+newLayout.id+'" data-name="'+newLayout.name+'">' +
+                var $tr = LayoutAdminTable.addRow('<tr class="layout-item" data-id="' + newLayout.id + '" data-name="' + newLayout.name + '">' +
                     '<td>' +
-                        '<a class="edit-layout"><strong>'+newLayout.name+'</strong></a>' +
+                        '<a class="edit-layout"><strong>' + newLayout.name + '</strong></a>' +
                     '</td>' +
                     '<td class="thin">' +
                         '<a class="move icon" title="' + Craft.t('app', 'Reorder') + '" role="button"></a>' +
@@ -212,11 +241,19 @@ Craft.CpNav.CreateLayoutItem = Garnish.Base.extend({
                 '</tr>');
 
                 this.closeHud();
-            } else {
-                Craft.cp.displayError(response.error);
+            })
+            .catch(({response}) => {
                 Garnish.shake(this.hud.$hud);
-            }
-        }, this));
+
+                if (response && response.data && response.data.message) {
+                    Craft.cp.displayError(response.data.message);
+                } else {
+                    Craft.cp.displayError();
+                }
+            })
+            .finally(() => {
+                this.$saveBtn.removeClass('loading');
+            });
     },
 
     closeHud: function() {

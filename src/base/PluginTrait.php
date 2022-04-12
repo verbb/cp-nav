@@ -4,7 +4,6 @@ namespace verbb\cpnav\base;
 use verbb\cpnav\CpNav;
 use verbb\cpnav\services\LayoutsService;
 use verbb\cpnav\services\NavigationsService;
-use verbb\cpnav\services\PendingNavigationsService;
 use verbb\cpnav\services\Service;
 
 use Craft;
@@ -48,11 +47,6 @@ trait PluginTrait
         return $this->get('navigations');
     }
 
-    public function getPendingNavigations(): PendingNavigationsService
-    {
-        return $this->get('pendingNavigations');
-    }
-
     public function getService(): Service
     {
         return $this->get('service');
@@ -67,7 +61,6 @@ trait PluginTrait
         $this->setComponents([
             'layouts' => LayoutsService::class,
             'navigations' => NavigationsService::class,
-            'pendingNavigations' => PendingNavigationsService::class,
             'service' => Service::class,
         ]);
 

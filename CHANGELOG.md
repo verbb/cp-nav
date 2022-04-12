@@ -1,5 +1,32 @@
 # Changelog
 
+## 4.0.0-beta.2 - Unreleased
+
+### Added
+- Added the ability to create and manage subnav items.
+- Added "Craft" and "Plugin" navigation types, to have more fine-grained control over certain navigation items.
+- Minor UI polish inline with Craft 4 (spinners, colours, shadows, etc).
+
+### Changed
+- Improved performance when rendering navigation items.
+- Revamped UI for navigations to allow for nested items.
+- Plugin and Craft subpages can now be managed in the navigation builder.
+- The rendered HTML navigation is now completely custom, giving us more control over output, allowances for customisation and more.
+- Divider navigation items are now customisable.
+- Divider navigation items now no longer require a label, and are rendered as a line.
+- Navigation items without a URL now render as a heading.
+- Navigation items with "New window" enabled now add `rel="noopener"` to the anchor tag.
+
+### Fixed
+- Fixed an issue where in some cases, menu items were still being shown in the user didn't have permission to access it.
+- Fixed navigation items getting out of sync for different users.
+- Fixed issues comparing the normal Craft-generated navigation with your custom one.
+- Fixed an issue where project config wouldn't be kept up to date correctly for navigation items.
+- Fixed default layout not always being created on-install.
+
+### Removed
+- Removed `cpnav_pending_navigations` database table.
+
 ## 4.0.0-beta.1 - 2022-03-10
 
 ### Changed

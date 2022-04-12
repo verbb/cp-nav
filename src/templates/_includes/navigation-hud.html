@@ -1,157 +1,160 @@
 {% import '_includes/forms' as forms %}
 
-{{ forms.textField({
-    label: 'Label' | t('cp-nav'),
-    instructions: 'Choose what you want this menu item to be called' | t('cp-nav'),
-    id: 'currLabel',
-    name: 'currLabel',
-    required: true,
-    autofocus: true,
-    value: nav.currLabel,
-}) }}
-
-{% if not nav.isDivider() %}
-    {% set prevUrl = (nav.prevUrl) ? nav.prevUrl : nav.url %}
-
+<div class="fields">
     {{ forms.textField({
-        label: 'URL' | t('cp-nav'),
-        instructions: 'Choose the URL this menu points to.' | t('cp-nav'),
-        id: 'url',
-        name: 'url',
+        label: 'Label' | t('cp-nav'),
+        instructions: 'Choose what you want this menu item to be called' | t('cp-nav'),
+        id: 'currLabel',
+        name: 'currLabel',
+        required: nav.isDivider() ? false : true,
         autofocus: true,
-        value: nav.url,
-        disabled: not nav.isManual(),
-        class: (nav.isManual()) ? '' : 'disabled',
+        value: nav.currLabel,
     }) }}
 
-    {% if not nav.isManual() %}
-        <input type="hidden" name="url" value="{{ nav.url }}" style="display: none;" />
-    {% endif %}
+    {% if not nav.isDivider() %}
+        {% set prevUrl = (nav.prevUrl) ? nav.prevUrl : nav.url %}
 
-    {% if nav.isManual() %}
-        {{ forms.lightswitchField({
-            label: 'New window' | t('cp-nav'),
-            instructions: 'Whether to open this page in a new window.' | t('cp-nav'),
-            name: 'newWindow',
-            on: nav.newWindow,
+        {{ forms.textField({
+            label: 'URL' | t('cp-nav'),
+            instructions: 'Choose the URL this menu points to.' | t('cp-nav'),
+            id: 'url',
+            name: 'url',
+            autofocus: true,
+            value: nav.url,
+            disabled: not nav.isManual(),
+            class: (nav.isManual()) ? '' : 'disabled',
         }) }}
-    {% else %}
-        <input type="hidden" name="newWindow" value="{{ nav.newWindow }}" style="display: none;" />
+
+        {% if not nav.isManual() %}
+            <input type="hidden" name="url" value="{{ nav.url }}" style="display: none;" />
+        {% endif %}
+
+        {% if nav.isManual() %}
+            {{ forms.lightswitchField({
+                label: 'New window' | t('cp-nav'),
+                instructions: 'Whether to open this page in a new window.' | t('cp-nav'),
+                name: 'newWindow',
+                on: nav.newWindow,
+            }) }}
+        {% else %}
+            <input type="hidden" name="newWindow" value="{{ nav.newWindow }}" style="display: none;" />
+        {% endif %}
+
+        {% set icons = (icons is defined ? icons : []) -%}
+
+        {{ forms.elementSelectField({
+            label: 'Custom Icon' | t('cp-nav'),
+            instructions: 'Specify an SVG asset for this menu item icon.' | t('cp-nav'),
+            elements: icons,
+            id: 'customIcon',
+            name: 'customIcon',
+            elementType: elementType,
+            criteria: {
+                kind: ['image'],
+            },
+            sources: sources,
+            jsClass: 'Craft.AssetSelectInput',
+            addButtonLabel: 'Select an Icon' | t('cp-nav'),
+            limit: 1,
+        }) }}
+
+        {% set options = [
+            { value: '', label: 'Select icon' },
+            { value: 'title', label: 'First Letter' },
+            { value: 'circledarr', label: 'arrow-circle-down, circle-darr' },
+            { value: 'circlelarr', label: 'arrow-circle-left, circle-larr' },
+            { value: 'circlerarr', label: 'arrow-circle-right, circle-rarr' },
+            { value: 'circleuarr', label: 'arrow-circle-up, circle-uarr' },
+            { value: 'darr', label: 'arrow-down, darr' },
+            { value: 'larr', label: 'arrow-left, larr' },
+            { value: 'rarr', label: 'arrow-right, rarr' },
+            { value: 'uarr', label: 'arrow-up, uarr' },
+            { value: 'asterisk', label: 'asterisk' },
+            { value: 'ban', label: 'ban' },
+            { value: 'menu', label: 'bars, navicon, reorder, menu' },
+            { value: 'bell', label: 'bell' },
+            { value: 'error', label: 'bug, error' },
+            { value: 'date', label: 'calendar, date' },
+            { value: 'category', label: 'category, categories' },
+            { value: 'check', label: 'check' },
+            { value: 'done', label: 'check-circle, done' },
+            { value: 'enabled', label: 'circle, enabled' },
+            { value: 'disabled', label: 'circle-o, disabled' },
+            { value: 'time', label: 'clock, time' },
+            { value: 'download', label: 'cloud-download, download' },
+            { value: 'upload', label: 'cloud-upload, upload' },
+            { value: 'settings', label: 'cog, gear, settings' },
+            { value: 'language', label: 'comments, language' },
+            { value: 'collapse', label: 'compress, collapse' },
+            { value: 'gauge', label: 'dashboard, tachometer, gauge' },
+            { value: 'database', label: 'database' },
+            { value: 'downangle', label: 'down-angle' },
+            { value: 'draft', label: 'draft' },
+            { value: 'ellipsis', label: 'ellipsis' },
+            { value: 'mail', label: 'envelope, mail' },
+            { value: 'alert', label: 'exclamation-triangle, warning, alert' },
+            { value: 'expand', label: 'expand' },
+            { value: 'view', label: 'eye, view' },
+            { value: 'field', label: 'field' },
+            { value: 'file', label: 'file' },
+            { value: 'globe', label: 'globe' },
+            { value: 'users', label: 'group, users' },
+            { value: 'home', label: 'home' },
+            { value: 'asset', label: 'image, photo, asset, assets' },
+            { value: 'info', label: 'info, info-circle' },
+            { value: 'layout', label: 'layout' },
+            { value: 'leftangle', label: 'left-angle' },
+            { value: 'lightbulb', label: 'lightbulb' },
+            { value: 'list', label: 'list' },
+            { value: 'listrtl', label: 'list-rtl' },
+            { value: 'secure', label: 'lock, secure' },
+            { value: 'routes', label: 'map-signs, routes' },
+            { value: 'minus', label: 'minus' },
+            { value: 'move', label: 'move' },
+            { value: 'newstamp', label: 'newstamp' },
+            { value: 'brush', label: 'paint-brush, brush' },
+            { value: 'edit', label: 'pencil, edit' },
+            { value: 'play', label: 'play' },
+            { value: 'plugin', label: 'plug, plugin' },
+            { value: 'plus', label: 'plus' },
+            { value: 'help', label: 'question, help' },
+            { value: 'refresh', label: 'refresh' },
+            { value: 'remove', label: 'remove' },
+            { value: 'rightangle', label: 'right-angle' },
+            { value: 'screwdriver', label: 'screwdriver' },
+            { value: 'search', label: 'search' },
+            { value: 'section', label: 'section' },
+            { value: 'share', label: 'share' },
+            { value: 'shareleft', label: 'shareleft' },
+            { value: 'general', label: 'sliders, general' },
+            { value: 'asc', label: 'sort-amount-asc, asc' },
+            { value: 'desc', label: 'sort-amount-desc, desc' },
+            { value: 'structure', label: 'structure' },
+            { value: 'structurertl', label: 'structure-rtl' },
+            { value: 'tag', label: 'tag' },
+            { value: 'tags', label: 'tags' },
+            { value: 'template', label: 'template' },
+            { value: 'grid', label: 'th, grid' },
+            { value: 'gridlarge', label: 'th-large, grid-large' },
+            { value: 'trash', label: 'trash' },
+            { value: 'insecure', label: 'unlock, insecure' },
+            { value: 'upangle', label: 'up-angle' },
+            { value: 'user', label: 'user' },
+            { value: 'wand', label: 'wand' },
+            { value: 'world', label: 'world' },
+            { value: 'tool', label: 'wrench, tool' },
+        ] %}
+
+        {{ forms.selectField({
+            label: 'Craft Icon' | t('cp-nav'),
+            instructions: 'Specify an in-built Craft icon for this menu item.' | t('cp-nav'),
+            id: 'craft-icon',
+            name: 'icon',
+            value: nav.icon,
+            options: options,
+        }) }}
     {% endif %}
-
-    {% set icons = (icons is defined ? icons : []) -%}
-
-    {{ forms.elementSelectField({
-        label: 'Custom Icon' | t('cp-nav'),
-        instructions: 'Specify an SVG asset for this menu item icon.' | t('cp-nav'),
-        elements: icons,
-        id: 'customIcon',
-        name: 'customIcon',
-        elementType: elementType,
-        criteria: {
-            kind: ['image'],
-        },
-        sources: sources,
-        jsClass: 'Craft.AssetSelectInput',
-        addButtonLabel: 'Select an Icon' | t('cp-nav'),
-        limit: 1,
-    }) }}
-
-    {% set options = [
-        { value: '', label: 'Select icon' },
-        { value: 'circledarr', label: 'arrow-circle-down, circle-darr' },
-        { value: 'circlelarr', label: 'arrow-circle-left, circle-larr' },
-        { value: 'circlerarr', label: 'arrow-circle-right, circle-rarr' },
-        { value: 'circleuarr', label: 'arrow-circle-up, circle-uarr' },
-        { value: 'darr', label: 'arrow-down, darr' },
-        { value: 'larr', label: 'arrow-left, larr' },
-        { value: 'rarr', label: 'arrow-right, rarr' },
-        { value: 'uarr', label: 'arrow-up, uarr' },
-        { value: 'asterisk', label: 'asterisk' },
-        { value: 'ban', label: 'ban' },
-        { value: 'menu', label: 'bars, navicon, reorder, menu' },
-        { value: 'bell', label: 'bell' },
-        { value: 'error', label: 'bug, error' },
-        { value: 'date', label: 'calendar, date' },
-        { value: 'category', label: 'category, categories' },
-        { value: 'check', label: 'check' },
-        { value: 'done', label: 'check-circle, done' },
-        { value: 'enabled', label: 'circle, enabled' },
-        { value: 'disabled', label: 'circle-o, disabled' },
-        { value: 'time', label: 'clock, time' },
-        { value: 'download', label: 'cloud-download, download' },
-        { value: 'upload', label: 'cloud-upload, upload' },
-        { value: 'settings', label: 'cog, gear, settings' },
-        { value: 'language', label: 'comments, language' },
-        { value: 'collapse', label: 'compress, collapse' },
-        { value: 'gauge', label: 'dashboard, tachometer, gauge' },
-        { value: 'database', label: 'database' },
-        { value: 'downangle', label: 'down-angle' },
-        { value: 'draft', label: 'draft' },
-        { value: 'ellipsis', label: 'ellipsis' },
-        { value: 'mail', label: 'envelope, mail' },
-        { value: 'alert', label: 'exclamation-triangle, warning, alert' },
-        { value: 'expand', label: 'expand' },
-        { value: 'view', label: 'eye, view' },
-        { value: 'field', label: 'field' },
-        { value: 'file', label: 'file' },
-        { value: 'globe', label: 'globe' },
-        { value: 'users', label: 'group, users' },
-        { value: 'home', label: 'home' },
-        { value: 'asset', label: 'image, photo, asset, assets' },
-        { value: 'info', label: 'info, info-circle' },
-        { value: 'layout', label: 'layout' },
-        { value: 'leftangle', label: 'left-angle' },
-        { value: 'lightbulb', label: 'lightbulb' },
-        { value: 'list', label: 'list' },
-        { value: 'listrtl', label: 'list-rtl' },
-        { value: 'secure', label: 'lock, secure' },
-        { value: 'routes', label: 'map-signs, routes' },
-        { value: 'minus', label: 'minus' },
-        { value: 'move', label: 'move' },
-        { value: 'newstamp', label: 'newstamp' },
-        { value: 'brush', label: 'paint-brush, brush' },
-        { value: 'edit', label: 'pencil, edit' },
-        { value: 'play', label: 'play' },
-        { value: 'plugin', label: 'plug, plugin' },
-        { value: 'plus', label: 'plus' },
-        { value: 'help', label: 'question, help' },
-        { value: 'refresh', label: 'refresh' },
-        { value: 'remove', label: 'remove' },
-        { value: 'rightangle', label: 'right-angle' },
-        { value: 'screwdriver', label: 'screwdriver' },
-        { value: 'search', label: 'search' },
-        { value: 'section', label: 'section' },
-        { value: 'share', label: 'share' },
-        { value: 'shareleft', label: 'shareleft' },
-        { value: 'general', label: 'sliders, general' },
-        { value: 'asc', label: 'sort-amount-asc, asc' },
-        { value: 'desc', label: 'sort-amount-desc, desc' },
-        { value: 'structure', label: 'structure' },
-        { value: 'structurertl', label: 'structure-rtl' },
-        { value: 'tag', label: 'tag' },
-        { value: 'tags', label: 'tags' },
-        { value: 'template', label: 'template' },
-        { value: 'grid', label: 'th, grid' },
-        { value: 'gridlarge', label: 'th-large, grid-large' },
-        { value: 'trash', label: 'trash' },
-        { value: 'insecure', label: 'unlock, insecure' },
-        { value: 'upangle', label: 'up-angle' },
-        { value: 'user', label: 'user' },
-        { value: 'wand', label: 'wand' },
-        { value: 'world', label: 'world' },
-        { value: 'tool', label: 'wrench, tool' },
-    ] %}
-
-    {{ forms.selectField({
-        label: 'Craft Icon' | t('cp-nav'),
-        instructions: 'Specify an in-built Craft icon for this menu item.' | t('cp-nav'),
-        id: 'craft-icon',
-        name: 'icon',
-        value: nav.icon,
-        options: options,
-    }) }}
-{% endif %}
+</div>
 
 <script>
 

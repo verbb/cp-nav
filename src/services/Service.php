@@ -2,65 +2,154 @@
 namespace verbb\cpnav\services;
 
 use verbb\cpnav\CpNav;
-use verbb\cpnav\models\Layout as LayoutModel;
-use verbb\cpnav\models\Navigation as NavigationModel;
-use verbb\cpnav\models\Settings;
+use verbb\cpnav\helpers\Permissions;
+use verbb\cpnav\models\Navigation;
 
 use Craft;
 use craft\base\Component;
+use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
-use craft\web\twig\variables\Cp;
+use craft\web\View;
+
+use yii\base\Application;
 
 use Throwable;
 
 class Service extends Component
 {
-    // Properties
-    // =========================================================================
-
-    private ?array $_originalNavItems = null;
-    private ?array $_subNavs = null;
-    private ?array $_badges = null;
-
-
     // Public Methods
     // =========================================================================
 
-    public function generateNavigation($event): void
+    public function getNavigationHtml(array $variables = []): ?string
     {
-        $this->_originalNavItems = $event->navItems;
-
         try {
-            $newNavItems = [];
+            // Add in our own variable to be used when rendering the template
+            $variables['cpNavItems'] = $this->_getNavigationsForUser();
 
-            // Save any sub-navs and badges, we need to apply these back onto modified navs
-            $this->_saveSubNavsAndBadges($event->navItems);
-
-            // Get the layout for the current user viewing the CP
-            $layout = CpNav::$plugin->getLayouts()->getLayoutForCurrentUser();
-
-            // Get the navigation items for this layout
-            foreach ($layout->getNavigations() as $navigation) {
-                $newNavItem = $navigation->generateNavItem();
-
-                // Apply any previous subnavs or badges back onto navs items
-                if ($newNavItem) {
-                    $this->_applySubNavsAndBadges($newNavItem);
-
-                    $newNavItems[] = $newNavItem;
-                }
+            if ($variables['cpNavItems']) {
+                return Craft::$app->getView()->renderTemplate('cp-nav/_layouts/navs', $variables);
             }
+        } catch (Throwable $e) {
+            CpNav::error(Craft::t('app', '{e} - {f}: {l}.', ['e' => $e->getMessage(), 'f' => $e->getFile(), 'l' => $e->getLine()]));
+        }
 
-            // Update the original nav
-            if ($newNavItems) {
-                $event->navItems = $newNavItems;
+        return null;
+    }
+
+    public function renderNavigation($context): void
+    {
+        try {
+            $view = Craft::$app->getView();
+
+            // Render the navigation for the current user.
+            // Include global Twig context variables, so things like plugins setting their `selectedSubnavItem` works.
+            if ($renderedHtml = $this->getNavigationHtml($context)) {
+                $navHtml = Json::encode($renderedHtml, JSON_UNESCAPED_UNICODE);
+
+                // Hide the normal sidebar immediately, to prevent a flicker (although it'll barely be noticeable
+                // due to `MutationObserver` being so quick)
+                $css = '#global-sidebar #nav:not(.cp-nav-menu) { display: none; }';
+                $view->registerCss($css);
+
+                // Use MutationObserver to watch when the `#global-sidebar #nav` become available to replace.
+                // It's crazy efficient and quick, and better than waiting for jQuery to kick in. It also
+                // allows us to render this at the start of the document for speedy replacement rather than
+                // wait until the end of the document, or when jQuery and everything else has had its way with the DOM.
+                $js = <<<JS
+function waitForElm(selector) {
+    return new Promise(resolve => {
+        if (document.querySelector(selector)) {
+            return resolve(document.querySelector(selector));
+        }
+
+        const observer = new MutationObserver(mutations => {
+            if (document.querySelector(selector)) {
+                resolve(document.querySelector(selector));
+                observer.disconnect();
+            }
+        });
+
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+    });
+}
+
+waitForElm("#global-sidebar #nav").then((sidebarNav) => {
+    sidebarNav.innerHTML = {$navHtml};
+    sidebarNav.classList.add("cp-nav-menu");
+});
+JS;
+                $view->registerJs($js, View::POS_BEGIN);
             }
         } catch (Throwable $e) {
             CpNav::error(Craft::t('app', '{e} - {f}: {l}.', ['e' => $e->getMessage(), 'f' => $e->getFile(), 'l' => $e->getLine()]));
         }
     }
 
-    public function checkUpdatedNavItems($event): void
+    public function resetLayout($layoutId): void
+    {
+        $navigationService = CpNav::$plugin->getNavigations();
+        $navigations = $navigationService->getAllNavigationsByLayoutId($layoutId);
+
+        foreach ($navigations as $navigation) {
+            $navigationService->deleteNavigation($navigation);
+        }
+
+        $this->_createNavigationForNavItems($layoutId, Permissions::getBaseNavItems());
+    }
+
+
+    // Private Methods
+    // =========================================================================
+
+    private function _getNavigationsForUser(): array
+    {
+        $navigations = [];
+
+        // Get the navigation items for this layout
+        if ($layout = CpNav::$plugin->getLayouts()->getLayoutForCurrentUser()) {
+            // Get the "native" menu items first, so we have something to compare. They're not truly native
+            // because the `craft\web\twig\variables\Cp::nav()` function wraps everything with permissions,
+            // and we want to do that **after** comparing with our saved nav items. Otherwise, we end up with
+            // different rendered nav items depending on the user permissions.
+            $originalNavItems = Permissions::getBaseNavItems();
+
+            // Now that we have our base nav items, check to see if there's a mismatch. Namely:
+            // 1. Craft has a new core menu (Sections/Category Groups/Volumes have been added)
+            // 2. A plugin has been installed/uninstalled
+            // 3. A plugin has been disabled via `disabledPlugins`
+            // 4. A module has registered `getCpNavItem()`
+            // This will **not** check for permissions - only if they are globally available/unavailable
+            /// Navigation items will be added or deleted depending on the matching status.
+            $this->_checkUpdatedNavItems($originalNavItems, $layout->getNavigations());
+
+            // Generate a permission map, so we can check against it in each nav item.
+            $permissionMap = Permissions::getPermissionMap();
+
+            foreach ($layout->getNavigations() as $navigation) {
+                // Despite having a custom, set menu for all users, we still need to check permissions
+                // based on the current users' permission level. We wouldn't want to show a plugin nav item
+                // if the user doesn't have access to it (even if defined in CP Nav).
+                $permission = $permissionMap[$navigation->handle] ?? null;
+
+                // Ignore anything not top-level. Those are turned into a subnav
+                if ($permission === false || !$navigation->enabled || $navigation->level !== 1) {
+                    continue;
+                }
+
+                // Get the current nav item, as we'll need to pluck some values out
+                $navigation->setOriginalNavItem(ArrayHelper::firstWhere($originalNavItems, 'url', $navigation->handle));
+
+                $navigations[] = $navigation; 
+            }
+        }
+
+        return $navigations;
+    }
+
+    private function _checkUpdatedNavItems($originalNavItems, $newNavItems): void
     {
         try {
             $generalConfig = Craft::$app->getConfig()->getGeneral();
@@ -70,230 +159,102 @@ class Service extends Component
                 return;
             }
 
-            $currentHash = $this->_encodeHash($event->navItems);
-            $originalNavHash = $this->_getOriginalNavHash();
+            $hasChanged = false;
 
-            // If there's no saved record of the original nav, store it
-            if (!$originalNavHash) {
-                $this->_saveHash($currentHash);
+            // Compare using `url` instead of handle, just in case there are duplicate handles
+            $navItems = ArrayHelper::index($originalNavItems, 'url');
+            $navigations = ArrayHelper::index($newNavItems, 'url');
+
+            $layoutsService = CpNav::$plugin->getLayouts();
+            $navigationService = CpNav::$plugin->getNavigations();
+
+            // Are there any items in the old nav that aren't in the new one? We need to add it.
+            foreach ($navItems as $handle => $navItem) {
+                if (!isset($navigations[$handle])) {
+                    $layouts = $layoutsService->getAllLayouts();
+
+                    // Create the new nav item(s) for all layouts
+                    foreach ($layouts as $layout) {
+                        $this->_createNavigationForNavItems($layout->id, [$navItem]);
+                    }
+
+                    $hasChanged = true;
+                }
             }
 
-            // Check to see if something has changed
-            if ($originalNavHash !== $currentHash) {
-                $changedHash = false;
-                $oldNavItems = $this->_decodeHash($originalNavHash) ?? [];
-                $newNavItems = $event->navItems ?? [];
+            // Are there any items in the new nav that aren't in the old one? Ignore divider ot manual of course.
+            // This will cover anything that uses `getCpNavItem()` (plugins and modules) and Craft itself.
+            foreach ($navigations as $handle => $navigation) {
+                if (!isset($navItems[$handle])) {
+                    // Also check if this was originally a subnav, and moved top-level - skip it
+                    if (!in_array($navigation->type, ['divider', 'manual']) && !$navigation->isSubnav(true)) {
+                        // Delete the new nav, as the plugin (or Craft page) is no longer registered
+                        $navigationService->deleteNavigationFromAllLayouts($handle);
 
-                if (!is_array($oldNavItems)) {
-                    $oldNavItems = [];
-                }
-
-                if (!is_array($newNavItems)) {
-                    $newNavItems = [];
-                }
-
-                // Let's find out what's changed! Are the new navs bigger than the old - we've added
-                if (count($oldNavItems) < count($newNavItems)) {
-                    // A new nav has been added, find it
-                    $result = $this->_findMissingItem($newNavItems, $oldNavItems);
-
-                    if ($result) {
-                        CpNav::$plugin->getPendingNavigations()->set($result);
-
-                        $changedHash = true;
-                    }
-                } else {
-                    // A node has been removed
-                    $result = $this->_findMissingItem($oldNavItems, $newNavItems);
-
-                    if ($result) {
-                        $handle = $result['url'] ?? '';
-
-                        CpNav::$plugin->getNavigations()->deleteNavigationFromAllLayouts($handle);
-
-                        $changedHash = true;
+                        $hasChanged = true;
                     }
                 }
+            }
 
-                if ($changedHash) {
-                    $this->_saveHash($currentHash);
-                }
+            // For bulk updates, the Project config doesn't seem to kick in unless we tell it to. Maybe a bug in PC?
+            // Or maybe due to the fact it only regenerates the external config at the end of a request.
+            if ($hasChanged) {
+                // Trigger the end of a 'request'. This lets project config do its stuff.
+                // TODO: Probably Craft::$app->getProjectConfig->saveModifiedConfigData() but I feel the below is more solid.
+                Craft::$app->state = Application::STATE_END;
+                Craft::$app->trigger(Application::EVENT_AFTER_REQUEST);
             }
         } catch (Throwable $e) {
             CpNav::error(Craft::t('app', '{e} - {f}: {l}.', ['e' => $e->getMessage(), 'f' => $e->getFile(), 'l' => $e->getLine()]));
         }
     }
 
-    public function processPendingNavItems($event): void
+    private function _createNavigationForNavItems($layoutId, array $navItems): void
     {
-        // Check to see if we've installed any plugins that have updates for us to apply. We have to use the DB 
-        // to store these (as opposed to sessions) so we can support installing plugins via the console
-        // (where sessions aren't supported and throw an error)
-        $pluginNavItems = CpNav::$plugin->getPendingNavigations()->get();
-
-        foreach ($pluginNavItems as $pluginNavItem) {
-            $errors = [];
-
-            try {
-                $navigation = $this->_createNavigationModelForNavItem($pluginNavItem);
-
-                // Just add to the end of the list for now, too tricky to sort out otherwise
-                $navigation->order = 9999;
-
-                // Create nav item for all layouts
-                CpNav::$plugin->getNavigations()->saveNavigationToAllLayouts($navigation);
-            } catch (Throwable $e) {
-                $error = Craft::t('app', '{e} - {f}: {l}.', ['e' => $e->getMessage(), 'f' => $e->getFile(), 'l' => $e->getLine()]);
-
-                CpNav::error($error);
-                $errors[] = $error;
-
-                continue;
-            }
-
-            // Clear out all pending items, unless errors
-            if (!$errors) {
-                CpNav::$plugin->getPendingNavigations()->remove();
-            }
-        }
-    }
-
-    public function populateOriginalNavigationItems($layoutId = 1): void
-    {
-        $layoutService = CpNav::$plugin->getLayouts();
         $navigationService = CpNav::$plugin->getNavigations();
 
-        // Just on the off-chance there's no default layout
-        if (!$layoutService->getLayoutById($layoutId)) {
-            $layout = new LayoutModel();
-            $layout->id = $layoutId;
-            $layout->name = 'Default';
-            $layout->isDefault = true;
-
-            $layoutService->saveLayout($layout, true);
-        }
-
-        // Populate navs with 'stock' navigation
-        $originalNavItems = $this->_getOriginalNav();
-
-        foreach ($originalNavItems as $index => $originalNavItem) {
-            $navigation = $this->_createNavigationModelForNavItem($originalNavItem);
+        foreach ($navItems as $navItem) {
+            $navigation = new Navigation();
+            $navigation->handle = $navItem['url'] ?? '';
+            $navigation->currLabel = $navItem['label'] ?? '';
+            $navigation->prevLabel = $navItem['label'] ?? '';
+            $navigation->enabled = true;
+            $navigation->url = $navItem['url'] ?? '';
+            $navigation->prevUrl = $navItem['url'] ?? '';
+            $navigation->icon = $navItem['icon'] ?? $navItem['fontIcon'] ?? '';
+            $navigation->type = $navItem['type'] ?? '';
+            $navigation->newWindow = $navItem['external'] ?? false;
             $navigation->layoutId = $layoutId;
-            $navigation->order = $index;
+            $navigation->prevLevel = 1;
+            $navigation->level = 1;
+            $navigation->prevParentId = null;
+            $navigation->parentId = null;
 
             $navigationService->saveNavigation($navigation);
-        }
-    }
 
+            // Also do the same thing with subnav items
+            $subnavs = $navItem['subnav'] ?? [];
 
-    // Private Methods
-    // =========================================================================
+            if ($subnavs) {
+                foreach ($subnavs as $handle => $subnav) {
+                    $subNavigation = new Navigation();
+                    $subNavigation->handle = $handle;
+                    $subNavigation->currLabel = $subnav['label'] ?? '';
+                    $subNavigation->prevLabel = $subnav['label'] ?? '';
+                    $subNavigation->enabled = true;
+                    $subNavigation->url = $subnav['url'] ?? '';
+                    $subNavigation->prevUrl = $subnav['url'] ?? '';
+                    $subNavigation->type = $navigation->type;
+                    $subNavigation->newWindow = $subnav['external'] ?? false;
+                    $subNavigation->layoutId = $layoutId;
+                    $subNavigation->prevLevel = 2;
+                    $subNavigation->level = 2;
+                    $subNavigation->prevParentId = $navigation->id;
+                    $subNavigation->parentId = $navigation->id;
 
-    private function _getOriginalNav(): array
-    {
-        // Allow CpNav services to be called by console requests
-        // https://github.com/verbb/cp-nav/issues/85
-        if (!Craft::$app->getRequest()->getIsConsoleRequest()) {
-
-            // Just call it - we don't want the result of this function, we just want the hook called,
-            // which in turn calls our function above. Our hook will store the original nav in a private
-            // variable, for final use here. Might be a better way?
-            (new Cp())->nav();
-        }
-
-        return $this->_originalNavItems;
-    }
-
-    private function _createNavigationModelForNavItem($pluginNavItem): NavigationModel
-    {
-        $navigation = new NavigationModel();
-        $navigation->handle = $pluginNavItem['url'] ?? '';
-        $navigation->currLabel = $pluginNavItem['label'] ?? '';
-        $navigation->prevLabel = $pluginNavItem['label'] ?? '';
-        $navigation->enabled = true;
-        $navigation->url = $pluginNavItem['url'] ?? '';
-        $navigation->prevUrl = $pluginNavItem['url'] ?? '';
-        $navigation->icon = $pluginNavItem['icon'] ?? $pluginNavItem['fontIcon'] ?? '';
-        $navigation->type = '';
-        $navigation->newWindow = false;
-
-        return $navigation;
-    }
-
-    private function _saveSubNavsAndBadges($originalNav): void
-    {
-        foreach ($originalNav as $value) {
-            if (isset($value['subnav'])) {
-                $this->_subNavs[$value['url']] = $value['subnav'];
-            }
-
-            if (isset($value['badgeCount'])) {
-                $this->_badges[$value['url']] = $value['badgeCount'];
+                    $navigationService->saveNavigation($subNavigation);
+                }
             }
         }
-    }
-
-    private function _applySubNavsAndBadges(&$newNavItem): void
-    {
-        // Check for plugin sub-navs
-        if (isset($this->_subNavs[$newNavItem['url']])) {
-            $newNavItem['subnav'] = $this->_subNavs[$newNavItem['url']];
-        }
-
-        // Check for badges
-        if (isset($this->_badges[$newNavItem['url']])) {
-            $newNavItem['badgeCount'] = $this->_badges[$newNavItem['url']];
-        }
-    }
-
-    private function _findMissingItem($array1, $array2): array
-    {
-        $result = [];
-
-        foreach ($array1 as $key => $value) {
-            $oldIndex = $array2[$key]['url'] ?? '';
-
-            if ($value['url'] != $oldIndex) {
-                $result = $value;
-
-                break;
-            }
-        }
-
-        return $result;
-    }
-
-    private function _encodeHash($object): string
-    {
-        return base64_encode(Json::encode($object));
-    }
-
-    private function _decodeHash($object)
-    {
-        return Json::decode(base64_decode($object));
-    }
-
-    private function _getOriginalNavHash()
-    {
-        $currentUser = Craft::$app->getUser()->getIdentity();
-
-        /* @var Settings $settings */
-        $settings = CpNav::$plugin->getSettings();
-
-        return $settings->originalNavHash[$currentUser->uid] ?? '';
-    }
-
-    private function _saveHash($hash): void
-    {
-        $currentUser = Craft::$app->getUser()->getIdentity();
-
-        /* @var Settings $settings */
-        $settings = CpNav::$plugin->getSettings();
-
-        $settings->originalNavHash[$currentUser->uid] = $hash;
-
-        $plugin = Craft::$app->getPlugins()->getPlugin('cp-nav');
-
-        Craft::$app->getPlugins()->savePluginSettings($plugin, $settings->toArray());
     }
 }

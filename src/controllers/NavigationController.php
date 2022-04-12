@@ -2,12 +2,14 @@
 namespace verbb\cpnav\controllers;
 
 use verbb\cpnav\CpNav;
-use verbb\cpnav\models\Navigation as NavigationModel;
+use verbb\cpnav\models\Navigation;
 
 use Craft;
 use craft\elements\Asset;
+use craft\helpers\ArrayHelper;
 use craft\helpers\Html;
 use craft\helpers\Json;
+use craft\helpers\StringHelper;
 use craft\web\Controller;
 
 use yii\web\Response;
@@ -17,32 +19,14 @@ class NavigationController extends Controller
     // Public Methods
     // =========================================================================
 
-    public function beforeAction($action): bool
-    {
-        // Are we trying to load the index page? Check we have defaults setup
-        if ($action->actionMethod === 'actionIndex') {
-            $request = Craft::$app->getRequest();
-            $layoutId = $request->getParam('layoutId', 1);
-
-            $navItems = CpNav::$plugin->getNavigations()->getNavigationsByLayoutId($layoutId);
-
-            if (!$navItems) {
-                CpNav::$plugin->getService()->populateOriginalNavigationItems($layoutId);
-            }
-        }
-
-        return parent::beforeAction($action);
-    }
-
     public function actionIndex(): Response
     {
         $request = Craft::$app->getRequest();
+        $layoutId = $request->getParam('layoutId');
 
-        $layoutId = $request->getParam('layoutId', 1);
-
-        $layout = CpNav::$plugin->getLayouts()->getLayoutById($layoutId);
         $layouts = CpNav::$plugin->getLayouts()->getAllLayouts();
-        $navItems = CpNav::$plugin->getNavigations()->getNavigationsByLayoutId($layoutId);
+        $layout = CpNav::$plugin->getLayouts()->getLayoutById($layoutId, true);
+        $navItems = CpNav::$plugin->getNavigations()->getAllNavigationsByLayoutId($layout->id);
 
         return $this->renderTemplate('cp-nav/index', [
             'layouts' => $layouts,
@@ -58,20 +42,31 @@ class NavigationController extends Controller
 
         $request = Craft::$app->getRequest();
 
-        $layoutId = $request->getParam('layoutId', 1);
-        $navIds = Json::decodeIfJson($request->getRequiredBodyParam('ids'));
+        $layoutId = $request->getRequiredParam('layoutId');
+        $navItems = Json::decodeIfJson($request->getRequiredBodyParam('items'));
 
-        foreach ($navIds as $navOrder => $navId) {
-            $navigation = CpNav::$plugin->getNavigations()->getNavigationById($navId);
+        // Fetch all navigations here for performance
+        $navigationService = CpNav::$plugin->getNavigations();
+        $navigations = $navigationService->getAllNavigationsByLayoutId($layoutId);
+
+        foreach ($navItems as $navOrder => $navItem) {
+            $navigation = ArrayHelper::firstWhere($navigations, 'id', $navItem['id']);
 
             if ($navigation) {
-                $navigation->order = $navOrder + 1;
+                // Only update if the level, order or parentId has changed
+                if ($navOrder != $navigation->sortOrder || $navItem['level'] != $navigation->level || $navItem['parentId'] != $navigation->parentId) {
+                    $navigation->parentId = $navItem['parentId'];
+                    $navigation->level = $navItem['level'];
+                    $navigation->sortOrder = $navOrder;
 
-                $navigation = CpNav::$plugin->getNavigations()->saveNavigation($navigation);
+                    $navigationService->saveNavigation($navigation);
+                }
             }
         }
 
-        return $this->asJson(['success' => true, 'navHtml' => $this->_getNavHtml()]);
+        return $this->asSuccess(Craft::t('cp-nav', 'New position saved.'), [
+            'navHtml' => $this->_getNavHtml(),
+        ]);
     }
 
     public function actionToggle(): Response
@@ -80,24 +75,25 @@ class NavigationController extends Controller
         $this->requireAcceptsJson();
 
         $request = Craft::$app->getRequest();
-
-        $layoutId = $request->getParam('layoutId', 1);
         $toggle = $request->getRequiredBodyParam('value');
         $navId = $request->getRequiredBodyParam('id');
 
-        $navigation = CpNav::$plugin->getNavigations()->getNavigationById($navId);
+        $navigationService = CpNav::$plugin->getNavigations();
+        $navigation = $navigationService->getNavigationById($navId);
 
         if (!$navigation) {
-            return $this->asJson(['error' => 'No navigation model found.']);
+            return $this->asFailure(Craft::t('cp-nav', 'No navigation model found.'));
         }
 
-        $navigation->enabled = $toggle;
+        $navigation->enabled = StringHelper::toBoolean($toggle);
 
-        if (!CpNav::$plugin->getNavigations()->saveNavigation($navigation)) {
-            return $this->asJson(['error' => $this->_getErrorString($navigation)]);
+        if (!$navigationService->saveNavigation($navigation)) {
+            return $this->asModelFailure($navigation, Craft::t('cp-nav', 'Couldn’t save navigation.'), 'navigation');
         }
 
-        return $this->asJson(['success' => true, 'nav' => $navigation, 'navHtml' => $this->_getNavHtml()]);
+        return $this->asModelSuccess($navigation, Craft::t('cp-nav', 'Visibility updated.'), 'navigation', [
+            'navHtml' => $this->_getNavHtml(),
+        ]);
     }
 
     public function actionGetHudHtml(): Response
@@ -106,23 +102,25 @@ class NavigationController extends Controller
         $this->requireAcceptsJson();
 
         $request = Craft::$app->getRequest();
+        $view = Craft::$app->getView();
 
-        $layoutId = $request->getParam('layoutId', 1);
+        $layoutId = $request->getRequiredBodyParam('layoutId');
         $navId = $request->getParam('id');
+        $template = $request->getParam('template', 'cp-nav/_includes/navigation-hud');
 
         if ($navId) {
             $navigation = CpNav::$plugin->getNavigations()->getNavigationById($navId);
         } else {
-            $navigation = new NavigationModel();
+            $navigation = new Navigation();
             $navigation->layoutId = $layoutId;
-            $navigation->type = NavigationModel::TYPE_MANUAL;
+            $navigation->type = $request->getParam('type', Navigation::TYPE_MANUAL);
         }
 
         $volumes = Craft::$app->getVolumes()->getAllVolumes();
         $sourcesOptions = [];
 
         foreach ($volumes as $volume) {
-            $sourceOptions[] = [
+            $sourcesOptions[] = [
                 'label' => Html::encode($volume->name),
                 'value' => $volume->id,
             ];
@@ -135,7 +133,6 @@ class NavigationController extends Controller
         ];
 
         if ($navigation->customIcon) {
-            // json decode custom icon id
             $customIconId = Json::decode($navigation->customIcon)[0];
 
             $entry = Asset::find()
@@ -145,11 +142,9 @@ class NavigationController extends Controller
             $variables['icons'] = $entry->all();
         }
 
-        $template = $request->getParam('template', 'cp-nav/_includes/navigation-hud');
-
-        Craft::$app->view->startJsBuffer();
-        $bodyHtml = Craft::$app->view->renderTemplate($template, $variables);
-        $footHtml = Craft::$app->view->clearJsBuffer();
+        $view->startJsBuffer();
+        $bodyHtml = $view->renderTemplate($template, $variables);
+        $footHtml = $view->clearJsBuffer();
 
         return $this->asJson([
             'bodyHtml' => $bodyHtml,
@@ -163,29 +158,30 @@ class NavigationController extends Controller
         $this->requireAcceptsJson();
 
         $request = Craft::$app->getRequest();
-
-        // json encode custom icon id
         $customIcon = $request->getParam('customIcon') ? Json::encode($request->getParam('customIcon')) : null;
 
-        $navigation = new NavigationModel();
-        $navigation->layoutId = $request->getParam('layoutId', 1);
+        $navigation = new Navigation();
+        $navigation->layoutId = $request->getRequiredParam('layoutId');
         $navigation->handle = $request->getParam('handle');
         $navigation->currLabel = $request->getParam('currLabel');
         $navigation->prevLabel = $request->getParam('currLabel');
         $navigation->enabled = true;
-        $navigation->order = 99;
+        $navigation->level = 1;
+        $navigation->parentId = null;
         $navigation->url = $request->getParam('url');
         $navigation->prevUrl = $request->getParam('url');
-        $navigation->icon = $request->getParam('icon', null);
+        $navigation->icon = $request->getParam('icon');
         $navigation->customIcon = $customIcon;
         $navigation->type = $request->getParam('type');
         $navigation->newWindow = (bool)$request->getParam('newWindow');
 
         if (!CpNav::$plugin->getNavigations()->saveNavigation($navigation)) {
-            return $this->asJson(['error' => $this->_getErrorString($navigation)]);
+            return $this->asModelFailure($navigation, Craft::t('cp-nav', 'Couldn’t create navigation.'), 'navigation');
         }
 
-        return $this->asJson(['success' => true, 'nav' => $navigation, 'navHtml' => $this->_getNavHtml()]);
+        return $this->asModelSuccess($navigation, Craft::t('cp-nav', 'Navigation created.'), 'navigation', [
+            'navHtml' => $this->_getNavHtml(),
+        ]);
     }
 
     public function actionSave(): Response
@@ -194,14 +190,13 @@ class NavigationController extends Controller
         $this->requireAcceptsJson();
 
         $request = Craft::$app->getRequest();
+        $navId = $request->getRequiredParam('id');
 
-        $layoutId = $request->getParam('layoutId', 1);
-        $navId = $request->getParam('id');
-
-        $navigation = CpNav::$plugin->getNavigations()->getNavigationById($navId);
+        $navigationService = CpNav::$plugin->getNavigations();
+        $navigation = $navigationService->getNavigationById($navId);
 
         if (!$navigation) {
-            return $this->asJson(['error' => 'No navigation model found.']);
+            return $this->asFailure(Craft::t('cp-nav', 'No navigation model found.'));
         }
 
         $navigation->currLabel = $request->getParam('currLabel');
@@ -209,15 +204,16 @@ class NavigationController extends Controller
         $navigation->newWindow = (bool)$request->getParam('newWindow');
         $navigation->icon = $request->getParam('icon', $navigation->icon);
 
-        // json encode custom icon id
         $customIcon = $request->getParam('customIcon') ? Json::encode($request->getParam('customIcon')) : null;
         $navigation->customIcon = $customIcon;
 
-        if (!CpNav::$plugin->getNavigations()->saveNavigation($navigation)) {
-            return $this->asJson(['error' => $this->_getErrorString($navigation)]);
+        if (!$navigationService->saveNavigation($navigation)) {
+            return $this->asModelFailure($navigation, Craft::t('cp-nav', 'Couldn’t save navigation.'), 'navigation');
         }
 
-        return $this->asJson(['success' => true, 'nav' => $navigation, 'navHtml' => $this->_getNavHtml()]);
+        return $this->asModelSuccess($navigation, Craft::t('cp-nav', 'Navigation updated.'), 'navigation', [
+            'navHtml' => $this->_getNavHtml(),
+        ]);
     }
 
     public function actionDelete(): Response
@@ -226,47 +222,32 @@ class NavigationController extends Controller
         $this->requireAcceptsJson();
 
         $request = Craft::$app->getRequest();
+        $navId = $request->getRequiredParam('id');
 
-        $layoutId = $request->getParam('layoutId', 1);
-
-        $navId = Craft::$app->getRequest()->getRequiredParam('id');
-        $navigation = CpNav::$plugin->getNavigations()->getNavigationById($navId);
+        $navigationService = CpNav::$plugin->getNavigations();
+        $navigation = $navigationService->getNavigationById($navId);
 
         if (!$navigation) {
-            return $this->asJson(['error' => 'No navigation model found.']);
+            return $this->asFailure(Craft::t('cp-nav', 'No navigation model found.'));
         }
 
-        if (!CpNav::$plugin->getNavigations()->deleteNavigation($navigation)) {
-            return $this->asJson(['error' => $this->_getErrorString($navigation)]);
+        if (!$navigationService->deleteNavigation($navigation)) {
+            return $this->asModelFailure($navigation, Craft::t('cp-nav', 'Couldn’t delete navigation.'), 'navigation');
         }
 
-        return $this->asJson(['success' => true, 'navHtml' => $this->_getNavHtml()]);
+        return $this->asSuccess(Craft::t('cp-nav', 'Navigation deleted.'), [
+            'navHtml' => $this->_getNavHtml(),
+        ]);
     }
 
-    public function actionReset(): ?Response
+    public function actionReset(): Response
     {
         $request = Craft::$app->getRequest();
         $layoutId = $request->getRequiredParam('layoutId');
 
-        $navigations = CpNav::$plugin->getNavigations()->getNavigationsByLayoutId($layoutId);
+        CpNav::$plugin->getService()->resetLayout($layoutId);
 
-        $errors = [];
-
-        foreach ($navigations as $navigation) {
-            if (!CpNav::$plugin->getNavigations()->deleteNavigation($navigation)) {
-                $errors[] = $this->_getErrorString($navigation);
-            }
-        }
-
-        if ($errors) {
-            Craft::$app->getSession()->setError(Craft::t('cp-nav', 'Couldn’t reset layout - ' . $errors[0]));
-
-            return null;
-        }
-
-        CpNav::$plugin->getService()->populateOriginalNavigationItems($layoutId);
-
-        Craft::$app->getSession()->setNotice(Craft::t('cp-nav', 'Reset navigation.'));
+        Craft::$app->getSession()->setNotice(Craft::t('cp-nav', 'Navigation reset.'));
 
         return $this->redirect('cp-nav/settings');
     }
@@ -275,13 +256,8 @@ class NavigationController extends Controller
     // Private Methods
     // =========================================================================
 
-    private function _getNavHtml(): string
+    private function _getNavHtml(): ?string
     {
-        return Craft::$app->view->renderTemplate('cp-nav/_layouts/navs');
-    }
-
-    private function _getErrorString($object)
-    {
-        return $object->getErrorSummary(true)[0] ?? '';
+        return CpNav::$plugin->getService()->getNavigationHtml();
     }
 }

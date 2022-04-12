@@ -6,9 +6,11 @@ use verbb\cpnav\CpNav;
 use Craft;
 use craft\base\Model;
 use craft\helpers\App;
-use craft\helpers\Json;
+use craft\helpers\ArrayHelper;
 use craft\helpers\FileHelper;
+use craft\helpers\Json;
 use craft\helpers\StringHelper;
+use craft\helpers\UrlHelper;
 
 use yii\base\InvalidConfigException;
 
@@ -20,6 +22,8 @@ class Navigation extends Model
     // Constants
     // =========================================================================
 
+    public const TYPE_CRAFT = 'craft';
+    public const TYPE_PLUGIN = 'plugin';
     public const TYPE_MANUAL = 'manual';
     public const TYPE_DIVIDER = 'divider';
 
@@ -33,7 +37,11 @@ class Navigation extends Model
     public ?string $prevLabel = null;
     public ?string $currLabel = null;
     public ?bool $enabled = null;
-    public ?int $order = null;
+    public ?int $sortOrder = null;
+    public ?int $prevLevel = null;
+    public ?int $level = null;
+    public ?int $prevParentId = null;
+    public ?int $parentId = null;
     public ?string $prevUrl = null;
     public ?string $url = null;
     public ?string $icon = null;
@@ -44,109 +52,133 @@ class Navigation extends Model
     public ?DateTime $dateUpdated = null;
     public ?string $uid = null;
 
+    private ?Layout $_layout = null;
+    private ?Navigation $_parent = null;
+    private ?Navigation $_prevParent = null;
+    private ?array $_originalNavItem = [];
+    private ?array $_prevChildren = [];
+    private ?array $_children = [];
+
 
     // Public Methods
     // =========================================================================
 
-    public function rules(): array
+    public function defineRules(): array
     {
         return [
-            ['id', 'integer'],
-            ['layoutId', 'integer'],
-            ['handle', 'string'],
-            ['prevLabel', 'string'],
-
-            // built-in "string" validator
-            ['currLabel', 'string', 'min' => 1],
-
-            ['enabled', 'boolean'],
-            ['order', 'integer'],
-            ['prevUrl', 'string'],
-
-            // built-in "string" validator
-            ['url', 'string', 'min' => 1],
-
-            ['icon', 'string'],
-            ['customIcon', 'string'],
-            ['newWindow', 'boolean'],
-
-            // built-in "required" validator
-            [['currLabel'], 'required'],
+            [['currLabel'], 'required', 'when' => function($model) {
+                return !$model->isDivider();
+            }],
         ];
     }
 
-    public function getLayout()
+    public function isCraft(): bool
     {
-        if ($this->layoutId === null) {
-            throw new InvalidConfigException('Navigation is missing its layout ID');
-        }
-
-        if (($layout = CpNav::$plugin->getLayouts()->getLayoutById($this->layoutId)) === null) {
-            throw new InvalidConfigException('Invalid layout ID: ' . $this->layoutId);
-        }
-
-        return $layout;
+        return $this->type == self::TYPE_CRAFT;
     }
 
-    public function getFullUrl(): ?string
+    public function isPlugin(): bool
     {
-        // An empty URL is okay
-        if ($this->url === '') {
-            return $this->url;
+        return $this->type == self::TYPE_PLUGIN;
+    }
+
+    public function isManual(): bool
+    {
+        return $this->type == self::TYPE_MANUAL;
+    }
+
+    public function isDivider(): bool
+    {
+        return $this->type == self::TYPE_DIVIDER;
+    }
+
+    public function isSubnav(bool $usePrev = false): bool
+    {
+        return ($usePrev) ? ($this->prevLevel === 2) : ($this->level === 2);
+    }
+
+    public function isSelected(): bool
+    {
+        $path = Craft::$app->getRequest()->getPathInfo();
+
+        if ($path === 'myaccount') {
+            $path = 'users';
         }
 
+        // Compare using relative URLs
+        return $this->url == $path || str_starts_with($path, $this->url . '/');
+    }
+
+    public function getLabel(): string
+    {
+        return Craft::t('app', $this->currLabel) ?? '';
+    }
+
+    public function getId(): string
+    {
+        if ($this->isDivider()) {
+            // Ensure divider items have unique IDs
+            return 'nav-' . StringHelper::appendRandomString($this->handle . '-', 16);
+        }
+
+        return 'nav-' . $this->handle;
+    }
+
+    public function getBadgeCount(): int
+    {
+        return $this->_originalNavItem['badgeCount'] ?? 0;
+    }
+
+    public function getFontIcon(): ?string
+    {
+        // Ignore any icon with a directory separator - that's not an icon font
+        if (!str_contains($this->icon, DIRECTORY_SEPARATOR)) {
+            return $this->fontIcon ?? $this->icon;
+        }
+
+        return null;
+    }
+
+    public function getIcon(): ?string
+    {
+        // Get custom icon content - takes precedence
+        if ($customIcon = $this->getCustomIconPath()) {
+            return $customIcon;
+        }
+
+        // Get the original navs path, so we can handle multi-environment paths correctly. Path's will be stored
+        // in one environment, so they'll be different on another. The original nav will already have the correct path,
+        // so it's efficient to just swap that in. This will also handle things like Craft' GQL, being `@appicons/graphql.svg`.
+        if (str_contains($this->icon, DIRECTORY_SEPARATOR)) {
+            return $this->_originalNavItem['icon'] ?? $this->icon;
+        }
+
+        return null;
+    }
+
+    public function getUrl(): ?string
+    {
         // Do some extra work on the url if needed
         $url = trim($this->url);
+
+        // An empty URL is okay
+        if ($url === '') {
+            return null;
+        }
 
         // Support alias and env variables
         $url = App::parseEnv($url);
 
-        // Allow Environment Variables to be used in the URL
-        foreach (Craft::$app->getConfig()->getConfigFromFile('general') as $key => $value) {
-            if (is_string($value)) {
-                $url = str_replace('{' . $key . '}', $value, $url);
-            }
-        }
-
-        return $url;
-    }
-
-    public function getIconPath()
-    {
-        try {
-            if ($this->icon) {
-                // If this is a path (plugin), set the correct key
-                if (str_contains($this->icon, DIRECTORY_SEPARATOR)) {
-                    // We've stored the full path to the icon-mask.svg file in our nav.
-                    // But - this will change for each environment, so we need to fetch it properly!
-                    $plugin = Craft::$app->getPlugins()->getPlugin($this->handle);
-
-                    if ($plugin) {
-                        $navItem = $plugin->getCpNavItem();
-
-                        if (isset($navItem['icon'])) {
-                            return $navItem['icon'];
-                        }
-                    }
-                }
-
-                return $this->icon;
-            }
-        } catch (Throwable $e) {
-            CpNav::error(Craft::t('app', '{e} - {f}: {l}.', ['e' => $e->getMessage(), 'f' => $e->getFile(), 'l' => $e->getLine()]));
-        }
-
-        return '';
+        return UrlHelper::url($url);
     }
 
     public function getCustomIconPath(): bool|string|null
     {
         try {
             if ($this->customIcon) {
-                $customIcon = Json::decode($this->customIcon)[0];
-                $asset = Craft::$app->assets->getAssetById($customIcon);
+                $customIcon = Json::decode($this->customIcon)[0] ?? null;
 
-                if ($asset) {
+                if ($asset = Craft::$app->assets->getAssetById($customIcon)) {
                     // Check if this volume supports the path (ie, local volume)
                     $volumePath = $asset->getVolume()->path ?? null;
 
@@ -169,137 +201,110 @@ class Navigation extends Model
         return '';
     }
 
-    public function generateNavItem(): array|bool
+    public function getLayout(): ?Layout
     {
-        // Despite having a custom, set menu for all users, we still need to check permissions
-        // based on the current users' permission level. We wouldn't want to show a plugin nav item
-        // if the user doesn't have access to it (even if defined in CP Nav).
-        if (!$this->_checkPermission()) {
-            return true;
+        if ($this->_layout !== null) {
+            return $this->_layout;
         }
 
-        $item = [
-            'id' => 'nav-' . $this->handle,
-            'label' => Craft::t('app', $this->currLabel),
-            'url' => $this->getFullUrl(),
-        ];
+        if ($this->layoutId === null) {
+            throw new InvalidConfigException('Navigation is missing its layout ID');
+        }
 
-        if ($icon = $this->getIconPath()) {
-            if (str_contains($icon, DIRECTORY_SEPARATOR)) {
-                $item['icon'] = $icon;
-            } else {
-                $item['fontIcon'] = $icon;
+        if (($layout = CpNav::$plugin->getLayouts()->getLayoutById($this->layoutId)) === null) {
+            throw new InvalidConfigException('Invalid layout ID: ' . $this->layoutId);
+        }
+
+        return $this->_layout = $layout;
+    }
+
+    public function getPrevParent(): ?Navigation
+    {
+        if ($this->_prevParent !== null) {
+            return $this->_prevParent;
+        }
+
+        if (!$this->prevParentId) {
+            return null;
+        }
+
+        return $this->_prevParent = CpNav::$plugin->getNavigations()->getNavigationById($this->prevParentId);
+    }
+
+    public function getParent(): ?Navigation
+    {
+        if ($this->_parent !== null) {
+            return $this->_parent;
+        }
+
+        if (!$this->parentId) {
+            return null;
+        }
+
+        return $this->_parent = CpNav::$plugin->getNavigations()->getNavigationById($this->parentId);
+    }
+
+    public function getPrevChildren(): array
+    {
+        return $this->_prevChildren;
+    }
+
+    public function setPrevChildren($value): void
+    {
+        $this->_prevChildren = $value;
+    }
+
+    public function addPrevChild($value): void
+    {
+        $this->_prevChildren[] = $value;
+    }
+
+    public function getChildren(): array
+    {
+        return $this->_children;
+    }
+
+    public function setChildren($value): void
+    {
+        $this->_children = $value;
+    }
+
+    public function addChild($value): void
+    {
+        $this->_children[] = $value;
+    }
+
+    public function getChildrenForCurrentUser(): array
+    {
+        $children = [];
+
+        foreach ($this->getChildren() as $child) {
+            if (!$child->enabled) {
+                continue;
+            }
+
+            $children[] = $child;
+        }
+
+        return $children;
+    }
+
+    public function setOriginalNavItem($navItem): void
+    {
+        $subnavs = ArrayHelper::remove($navItem, 'subnav');
+
+        $this->_originalNavItem = $navItem;
+
+        // Setup each child with their subnav original nav. Don't forget to look at the
+        // old nav's children, because they might've been moved!
+        if ($subnavs) {
+            foreach ($this->getPrevChildren() as $child) {
+                $originalSubNav = $subnavs[$child->handle] ?? [];
+
+                if ($originalSubNav) {
+                    $child->setOriginalNavItem($originalSubNav);
+                }
             }
         }
-
-        // Get custom icon content
-        if ($customIcon = $this->getCustomIconPath()) {
-            $item['icon'] = $customIcon;
-        }
-
-        // Allow links to be opened in new window - insert some small JS
-        if ($this->newWindow) {
-            $this->_insertJsForNewWindow();
-        }
-
-        if ($item['url'] === '') {
-            $this->_insertJsForEmptyUrl();
-        }
-
-        if ($this->isDivider()) {
-            // Ensure divider items have unique IDs
-            $id = StringHelper::appendRandomString($this->handle . '-', 16);
-            $item['id'] = 'nav-' . $id;
-
-            $this->_insertJsForDivider($id);
-        }
-
-        return $item;
     }
-
-    public function isManual(): bool
-    {
-        return $this->type == self::TYPE_MANUAL;
-    }
-
-    public function isDivider(): bool
-    {
-        return $this->type == self::TYPE_DIVIDER;
-    }
-
-
-    // Private Methods
-    // =========================================================================
-
-    private function _insertJsForNewWindow(): void
-    {
-        // Prevent this from loading when opening a modal window
-        if (Craft::$app->getRequest()->isAjax) {
-            return;
-        }
-
-        $js = 'Craft.CpNav.NewWindows.push("' . $this->handle . '");';
-        Craft::$app->view->registerJs($js);
-    }
-
-    private function _insertJsForEmptyUrl(): void
-    {
-        // Prevent this from loading when opening a modal window
-        if (Craft::$app->getRequest()->isAjax) {
-            return;
-        }
-
-        $js = 'Craft.CpNav.EmptyUrls.push("' . $this->handle . '");';
-        Craft::$app->view->registerJs($js);
-    }
-
-    private function _insertJsForDivider($id): void
-    {
-        // Prevent this from loading when opening a modal window
-        if (Craft::$app->getRequest()->isAjax) {
-            return;
-        }
-
-        $js = 'Craft.CpNav.Dividers.push("' . $id . '");';
-        Craft::$app->view->registerJs($js);
-
-        // Add some CSS to hide it initially
-        $css = '#global-sidebar #nav li#nav-' . $id . ' { opacity: 0; }';
-        Craft::$app->view->registerCss($css);
-    }
-
-    private function _checkPermission(): bool
-    {
-        $craftPro = Craft::$app->getEdition() === Craft::Pro;
-        $isAdmin = Craft::$app->getUser()->getIsAdmin();
-        $generalConfig = Craft::$app->getConfig()->getGeneral();
-
-        // Prepare a key-may of permission-handling
-        $permissionMap = [
-            'entries' => Craft::$app->getSections()->getTotalEditableSections(),
-            'globals' => Craft::$app->getGlobals()->getEditableSets(),
-            'categories' => Craft::$app->getCategories()->getEditableGroupIds(),
-            'assets' => Craft::$app->getVolumes()->getTotalViewableVolumes(),
-            'users' => $craftPro && Craft::$app->getUser()->checkPermission('editUsers'),
-
-            'utilities' => Craft::$app->getUtilities()->getAuthorizedUtilityTypes(),
-
-            'graphql' => $isAdmin && $craftPro && $generalConfig->enableGql,
-            'settings' => $isAdmin && $generalConfig->allowAdminChanges,
-            'plugin-store' => $isAdmin,
-        ];
-
-        // Add each plugin
-        foreach (Craft::$app->getPlugins()->getAllPlugins() as $plugin) {
-            if ($pluginNavItem = $plugin->getCpNavItem()) {
-                $permissionMap[$pluginNavItem['url']] = Craft::$app->getUser()->checkPermission('accessPlugin-' . $plugin->id);
-            }
-        }
-
-        // Check if explicitly false
-        $permission = $permissionMap[$this->handle] ?? null;
-
-        return $permission !== false;
-    }
-
 }

@@ -13,16 +13,14 @@
     {% set layoutItems = layoutItems | merge([{ label: layout.name, value: layout.id }]) %}
 {% endfor %}
 
-{# Always default to first layout #}
-{% if craft.app.request.param('layoutId') %}
-    {% set layoutId = craft.app.request.param('layoutId') %}
-{% else %}
-    {% set layoutId = 1 %}
-{% endif %}
+{% set layoutId = craft.app.request.param('layoutId') ?? '' %}
 
 {% block actionButton %}
     <div class="btngroup">
-        <a class="btn submit add icon add-new-menu-item">{{ 'New menu item' | t('cp-nav') }}</a>
+        <a class="btn submit add icon add-new-menu-item">
+            <div class="label">{{ 'New menu item' | t('cp-nav') }}</div>
+            <div class="spinner spinner-absolute"></div>
+        </a>
 
         <div class="btn submit menubtn"></div>
         <div class="menu">
@@ -57,52 +55,67 @@
     </div>
 {% endif %}
 
-<table id="navItems" class="data fullwidth collapsible">
-    <thead>
-        <th scope="col">{{ 'Visible' | t('cp-nav') }}</th>
-        <th scope="col">{{ 'Label' | t('cp-nav') }}</th>
-        <th scope="col">{{ 'URL' | t('cp-nav') }}</th>
-        <th scope="col">{{ 'Type' | t('cp-nav') }}</th>
-        <th></th>
-    </thead>
-    <tbody>
-    {% if navItems is defined and navItems | length > 0 %}
-        {% for nav in navItems %}
-            <tr class="nav-item" data-id="{{ nav.id }}" data-currLabel="{{ nav.currLabel }}" data-name="{{ nav.currLabel }}">
-                <td class="thin">
-                    {{ forms.lightswitchField({
-                        name: 'navEnabled',
-                        on: nav.enabled,
-                    }) }}
-                </td>
+<div id="cp-nav-items">
+    <table class="data fullwidth" data-max-levels="2">
+        <thead>
+            <th scope="col">{{ 'Show' | t('cp-nav') }}</th>
+            <th scope="col">{{ 'Label' | t('cp-nav') }}</th>
+            <th scope="col">{{ 'URL' | t('cp-nav') }}</th>
+            <th scope="col">{{ 'Type' | t('cp-nav') }}</th>
+            <th class="thin"></th>
+        </thead>
+        <tbody>
+        {% set padding = craft.app.locale.getOrientation() == 'ltr' ? 'left' : 'right' -%}
 
-                <td data-title="{{ nav.currLabel | t('cp-nav') }}">
-                    <a class="move icon" title="{{ 'Reorder' | t('cp-nav') }}" role="button"></a>
-                    <a class="edit-nav">{{ nav.currLabel | t('cp-nav') }}</a>
-                    <span class="original-nav">({{ nav.prevLabel | t('cp-nav') }})</span>
-                </td>
+        {% if navItems is defined and navItems | length > 0 %}
+            {% for nav in navItems %}
+                {% set totalDescendants = nav.getChildren() %}
 
-                <td data-title="{{ nav.currLabel | t('cp-nav') }}">
-                    <span class="original-nav-link">{{ nav.url }}</span>
-                </td>
+                <tr class="cp-nav-item" data-id="{{ nav.id }}" data-name="{{ nav.currLabel }}" data-level="{{ nav.level }}" data-descendants="{{ totalDescendants | length }}" tabindex="0">
+                    <td class="thin lightswitch-cell">
+                        {{ forms.lightswitchField({
+                            name: 'navEnabled',
+                            on: nav.enabled,
+                            small: true,
+                        }) }}
+                    </td>
 
-                <td>
-                    {% if nav.type %}
-                        <div class="nav-type">
-                            <span class="nav-type-{{ nav.type }}">{{ nav.type }}</span>
-                        </div>
-                    {% endif %}
-                </td>
+                    <th data-title="{{ nav.currLabel }}" data-titlecell style="padding-{{ padding }}: {{ (nav.level - 1) * 22 }}px;">
+                        <a class="move icon" title="{{ 'Reorder' | t('cp-nav') }}" aria-label="{{ 'Reorder' | t('cp-nav') }}" role="button"></a>
 
-                <td class="thin">
-                    {% if nav.isManual() or nav.isDivider() %}
-                        <a class="delete icon" title="{{ 'Delete' | t('cp-nav') }}" role="button"></a>
-                    {% endif %}
-                </td>
-            </tr>
-        {% endfor %}
-    {% endif %}
-    </tbody>
-</table>
+                        {%- if totalDescendants %}<span class="toggle expanded" title="{{ 'Show/hide children' | t('app') }}" aria-label="{{ 'Show/hide children' | t('app') }}"></span>{% endif %}
+
+                        <span class="element">
+                            <a class="js-edit-nav">{{ (nav.currLabel ?? '[none]') | t('app') }}</a>
+
+                            {% if nav.prevLabel %}
+                                <span>({{ nav.prevLabel | t('app') }})</span>
+                            {% endif %}
+                        </span>
+                    </th>
+
+                    <td>
+                        <span class="original-nav-link">{{ nav.url }}</span>
+                    </td>
+
+                    <td>
+                        {% if nav.type %}
+                            <div class="nav-type">
+                                <span class="nav-type-{{ nav.type }}">{{ nav.type }}</span>
+                            </div>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% if nav.isManual() or nav.isDivider() %}
+                            <a class="delete icon" title="{{ 'Delete' | t('cp-nav') }}" role="button"></a>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        {% endif %}
+        </tbody>
+    </table>
+</div>
 
 {% endblock %}

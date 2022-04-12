@@ -3,21 +3,19 @@ namespace verbb\cpnav\services;
 
 use verbb\cpnav\events\LayoutEvent;
 use verbb\cpnav\events\ReorderLayoutsEvent;
-use verbb\cpnav\models\Layout as LayoutModel;
+use verbb\cpnav\models\Layout;
 use verbb\cpnav\records\Layout as LayoutRecord;
 
 use Craft;
 use craft\base\Component;
+use craft\base\MemoizableArray;
 use craft\db\Query;
 use craft\elements\User;
 use craft\events\ConfigEvent;
-use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
-use craft\helpers\Json;
 use craft\helpers\StringHelper;
 
 use Throwable;
-use verbb\cpnav\models\Layout;
 
 class LayoutsService extends Component
 {
@@ -38,7 +36,7 @@ class LayoutsService extends Component
     // Properties
     // =========================================================================
 
-    private ?array $_layouts = null;
+    private ?MemoizableArray $_layouts = null;
 
 
     // Public Methods
@@ -46,39 +44,40 @@ class LayoutsService extends Component
 
     public function getAllLayouts(): array
     {
-        if ($this->_layouts !== null) {
-            return $this->_layouts;
-        }
-
-        $this->_layouts = [];
-
-        foreach ($this->_createLayoutQuery()->all() as $result) {
-            $this->_layouts[] = new LayoutModel($result);
-        }
-
-        return $this->_layouts;
+        return $this->_layouts()->all();
     }
 
-    public function getLayoutById(int $id): ?Layout
+    public function getLayoutById(?int $layoutId, bool $getDefault = false): ?Layout
     {
-        return ArrayHelper::firstWhere($this->getAllLayouts(), 'id', $id);
+        $layout = $this->_layouts()->firstWhere('id', $layoutId);
+
+        if (!$layout && $getDefault) {
+            return $this->getDefaultLayout();
+        }
+
+        return $layout;
     }
 
-    public function getLayoutByUid(string $uid): ?Layout
+    public function getLayoutByUid(string $layoutUid): ?Layout
     {
-        return ArrayHelper::firstWhere($this->getAllLayouts(), 'uid', $uid, true);
+        return $this->_layouts()->firstWhere('uid', $layoutUid);
+    }
+
+    public function getDefaultLayout(): ?Layout
+    {
+        return $this->_layouts()->firstWhere('isDefault', true);
     }
 
     public function getLayoutForCurrentUser(): ?Layout
     {
-        $layouts = $this->getAllLayouts();
-
         // Check if we're editing
         $layoutId = Craft::$app->getRequest()->getParam('layoutId');
 
         if ($layoutId) {
             return $this->getLayoutById($layoutId);
         }
+
+        $layouts = $this->getAllLayouts();
 
         if (Craft::$app->getEdition() == Craft::Solo) {
             $solo = User::find()->status(null)->one();
@@ -105,14 +104,12 @@ class LayoutsService extends Component
         }
 
         // Otherwise, fetch the default layout
-        return ArrayHelper::firstWhere($layouts, 'isDefault', true);
+        return $this->getDefaultLayout();
     }
 
-    public function saveLayout(LayoutModel $layout, $isNewLayout = null, bool $runValidation = true): bool
+    public function saveLayout(Layout $layout, bool $runValidation = true): bool
     {
-        if ($isNewLayout === null) {
-            $isNewLayout = !$layout->id;
-        }
+        $isNewLayout = !$layout->id;
 
         if ($this->hasEventHandlers(self::EVENT_BEFORE_SAVE_LAYOUT)) {
             $this->trigger(self::EVENT_BEFORE_SAVE_LAYOUT, new LayoutEvent([
@@ -129,24 +126,16 @@ class LayoutsService extends Component
         if ($isNewLayout) {
             $layout->uid = StringHelper::UUID();
 
-            $layout->sortOrder = ((int)(new Query())
-                    ->from(['{{%cpnav_layout}}'])
-                    ->max('[[sortOrder]]')) + 1;
-        } else {
+            $layout->sortOrder = (new Query())
+                ->from(['{{%cpnav_layout}}'])
+                ->max('[[sortOrder]]') + 1;
+        } else if (!$layout->uid) {
             $layout->uid = Db::uidById('{{%cpnav_layout}}', $layout->id);
         }
 
-        $projectConfig = Craft::$app->getProjectConfig();
-
-        $configData = [
-            'name' => $layout->name,
-            'isDefault' => $layout->isDefault,
-            'permissions' => Json::encode($layout->permissions),
-            'sortOrder' => $layout->sortOrder,
-        ];
-
         $configPath = self::CONFIG_LAYOUT_KEY . '.' . $layout->uid;
-        $projectConfig->set($configPath, $configData);
+
+        Craft::$app->getProjectConfig()->set($configPath, $layout->getConfig(), "Saving layout “{$layout->name}”");
 
         if ($isNewLayout) {
             $layout->id = Db::idByUid('{{%cpnav_layout}}', $layout->uid);
@@ -167,9 +156,9 @@ class LayoutsService extends Component
             $isNewLayout = $layoutRecord->getIsNewRecord();
 
             $layoutRecord->name = $data['name'];
-            $layoutRecord->isDefault = $data['isDefault'];
+            $layoutRecord->isDefault = (bool)$data['isDefault'];
             $layoutRecord->permissions = $data['permissions'];
-            $layoutRecord->sortOrder = $data['sortOrder'] ?? 0;
+            $layoutRecord->sortOrder = $data['sortOrder'];
             $layoutRecord->uid = $layoutUid;
 
             $layoutRecord->save(false);
@@ -231,7 +220,7 @@ class LayoutsService extends Component
         return $this->deleteLayout($layout);
     }
 
-    public function deleteLayout(LayoutModel $layout): bool
+    public function deleteLayout(Layout $layout): bool
     {
         if ($this->hasEventHandlers(self::EVENT_BEFORE_DELETE_LAYOUT)) {
             $this->trigger(self::EVENT_BEFORE_DELETE_LAYOUT, new LayoutEvent([
@@ -239,7 +228,7 @@ class LayoutsService extends Component
             ]));
         }
 
-        Craft::$app->getProjectConfig()->remove(self::CONFIG_LAYOUT_KEY . '.' . $layout->uid);
+        Craft::$app->getProjectConfig()->remove(self::CONFIG_LAYOUT_KEY . '.' . $layout->uid, "Delete layout “{$layout->name}”");
 
         return true;
     }
@@ -260,9 +249,9 @@ class LayoutsService extends Component
             ]));
         }
 
-        Craft::$app->getDb()->createCommand()
-            ->delete('{{%cpnav_layout}}', ['uid' => $layoutUid])
-            ->execute();
+        Db::delete('{{%cpnav_layout}}', [
+            'uid' => $layoutUid,
+        ]);
 
         if ($this->hasEventHandlers(self::EVENT_AFTER_DELETE_LAYOUT)) {
             $this->trigger(self::EVENT_AFTER_DELETE_LAYOUT, new LayoutEvent([
@@ -275,6 +264,21 @@ class LayoutsService extends Component
     // Private Methods
     // =========================================================================
 
+    private function _layouts(): MemoizableArray
+    {
+        if (!isset($this->_layouts)) {
+            $layouts = [];
+
+            foreach ($this->_createLayoutQuery()->all() as $result) {
+                $layouts[] = new Layout($result);
+            }
+
+            $this->_layouts = new MemoizableArray($layouts);
+        }
+
+        return $this->_layouts;
+    }
+
     private function _getLayoutRecord(string $uid): LayoutRecord
     {
         return LayoutRecord::findOne(['uid' => $uid]) ?? new LayoutRecord();
@@ -282,24 +286,18 @@ class LayoutsService extends Component
 
     private function _createLayoutQuery(): Query
     {
-        $query = (new Query())
+        return (new Query())
             ->select([
                 'id',
                 'name',
                 'isDefault',
                 'permissions',
+                'sortOrder',
                 'dateUpdated',
                 'dateCreated',
                 'uid',
             ])
-            ->from(['{{%cpnav_layout}}']);
-
-        $schemaVersion = Craft::$app->getProjectConfig()->get('plugins.cp-nav.schemaVersion', true);
-        if (version_compare($schemaVersion, '2.0.7', '>=')) {
-            $query->addSelect(['sortOrder']);
-            $query->orderBy(['sortOrder' => SORT_ASC]);
-        }
-
-        return $query;
+            ->from(['{{%cpnav_layout}}'])
+            ->orderBy(['sortOrder' => SORT_ASC]);
     }
 }

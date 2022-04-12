@@ -2,7 +2,7 @@
 namespace verbb\cpnav\controllers;
 
 use verbb\cpnav\CpNav;
-use verbb\cpnav\models\Layout as LayoutModel;
+use verbb\cpnav\models\Layout;
 
 use Craft;
 use craft\elements\User;
@@ -16,11 +16,18 @@ class LayoutController extends Controller
     // Public Methods
     // =========================================================================
 
-    public function actionIndex(): void
+    public function beforeAction($action): bool
+    {
+        $this->requireAdmin();
+
+        return parent::beforeAction($action);
+    }
+
+    public function actionIndex(): Response
     {
         $layouts = CpNav::$plugin->getLayouts()->getAllLayouts();
 
-        $this->renderTemplate('cp-nav/layouts', [
+        return $this->renderTemplate('cp-nav/layouts', [
             'layouts' => $layouts,
         ]);
     }
@@ -31,12 +38,13 @@ class LayoutController extends Controller
         $this->requireAcceptsJson();
 
         $request = Craft::$app->getRequest();
+        $view = Craft::$app->getView();
         $layoutId = $request->getParam('id');
 
         if ($layoutId) {
             $layout = CpNav::$plugin->getLayouts()->getLayoutById($layoutId);
         } else {
-            $layout = new LayoutModel();
+            $layout = new Layout();
         }
 
         $variables = [
@@ -51,9 +59,9 @@ class LayoutController extends Controller
 
         $template = $request->getParam('template', 'cp-nav/_includes/layout-hud');
 
-        Craft::$app->view->startJsBuffer();
-        $bodyHtml = Craft::$app->view->renderTemplate($template, $variables);
-        $footHtml = Craft::$app->view->clearJsBuffer();
+        $view->startJsBuffer();
+        $bodyHtml = $view->renderTemplate($template, $variables);
+        $footHtml = $view->clearJsBuffer();
 
         return $this->asJson([
             'html' => $bodyHtml,
@@ -68,18 +76,18 @@ class LayoutController extends Controller
 
         $request = Craft::$app->getRequest();
 
-        $layout = new LayoutModel();
+        $layout = new Layout();
         $layout->name = $request->getRequiredParam('name');
         $layout->isDefault = false;
         $layout->permissions = $request->getParam('permissions');
 
         if (!CpNav::$plugin->getLayouts()->saveLayout($layout)) {
-            return $this->asJson(['error' => $this->_getErrorString($layout)]);
+            return $this->asModelFailure($layout, Craft::t('cp-nav', 'Couldn’t save layout.'), 'layout');
         }
 
-        CpNav::$plugin->getService()->populateOriginalNavigationItems($layout->id);
-
-        return $this->asJson(['success' => true, 'layouts' => $layout]);
+        return $this->asModelSuccess($layout, Craft::t('cp-nav', '{layout} saved.', [
+            'layout' => $layout->name,
+        ]), 'layout');
     }
 
     public function actionSave(): Response
@@ -93,7 +101,7 @@ class LayoutController extends Controller
         $layout = CpNav::$plugin->getLayouts()->getLayoutById($layoutId);
 
         if (!$layout) {
-            return $this->asJson(['error' => Craft::t('cp-nav', 'No layout model found.')]);
+            return $this->asFailure(Craft::t('cp-nav', 'No layout model found.'));
         }
 
         $layout->name = $request->getRequiredParam('name');
@@ -101,33 +109,12 @@ class LayoutController extends Controller
         $layout->permissions = $request->getParam('permissions');
 
         if (!CpNav::$plugin->getLayouts()->saveLayout($layout)) {
-            return $this->asJson(['error' => $this->_getErrorString($layout)]);
+            return $this->asModelFailure($layout, Craft::t('cp-nav', 'Couldn’t save layout.'), 'layout');
         }
 
-        return $this->asJson(['success' => true, 'layout' => $layout]);
-    }
-
-    public function actionDelete(): Response
-    {
-        $this->requirePostRequest();
-        $this->requireAcceptsJson();
-
-        $request = Craft::$app->getRequest();
-
-        $layoutId = $request->getRequiredParam('id');
-        $layout = CpNav::$plugin->getLayouts()->getLayoutById($layoutId);
-
-        if (!$layout) {
-            return $this->asJson(['error' => Craft::t('cp-nav', 'No layout model found.')]);
-        }
-
-        if (!CpNav::$plugin->getLayouts()->deleteLayout($layout)) {
-            return $this->asJson(['error' => $this->_getErrorString($layout)]);
-        }
-
-        $layouts = CpNav::$plugin->getLayouts()->getAllLayouts();
-
-        return $this->asJson(['success' => true, 'layouts' => $layouts]);
+        return $this->asModelSuccess($layout, Craft::t('cp-nav', '{layout} saved.', [
+            'layout' => $layout->name,
+        ]), 'layout');
     }
 
     public function actionReorder(): Response
@@ -138,15 +125,18 @@ class LayoutController extends Controller
         $layoutIds = Json::decode($this->request->getRequiredBodyParam('ids'));
         CpNav::$plugin->getLayouts()->reorderLayouts($layoutIds);
 
-        return $this->asJson(['success' => true]);
+        return $this->asSuccess();
     }
 
-
-    // Private Methods
-    // =========================================================================
-
-    private function _getErrorString($object)
+    public function actionDelete(): Response
     {
-        return $object->getErrorSummary(true)[0] ?? '';
+        $this->requirePostRequest();
+        $this->requireAcceptsJson();
+
+        $layoutId = $this->request->getRequiredBodyParam('id');
+
+        CpNav::$plugin->getLayouts()->deleteLayoutById($layoutId);
+
+        return $this->asSuccess();
     }
 }

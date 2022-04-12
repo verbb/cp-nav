@@ -10,11 +10,9 @@ use verbb\cpnav\services\NavigationsService;
 use Craft;
 use craft\base\Model;
 use craft\base\Plugin;
-use craft\events\RegisterCpNavItemsEvent;
 use craft\events\RegisterUrlRulesEvent;
 use craft\helpers\UrlHelper;
 use craft\web\UrlManager;
-use craft\web\twig\variables\Cp;
 
 use yii\base\Event;
 
@@ -24,7 +22,7 @@ class CpNav extends Plugin
     // =========================================================================
 
     public bool $hasCpSettings = true;
-    public string $schemaVersion = '2.0.7';
+    public string $schemaVersion = '2.0.11';
     public string $minVersionRequired = '3.0.17';
 
 
@@ -45,11 +43,12 @@ class CpNav extends Plugin
 
         $this->_setPluginComponents();
         $this->_setLogging();
-        $this->_registerCpRoutes();
-        $this->_registerCpNavItems();
         $this->_registerProjectConfigEventListeners();
 
         if (Craft::$app->getRequest()->getIsCpRequest()) {
+            $this->_registerCpRoutes();
+            $this->_registerTemplateHooks();
+
             Craft::$app->getView()->registerAssetBundle(CpNavAsset::class);
         }
     }
@@ -85,24 +84,6 @@ class CpNav extends Plugin
         });
     }
 
-    private function _registerCpNavItems(): void
-    {
-        $request = Craft::$app->getRequest();
-
-        if ($request->isCpRequest) {
-            Event::on(Cp::class, Cp::EVENT_REGISTER_CP_NAV_ITEMS, function(RegisterCpNavItemsEvent $event) {
-                // Check to see if the nav needs to be updated
-                $this->getService()->checkUpdatedNavItems($event);
-
-                // Check to see if the nav needs to be updated
-                $this->getService()->processPendingNavItems($event);
-
-                // Generate our custom nav instead
-                $this->getService()->generateNavigation($event);
-            });
-        }
-    }
-
     private function _registerProjectConfigEventListeners(): void
     {
         Craft::$app->getProjectConfig()->onAdd(NavigationsService::CONFIG_NAVIGATION_KEY . '.{uid}', [$this->getNavigations(), 'handleChangedNavigation'])
@@ -112,6 +93,14 @@ class CpNav extends Plugin
         Craft::$app->getProjectConfig()->onAdd(LayoutsService::CONFIG_LAYOUT_KEY . '.{uid}', [$this->getLayouts(), 'handleChangedLayout'])
             ->onUpdate(LayoutsService::CONFIG_LAYOUT_KEY . '.{uid}', [$this->getLayouts(), 'handleChangedLayout'])
             ->onRemove(LayoutsService::CONFIG_LAYOUT_KEY . '.{uid}', [$this->getLayouts(), 'handleDeletedLayout']);
+    }
+
+    private function _registerTemplateHooks(): void
+    {
+        // We need to hook into the CP layout to save some global Twig variables, used in our custom navigation Twig template.
+        // For Craft, these would already be there, but as we're providing our own template, we need to slot them in.
+        // We don't actually output the HTML for the nav here, instead it's added via JS as early as possible.
+        Craft::$app->getView()->hook('cp.layouts.base', [$this->getService(), 'renderNavigation']);
     }
 
 }

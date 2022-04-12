@@ -4,7 +4,6 @@ namespace verbb\cpnav\models;
 use verbb\cpnav\CpNav;
 
 use craft\base\Model;
-use craft\helpers\Json;
 
 use DateTime;
 
@@ -16,7 +15,7 @@ class Layout extends Model
     public ?int $id = null;
     public ?string $name = null;
     public bool $isDefault = false;
-    public array $permissions = [];
+    public ?array $permissions = null;
     public ?int $sortOrder = null;
     public ?DateTime $dateCreated = null;
     public ?DateTime $dateUpdated = null;
@@ -26,21 +25,18 @@ class Layout extends Model
     // Public Methods
     // =========================================================================
 
-    public function rules(): array
-    {
-        return [
-            ['id', 'integer'],
-
-            // built-in "string" validator
-            ['name', 'string', 'min' => 1],
-
-            // built-in "required" validator
-            [['name'], 'required'],
-        ];
-    }
-
     public function getNavigations(): array
     {
-        return CpNav::$plugin->getNavigations()->getNavigationsByLayoutId($this->id, true) ?? [];
+        return CpNav::$plugin->getNavigations()->getAllNavigationsByLayoutId($this->id);
+    }
+
+    public function getConfig(): array
+    {
+        return [
+            'name' => $this->name,
+            'isDefault' => $this->isDefault,
+            'permissions' => $this->permissions,
+            'sortOrder' => $this->sortOrder,
+        ];
     }
 }

@@ -11,7 +11,10 @@
 
 {% block actionButton %}
     <div class="buttons right">
-        <a class="btn submit add icon add-new-layout">{{ 'New layout' | t('cp-nav') }}</a>
+        <a class="btn submit add icon add-new-layout">
+            <div class="label">{{ 'New layout' | t('cp-nav') }}</div>
+            <div class="spinner spinner-absolute"></div>
+        </a>
     </div>
 {% endblock %}
 
