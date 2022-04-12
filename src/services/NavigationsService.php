@@ -143,7 +143,7 @@ class NavigationsService extends Component
 
             $prevParentUid = $data['prevParent'] ?? '';
             $parentUid = $data['parent'] ?? '';
-            
+
             $prevParent = $this->getNavigationByUid($prevParentUid);
             $parent = $this->getNavigationByUid($parentUid);
 

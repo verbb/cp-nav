@@ -142,7 +142,7 @@ JS;
                 // Get the current nav item, as we'll need to pluck some values out
                 $navigation->setOriginalNavItem(ArrayHelper::firstWhere($originalNavItems, 'url', $navigation->handle));
 
-                $navigations[] = $navigation; 
+                $navigations[] = $navigation;
             }
         }
 
