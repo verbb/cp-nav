@@ -80,11 +80,11 @@ class m220409_000000_craft_4 extends Migration
                 $nav['prevParentId'] = null;
                 $nav['parentId'] = null;
 
-                if (in_array($craftNavItems, $nav['handle'])) {
+                if (in_array($nav['handle'], $craftNavItems)) {
                     $nav['type'] = 'craft';
                 }
 
-                if (in_array($pluginNavItems, $nav['handle'])) {
+                if (in_array($nav['handle'], $pluginNavItems)) {
                     $nav['type'] = 'plugin';
                 }
 
