@@ -50,6 +50,26 @@ class m220409_000000_craft_4 extends Migration
 
         $navs = $projectConfig->get(NavigationsService::CONFIG_NAVIGATION_KEY);
 
+        $craftNavItems = [
+            'dashboard',
+            'entries',
+            'categories',
+            'assets',
+            'users',
+            'graphql',
+            'utilities',
+            'settings',
+            'plugin-store',
+        ];
+
+        $pluginNavItems = [];
+
+        foreach (Craft::$app->getPlugins()->getAllPlugins() as $plugin) {
+            if ($plugin->hasCpSection && ($pluginNavItem = $plugin->getCpNavItem()) !== null) {
+                $pluginNavItems = $plugin->id;
+            }
+        }
+
         if (is_array($navs)) {
             foreach ($navs as $navUid => $nav) {
                 $nav['sortOrder'] = $nav['order'] ?? 0;
@@ -59,6 +79,14 @@ class m220409_000000_craft_4 extends Migration
                 $nav['level'] = 1;
                 $nav['prevParentId'] = null;
                 $nav['parentId'] = null;
+
+                if (in_array($craftNavItems, $nav['handle'])) {
+                    $nav['type'] = 'craft';
+                }
+
+                if (in_array($pluginNavItems, $nav['handle'])) {
+                    $nav['type'] = 'plugin';
+                }
 
                 $projectConfig->set(NavigationsService::CONFIG_NAVIGATION_KEY . '.' . $navUid, $nav);
             }
