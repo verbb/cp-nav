@@ -10,6 +10,6 @@ class LayoutEvent extends Event
     // Properties
     // =========================================================================
 
-    public Layout $layout;
+    public ?Layout $layout = null;
     public bool $isNew = false;
 }

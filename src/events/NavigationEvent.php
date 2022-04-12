@@ -10,6 +10,6 @@ class NavigationEvent extends Event
     // Properties
     // =========================================================================
 
-    public Navigation $navigation;
+    public ?Navigation $navigation = null;
     public bool $isNew = false;
 }
