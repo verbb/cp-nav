@@ -90,13 +90,11 @@ class Permissions
             $subNavItems['tokens'] = [
                 'label' => Craft::t('app', 'Tokens'),
                 'url' => 'graphql/tokens',
-                'badgeCount' => 10,
             ];
 
             $subNavItems['graphiql'] = [
                 'label' => 'GraphiQL',
                 'url' => 'graphiql',
-                'badgeCount' => 10,
                 'external' => true,
             ];
 
