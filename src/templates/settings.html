@@ -19,14 +19,17 @@
 <input type="hidden" name="action" value="plugins/save-plugin-settings">
 <input type="hidden" name="pluginHandle" value="cp-nav">
 
-{{ forms.selectField({
-    first: true,
-    label: 'Default Subnav Behaviour' | t('cp-nav'),
-    instructions: 'Set the default behaviour for subnav items. You can configure this per-navigation item as well.' | t('cp-nav'),
-    id: 'defaultSubnavBehaviour',
-    name: 'defaultSubnavBehaviour',
-    options: settings.getSubnavBehaviourOptions(),
-}) }}
+{% namespace 'settings' %}
+    {{ forms.selectField({
+        first: true,
+        label: 'Default Subnav Behaviour' | t('cp-nav'),
+        instructions: 'Set the default behaviour for subnav items. You can configure this per-navigation item as well.' | t('cp-nav'),
+        id: 'defaultSubnavBehaviour',
+        name: 'defaultSubnavBehaviour',
+        value: settings.defaultSubnavBehaviour,
+        options: settings.getSubnavBehaviourOptions(),
+    }) }}
+{% endnamespace %}
 
 <hr>
 
