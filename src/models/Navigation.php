@@ -133,7 +133,7 @@ class Navigation extends Model
     {
         // Ignore any icon with a directory separator - that's not an icon font
         if (!str_contains($this->icon, DIRECTORY_SEPARATOR)) {
-            return $this->fontIcon ?? $this->icon;
+            return $this->icon;
         }
 
         return null;
