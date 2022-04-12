@@ -66,7 +66,7 @@ class m220409_000000_craft_4 extends Migration
 
         foreach (Craft::$app->getPlugins()->getAllPlugins() as $plugin) {
             if ($plugin->hasCpSection && ($pluginNavItem = $plugin->getCpNavItem()) !== null) {
-                $pluginNavItems = $plugin->id;
+                $pluginNavItems[] = $plugin->id;
             }
         }
 
