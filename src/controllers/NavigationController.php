@@ -202,7 +202,7 @@ class NavigationController extends Controller
         $navigation->currLabel = $request->getParam('currLabel');
         $navigation->url = $request->getParam('url');
         $navigation->newWindow = (bool)$request->getParam('newWindow');
-        $navigation->icon = $request->getParam('icon', $navigation->icon);
+        $navigation->icon = $request->getParam('icon') ?: $navigation->icon;
 
         $customIcon = $request->getParam('customIcon') ? Json::encode($request->getParam('customIcon')) : null;
         $navigation->customIcon = $customIcon;

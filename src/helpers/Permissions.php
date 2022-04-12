@@ -54,7 +54,7 @@ class Permissions
             $navItems[] = [
                 'label' => Craft::t('app', 'Assets'),
                 'url' => 'assets',
-                'fontIcon' => 'assets',
+                'fontIcon' => 'asset',
                 'type' => 'craft',
             ];
         }
