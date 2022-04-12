@@ -19,6 +19,7 @@
 - Divider navigation items now no longer require a label, and are rendered as a line.
 - Navigation items without a URL now render as a heading.
 - Navigation items with "New window" enabled now add `rel="noopener"` to the anchor tag.
+- Now requires CP Nav `3.0.17` in order to update from Craft 3.
 
 ### Fixed
 - Fixed an issue where in some cases, menu items were still being shown in the user didn't have permission to access it.
