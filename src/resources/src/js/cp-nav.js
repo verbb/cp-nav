@@ -21,6 +21,12 @@ Craft.CpNav.ToggleMenuItem = Garnish.Base.extend({
         if (localStorage.getItem(this.stateKey)) {
             this.$toggle.trigger('click');
         }
+
+        // If the parent or child item is active, always show the menu (but don't save state)
+        if (this.$a.hasClass('is-active')) {
+            this.$toggle.addClass('expanded');
+            this.$subnav.removeClass('hidden');
+        }
     },
 
     clickToggle: function(e) {
