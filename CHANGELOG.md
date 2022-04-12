@@ -1,6 +1,6 @@
 # Changelog
 
-## 4.0.0-beta.2 - Unreleased
+## 4.0.0-beta.2 - 2022-04-12
 
 ### Added
 - Added the ability to create and manage subnav items.
