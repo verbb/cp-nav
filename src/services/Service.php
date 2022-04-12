@@ -175,6 +175,11 @@ JS;
 
                     // Create the new nav item(s) for all layouts
                     foreach ($layouts as $layout) {
+                        // Ensure that it doesn't already exist for this layout - just in case.
+                        if (ArrayHelper::firstWhere($layout->getNavigations(), 'handle', $handle)) {
+                            continue;
+                        }
+
                         $this->_createNavigationForNavItems($layout->id, [$navItem]);
                     }
 

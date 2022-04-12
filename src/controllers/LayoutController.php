@@ -85,6 +85,9 @@ class LayoutController extends Controller
             return $this->asModelFailure($layout, Craft::t('cp-nav', 'Couldn’t save layout.'), 'layout');
         }
 
+        // Populate the navigation items for the new layout
+        CpNav::$plugin->getService()->resetLayout($layout->id);
+
         return $this->asModelSuccess($layout, Craft::t('cp-nav', '{layout} saved.', [
             'layout' => $layout->name,
         ]), 'layout');

@@ -20,6 +20,13 @@ class NavigationController extends Controller
     // Public Methods
     // =========================================================================
 
+    public function beforeAction($action): bool
+    {
+        $this->requireAdmin();
+
+        return parent::beforeAction($action);
+    }
+
     public function actionIndex(): Response
     {
         $request = Craft::$app->getRequest();
