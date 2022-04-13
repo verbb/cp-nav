@@ -161,9 +161,10 @@ JS;
 
             $hasChanged = false;
 
-            // Compare using `url` instead of handle, just in case there are duplicate handles
+            // Compare using `prevUrl` instead of handle, just in case there are duplicate handles
+            // And in particular, `settings` will be common enough to cause issues across Craft and plugins.
             $navItems = ArrayHelper::index($originalNavItems, 'url');
-            $navigations = ArrayHelper::index($newNavItems, 'url');
+            $navigations = ArrayHelper::index($newNavItems, 'prevUrl');
 
             $layoutsService = CpNav::$plugin->getLayouts();
             $navigationService = CpNav::$plugin->getNavigations();
@@ -176,9 +177,11 @@ JS;
                     // Create the new nav item(s) for all layouts
                     foreach ($layouts as $layout) {
                         // Ensure that it doesn't already exist for this layout - just in case.
-                        if (ArrayHelper::firstWhere($layout->getNavigations(), 'handle', $handle)) {
+                        if (ArrayHelper::firstWhere($layout->getNavigations(), 'prevUrl', $handle)) {
                             continue;
                         }
+
+                    Craft::dd($handle);
 
                         $this->_createNavigationForNavItems($layout->id, [$navItem]);
                     }
@@ -193,6 +196,8 @@ JS;
                 if (!isset($navItems[$handle])) {
                     // Also check if this was originally a subnav, and moved top-level - skip it
                     if (!in_array($navigation->type, ['divider', 'manual']) && !$navigation->isSubnav(true)) {
+
+                    Craft::dd($handle);
                         // Delete the new nav, as the plugin (or Craft page) is no longer registered
                         $navigationService->deleteNavigationFromAllLayouts($handle);
 
