@@ -14,12 +14,5 @@
             "feature-tour/navigation",
             "feature-tour/layouts"
         ]
-    },
-    {
-        "title": "Support",
-        "collapsable": false,
-        "children": [
-            "support/get-support"
-        ]
     }
 ]
