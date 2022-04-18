@@ -1,10 +1,10 @@
 # Installation & Setup
 You can install CP Nav via the plugin store, or through Composer.
 
-### Craft Plugin Store
+## Craft Plugin Store
 To install **CP Nav**, navigate to the _Plugin Store_ section of your Craft control panel, search for `CP Nav`, and click the _Install_ button.
 
-### Composer
+## Composer
 You can also add the package to your project using Composer and the command line.
 
 1. Open your terminal and go to your Craft project:
