@@ -31,6 +31,7 @@ class Install extends Migration
 
     public function createTables(): void
     {
+        $this->archiveTableIfExists('{{%cpnav_layout}}');
         $this->createTable('{{%cpnav_layout}}', [
             'id' => $this->primaryKey(),
             'name' => $this->string(255),
@@ -42,6 +43,7 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
+        $this->archiveTableIfExists('{{%cpnav_navigation}}');
         $this->createTable('{{%cpnav_navigation}}', [
             'id' => $this->primaryKey(),
             'layoutId' => $this->integer()->notNull(),
