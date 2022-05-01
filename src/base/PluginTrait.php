@@ -5,12 +5,11 @@ use verbb\cpnav\CpNav;
 use verbb\cpnav\services\LayoutsService;
 use verbb\cpnav\services\NavigationsService;
 use verbb\cpnav\services\Service;
+use verbb\base\BaseHelper;
 
 use Craft;
 
 use yii\log\Logger;
-
-use verbb\base\BaseHelper;
 
 trait PluginTrait
 {
@@ -23,13 +22,17 @@ trait PluginTrait
     // Static Methods
     // =========================================================================
 
-    public static function log($message): void
+    public static function log(string $message, array $params = []): void
     {
+        $message = Craft::t('cp-nav', $message, $params);
+
         Craft::getLogger()->log($message, Logger::LEVEL_INFO, 'cp-nav');
     }
 
-    public static function error($message): void
+    public static function error(string $message, array $params = []): void
     {
+        $message = Craft::t('cp-nav', $message, $params);
+
         Craft::getLogger()->log($message, Logger::LEVEL_ERROR, 'cp-nav');
     }
 
@@ -56,7 +59,7 @@ trait PluginTrait
     // Private Methods
     // =========================================================================
 
-    private function _setPluginComponents(): void
+    private function _registerComponents(): void
     {
         $this->setComponents([
             'layouts' => LayoutsService::class,
@@ -67,7 +70,7 @@ trait PluginTrait
         BaseHelper::registerModule();
     }
 
-    private function _setLogging(): void
+    private function _registerLogTarget(): void
     {
         BaseHelper::setFileLogging('cp-nav');
     }
