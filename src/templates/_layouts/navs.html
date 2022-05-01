@@ -18,7 +18,7 @@
 
         {% if children %}
             {% for item in children %}
-                {% set itemIsSelected = (item.isSelected() or (selectedSubnavItem is defined and selectedSubnavItem == item.handle)) %}
+                {% set itemIsSelected = (item.isSelected() or (selectedSubnavItem is defined and selectedSubnavItem == item.handle) and selected) %}
 
                 {% if itemIsSelected %}
                     {% set selected = false %}
