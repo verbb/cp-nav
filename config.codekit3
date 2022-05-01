@@ -134,6 +134,14 @@
       "oAP" : "\/src\/helpers\/Permissions.php",
       "oF" : 0
     },
+    "\/src\/helpers\/ProjectConfigData.php" : {
+      "cB" : 0,
+      "ft" : 8192,
+      "hM" : 0,
+      "oA" : 2,
+      "oAP" : "\/src\/helpers\/ProjectConfigData.php",
+      "oF" : 0
+    },
     "\/src\/icon.svg" : {
       "ft" : 2097152,
       "miP" : 0,

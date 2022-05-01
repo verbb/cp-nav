@@ -74,6 +74,29 @@ class Navigation extends Model
         ];
     }
 
+    public function getConfig(): array
+    {
+        return [
+            'layout' => $this->getLayout()->uid,
+            'handle' => $this->handle,
+            'prevLabel' => $this->prevLabel,
+            'currLabel' => $this->currLabel,
+            'enabled' => $this->enabled,
+            'sortOrder' => $this->sortOrder,
+            'prevLevel' => $this->prevLevel,
+            'level' => $this->level,
+            'prevParent' => $this->getPrevParent()->uid ?? null,
+            'parent' => $this->getParent()->uid ?? null,
+            'prevUrl' => $this->prevUrl,
+            'url' => $this->url,
+            'icon' => $this->icon,
+            'customIcon' => $this->customIcon,
+            'type' => $this->type,
+            'newWindow' => $this->newWindow,
+            'subnavBehaviour' => $this->subnavBehaviour,
+        ];
+    }
+
     public function isCraft(): bool
     {
         return $this->type == self::TYPE_CRAFT;

@@ -92,30 +92,8 @@ class Navigations extends Component
             $navigation->uid = Db::uidById('{{%cpnav_navigation}}', $navigation->id);
         }
 
-        $projectConfig = Craft::$app->getProjectConfig();
-
-        $configData = [
-            'layout' => $navigation->getLayout()->uid,
-            'handle' => $navigation->handle,
-            'prevLabel' => $navigation->prevLabel,
-            'currLabel' => $navigation->currLabel,
-            'enabled' => $navigation->enabled,
-            'sortOrder' => $navigation->sortOrder,
-            'prevLevel' => $navigation->prevLevel,
-            'level' => $navigation->level,
-            'prevParent' => $navigation->getPrevParent()->uid ?? null,
-            'parent' => $navigation->getParent()->uid ?? null,
-            'prevUrl' => $navigation->prevUrl,
-            'url' => $navigation->url,
-            'icon' => $navigation->icon,
-            'customIcon' => $navigation->customIcon,
-            'type' => $navigation->type,
-            'newWindow' => $navigation->newWindow,
-            'subnavBehaviour' => $navigation->subnavBehaviour,
-        ];
-
         $configPath = self::CONFIG_NAVIGATION_KEY . '.' . $navigation->uid;
-        $projectConfig->set($configPath, $configData, "Saving navigation “{$navigation->handle}”", true, true);
+        Craft::$app->getProjectConfig()->set($configPath, $navigation->getConfig(), "Saving navigation “{$navigation->handle}”", true, true);
 
         if ($isNewNavigation) {
             $navigation->id = Db::idByUid('{{%cpnav_navigation}}', $navigation->uid);

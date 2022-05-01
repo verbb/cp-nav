@@ -3,6 +3,7 @@ namespace verbb\cpnav;
 
 use verbb\cpnav\base\PluginTrait;
 use verbb\cpnav\assetbundles\CpNavAsset;
+use verbb\cpnav\helpers\ProjectConfigData;
 use verbb\cpnav\models\Settings;
 use verbb\cpnav\services\Layouts;
 use verbb\cpnav\services\Navigations;
@@ -10,8 +11,10 @@ use verbb\cpnav\services\Navigations;
 use Craft;
 use craft\base\Model;
 use craft\base\Plugin;
+use craft\events\RebuildConfigEvent;
 use craft\events\RegisterUrlRulesEvent;
 use craft\helpers\UrlHelper;
+use craft\services\ProjectConfig;
 use craft\web\UrlManager;
 
 use yii\base\Event;
@@ -93,6 +96,10 @@ class CpNav extends Plugin
         Craft::$app->getProjectConfig()->onAdd(Layouts::CONFIG_LAYOUT_KEY . '.{uid}', [$this->getLayouts(), 'handleChangedLayout'])
             ->onUpdate(Layouts::CONFIG_LAYOUT_KEY . '.{uid}', [$this->getLayouts(), 'handleChangedLayout'])
             ->onRemove(Layouts::CONFIG_LAYOUT_KEY . '.{uid}', [$this->getLayouts(), 'handleDeletedLayout']);
+
+        Event::on(ProjectConfig::class, ProjectConfig::EVENT_REBUILD, function(RebuildConfigEvent $event) {
+            $event->config['cp-nav'] = ProjectConfigData::rebuildProjectConfig();
+        });
     }
 
     private function _registerTemplateHooks(): void
