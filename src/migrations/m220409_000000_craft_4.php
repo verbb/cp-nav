@@ -1,7 +1,7 @@
 <?php
 namespace verbb\cpnav\migrations;
 
-use verbb\cpnav\services\NavigationsService;
+use verbb\cpnav\services\Navigations;
 
 use Craft;
 use craft\db\Migration;
@@ -48,7 +48,7 @@ class m220409_000000_craft_4 extends Migration
             return true;
         }
 
-        $navs = $projectConfig->get(NavigationsService::CONFIG_NAVIGATION_KEY);
+        $navs = $projectConfig->get(Navigations::CONFIG_NAVIGATION_KEY);
 
         $craftNavItems = [
             'dashboard',
@@ -88,7 +88,7 @@ class m220409_000000_craft_4 extends Migration
                     $nav['type'] = 'plugin';
                 }
 
-                $projectConfig->set(NavigationsService::CONFIG_NAVIGATION_KEY . '.' . $navUid, $nav);
+                $projectConfig->set(Navigations::CONFIG_NAVIGATION_KEY . '.' . $navUid, $nav);
             }
         }
 

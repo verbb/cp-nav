@@ -2,8 +2,8 @@
 namespace verbb\cpnav\base;
 
 use verbb\cpnav\CpNav;
-use verbb\cpnav\services\LayoutsService;
-use verbb\cpnav\services\NavigationsService;
+use verbb\cpnav\services\Layouts;
+use verbb\cpnav\services\Navigations;
 use verbb\cpnav\services\Service;
 use verbb\base\BaseHelper;
 
@@ -40,12 +40,12 @@ trait PluginTrait
     // Public Methods
     // =========================================================================
 
-    public function getLayouts(): LayoutsService
+    public function getLayouts(): Layouts
     {
         return $this->get('layouts');
     }
 
-    public function getNavigations(): NavigationsService
+    public function getNavigations(): Navigations
     {
         return $this->get('navigations');
     }
@@ -62,8 +62,8 @@ trait PluginTrait
     private function _registerComponents(): void
     {
         $this->setComponents([
-            'layouts' => LayoutsService::class,
-            'navigations' => NavigationsService::class,
+            'layouts' => Layouts::class,
+            'navigations' => Navigations::class,
             'service' => Service::class,
         ]);
 

@@ -17,7 +17,7 @@ use craft\helpers\StringHelper;
 
 use Throwable;
 
-class LayoutsService extends Component
+class Layouts extends Component
 {
     // Constants
     // =========================================================================
