@@ -1,5 +1,19 @@
 # Changelog
 
+## 4.0.0-beta.4 - 2022-05-03
+
+### Added
+- Add `project-config/rebuild` support.
+- Add `archiveTableIfExists()` to install migration.
+
+### Changed
+- Rename service classes.
+- Rename base plugin methods.
+
+### Fixed
+- Fix menu items to expand if two similarly-named pages exist and one is active.
+- Fix an error where some new navigation items weren’t created if they had similar handles to other items.
+
 ## 4.0.0-beta.3 - 2022-04-13
 
 ### Fixed
