@@ -1,25 +1,6 @@
 # Changelog
 
-## 4.0.0-beta.4 - 2022-05-03
-
-### Added
-- Add `project-config/rebuild` support.
-- Add `archiveTableIfExists()` to install migration.
-
-### Changed
-- Rename service classes.
-- Rename base plugin methods.
-
-### Fixed
-- Fix menu items to expand if two similarly-named pages exist and one is active.
-- Fix an error where some new navigation items weren’t created if they had similar handles to other items.
-
-## 4.0.0-beta.3 - 2022-04-13
-
-### Fixed
-- Remove leftover debug badges.
-
-## 4.0.0-beta.2 - 2022-04-12
+## 4.0.0 - 2022-05-05
 
 ### Added
 - Added the ability to create and manage subnav items.
@@ -28,8 +9,12 @@
 - Added plugin setting to control default subnav behaviour for all navigations.
 - Minor UI polish inline with Craft 4 (spinners, colours, shadows, etc).
 - Added better support for Craft font-icons, which now parses their icon font files for available glyphs.
+- Added `project-config/rebuild` support.
+- Added `archiveTableIfExists()` to install migration.
 
 ### Changed
+- Now requires PHP `8.0.2+`.
+- Now requires Craft `4.0.0+`.
 - Improved performance when rendering navigation items.
 - Revamped UI for navigations to allow for nested items.
 - Plugin and Craft subpages can now be managed in the navigation builder.
@@ -39,6 +24,8 @@
 - Navigation items without a URL now render as a heading.
 - Navigation items with "New window" enabled now add `rel="noopener"` to the anchor tag.
 - Now requires CP Nav `3.0.17` in order to update from Craft 3.
+- Renamed service classes.
+- Renamed base plugin methods.
 
 ### Fixed
 - Fixed an issue where in some cases, menu items were still being shown in the user didn't have permission to access it.
@@ -46,15 +33,12 @@
 - Fixed issues comparing the normal Craft-generated navigation with your custom one.
 - Fixed an issue where project config wouldn't be kept up to date correctly for navigation items.
 - Fixed default layout not always being created on-install.
+- Fixed menu items to expand if two similarly-named pages exist and one is active.
+- Fixed an error where some new navigation items weren’t created if they had similar handles to other items.
+- Removed leftover debug badges.
 
 ### Removed
 - Removed `cpnav_pending_navigations` database table.
-
-## 4.0.0-beta.1 - 2022-03-10
-
-### Changed
-- Now requires PHP `^8.0.2`.
-- Now requires Craft `^4.0.0-beta.1`.
 
 ## 3.0.17 - 2021-06-30
 
