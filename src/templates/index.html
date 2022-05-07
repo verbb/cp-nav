@@ -8,9 +8,9 @@
 
 {% set selectedTab = 'navigation' %}
 
-{% set layoutItems = [] %}
+{% set layoutOptions = [] %}
 {% for layout in layouts %}
-    {% set layoutItems = layoutItems | merge([{ label: layout.name, value: layout.id }]) %}
+    {% set layoutOptions = layoutOptions | merge([{ label: layout.name, value: layout.id }]) %}
 {% endfor %}
 
 {% set layoutId = craft.app.request.param('layoutId') ?? '' %}
@@ -41,7 +41,9 @@
     {{ 'CP Nav: Editing {name}' | t('cp-nav', { name: layout.name }) }}
 </div>
 
-{% if craft.app.getEditionName() != 'Solo' %}
+{% if layouts | length == 1 %}
+    {{ hiddenInput('layoutId', layouts[0].id) }}
+{% else %}
     <div class="layout-select">
         {{ forms.selectField({
             first: true,
@@ -50,7 +52,7 @@
             id: 'layoutId',
             name: 'layoutId',
             value: layoutId,
-            options: layoutItems,
+            options: layoutOptions,
         }) }}
     </div>
 {% endif %}

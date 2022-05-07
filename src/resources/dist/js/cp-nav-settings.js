@@ -291,7 +291,7 @@ $(document).on('change', '.layout-select select', function() {
 
 $(document).on('click', '.add-new-menu-item', function(e) {
     var data = {
-        layoutId: $('.layout-select select').val(),
+        layoutId: $('[name="layoutId"]').val(),
         type: $(this).data('type'),
     };
 
@@ -475,7 +475,7 @@ $(document).on('change', '#cp-nav-items .lightswitch', function() {
     var data = {
         value: value,
         id: row.data('id'),
-        layoutId: $('.layout-select select').val(),
+        layoutId: $('[name="layoutId"]').val(),
     }
 
     Craft.sendActionRequest('POST', 'cp-nav/navigation/toggle', { data })
@@ -526,7 +526,7 @@ Craft.CpNav.EditNavItem = Garnish.Base.extend({
         this.data = {
             id: $data.data('id'),
             currLabel: $data.data('currlabel'),
-            layoutId: $('.layout-select select').val(),
+            layoutId: $('[name="layoutId"]').val(),
         }
 
         this.$spinner = $('<div class="spinner small" />');
@@ -629,7 +629,7 @@ $(document).on('click', 'tr.cp-nav-item a.delete', function(e) {
 
     var data = {
         id: $tr.data('id'),
-        layoutId: $('.layout-select select').val(),
+        layoutId: $('[name="layoutId"]').val(),
     };
 
     var confirmDeleteMessage = Craft.t('app', 'Are you sure you want to delete “{name}”?', { name: $tr.data('name') });
@@ -959,7 +959,7 @@ Craft.CpNav.NavAdminTable = Garnish.DragSort.extend({
             // -----------------------------------------------------------------
 
             var data = {
-                layoutId: $('.layout-select select').val(),
+                layoutId: $('[name="layoutId"]').val(),
                 items: [],
             };
 
