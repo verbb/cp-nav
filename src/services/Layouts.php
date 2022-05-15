@@ -80,10 +80,8 @@ class Layouts extends Component
         $layouts = $this->getAllLayouts();
 
         if (Craft::$app->getEdition() == Craft::Solo) {
-            $solo = User::find()->status(null)->one();
-
             // Is there even a solo account?
-            if ($solo) {
+            if ($solo = User::find()->status(null)->one()) {
                 foreach ($layouts as $layout) {
                     if (is_array($layout->permissions) && in_array('solo', $layout->permissions, false)) {
                         return $layout;
@@ -91,13 +89,14 @@ class Layouts extends Component
                 }
             }
         } else if (Craft::$app->getEdition() == Craft::Pro) {
-            $userId = Craft::$app->getUser()->id;
-            $groups = Craft::$app->userGroups->getGroupsByUserId($userId);
+            if ($userId = Craft::$app->getUser()->id) {
+                $groups = Craft::$app->userGroups->getGroupsByUserId($userId);
 
-            foreach ($groups as $group) {
-                foreach ($layouts as $layout) {
-                    if (is_array($layout->permissions) && in_array($group->uid, $layout->permissions, false)) {
-                        return $layout;
+                foreach ($groups as $group) {
+                    foreach ($layouts as $layout) {
+                        if (is_array($layout->permissions) && in_array($group->uid, $layout->permissions, false)) {
+                            return $layout;
+                        }
                     }
                 }
             }
