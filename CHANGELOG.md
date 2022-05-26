@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.0.1 - 2022-05-26
+
+### Fixed
+- Fix an error when trying to fetch a layout for a user, when no user session was detected.
+
 ## 4.0.0 - 2022-05-05
 
 ### Added
