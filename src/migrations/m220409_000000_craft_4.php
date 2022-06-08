@@ -6,6 +6,8 @@ use verbb\cpnav\services\Navigations;
 use Craft;
 use craft\db\Migration;
 
+use Throwable;
+
 class m220409_000000_craft_4 extends Migration
 {
     public function safeUp(): bool
@@ -73,7 +75,7 @@ class m220409_000000_craft_4 extends Migration
                 // Just in case some plugins have complicated logic in their `getCpNavItem()` (like SEOmatic)
                 // Skip it, but also assume that it *does* have a nav item
                 $pluginNavItems[] = $plugin->id;
-                
+
                 continue;
             }
         }
