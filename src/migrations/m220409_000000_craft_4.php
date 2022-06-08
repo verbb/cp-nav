@@ -65,8 +65,16 @@ class m220409_000000_craft_4 extends Migration
         $pluginNavItems = [];
 
         foreach (Craft::$app->getPlugins()->getAllPlugins() as $plugin) {
-            if ($plugin->hasCpSection && ($pluginNavItem = $plugin->getCpNavItem()) !== null) {
+            try {
+                if ($plugin->hasCpSection && ($pluginNavItem = $plugin->getCpNavItem()) !== null) {
+                    $pluginNavItems[] = $plugin->id;
+                }
+            } catch (Throwable $e) {
+                // Just in case some plugins have complicated logic in their `getCpNavItem()` (like SEOmatic)
+                // Skip it, but also assume that it *does* have a nav item
                 $pluginNavItems[] = $plugin->id;
+                
+                continue;
             }
         }
 
