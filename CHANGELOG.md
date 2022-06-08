@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.0.2 - 2022-06-08
+
+### Fixed
+- Fix an error when upgrading from Craft 3, when also having for some plugins (SEOmatic) installed.
+
 ## 4.0.1 - 2022-05-26
 
 ### Fixed
