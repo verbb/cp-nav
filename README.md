@@ -1,4 +1,4 @@
-# Control Panel Nav Plugin for Craft CMS 3
+# Control Panel Nav Plugin for Craft CMS
 
 <img width="500" src="https://verbb.io/uploads/plugins/cp-nav/cp-nav-social-card.png?v=1">
 
