@@ -60,6 +60,8 @@ Craft.CpNav.InitMenuItems = Garnish.Base.extend({
                     new Craft.CpNav.ToggleMenuItem($(element));
                 });
             });
+        } else {
+            console.log('Unable to find function `waitForElm()`.');
         }
     },
 });
