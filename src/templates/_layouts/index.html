@@ -14,7 +14,7 @@
 
 {% set tabs = tabs | merge({ settings: { label: 'Settings' | t('cp-nav'), url: url('cp-nav/settings') } }) %}
 
-{% set content %}
+{% block content %}
     {% block blockContent %}
 
     {% endblock %}
@@ -42,4 +42,4 @@
             </a>
         </div>
     </div>
-{% endset %}
+{% endblock %}
