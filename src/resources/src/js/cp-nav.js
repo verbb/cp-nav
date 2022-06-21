@@ -54,11 +54,13 @@ Craft.CpNav.ToggleMenuItem = Garnish.Base.extend({
 Craft.CpNav.InitMenuItems = Garnish.Base.extend({
     init: function() {
         // Wait until our custom menu has be loaded in - `waitForElm()` will already be loaded
-        waitForElm('#global-sidebar #nav.cp-nav-menu').then((sidebarNav) => {
-            $('.cp-nav-menu [data-subnav-behaviour="openToggle"]').each(function(index, element) {
-                new Craft.CpNav.ToggleMenuItem($(element));
+        if (typeof waitForElm !== 'undefined') {
+            waitForElm('#global-sidebar #nav.cp-nav-menu').then((sidebarNav) => {
+                $('.cp-nav-menu [data-subnav-behaviour="openToggle"]').each(function(index, element) {
+                    new Craft.CpNav.ToggleMenuItem($(element));
+                });
             });
-        });
+        }
     },
 });
 
