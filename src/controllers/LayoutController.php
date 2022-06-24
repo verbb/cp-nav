@@ -47,14 +47,14 @@ class LayoutController extends Controller
         if (Craft::$app->getEdition() == Craft::Solo) {
             $variables['soloAccount'] = User::find()->status(null)->one();
         } else if (Craft::$app->getEdition() == Craft::Pro) {
-            $variables['allGroups'] = Craft::$app->userGroups->getAllGroups();
+            $variables['allGroups'] = Craft::$app->getUserGroups()->getAllGroups();
         }
 
         $template = $request->getParam('template', 'cp-nav/_includes/layout-hud');
 
-        Craft::$app->view->startJsBuffer();
-        $bodyHtml = Craft::$app->view->renderTemplate($template, $variables);
-        $footHtml = Craft::$app->view->clearJsBuffer();
+        Craft::$app->getView()->startJsBuffer();
+        $bodyHtml = Craft::$app->getView()->renderTemplate($template, $variables);
+        $footHtml = Craft::$app->getView()->clearJsBuffer();
 
         return $this->asJson([
             'html'     => $bodyHtml,

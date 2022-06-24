@@ -242,7 +242,7 @@ class Navigation extends Model
         }
 
         $js = 'Craft.CpNav.NewWindows.push("' . $this->handle . '");';
-        Craft::$app->view->registerJs($js);
+        Craft::$app->getView()->registerJs($js);
     }
 
     private function _insertJsForEmptyUrl()
@@ -253,7 +253,7 @@ class Navigation extends Model
         }
         
         $js = 'Craft.CpNav.EmptyUrls.push("' . $this->handle . '");';
-        Craft::$app->view->registerJs($js);
+        Craft::$app->getView()->registerJs($js);
     }
 
     private function _insertJsForDivider($id)
@@ -264,11 +264,11 @@ class Navigation extends Model
         }
         
         $js = 'Craft.CpNav.Dividers.push("' . $id . '");';
-        Craft::$app->view->registerJs($js);
+        Craft::$app->getView()->registerJs($js);
 
         // Add some CSS to hide it initially
         $css = '#global-sidebar #nav li#nav-' . $id . ' { opacity: 0; }';
-        Craft::$app->view->registerCss($css);
+        Craft::$app->getView()->registerCss($css);
     }
 
     private function _checkPermission()

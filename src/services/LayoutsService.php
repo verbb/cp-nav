@@ -93,7 +93,7 @@ class LayoutsService extends Component
             }
         } else if (Craft::$app->getEdition() == Craft::Pro) {
             $userId = Craft::$app->getUser()->id;
-            $groups = Craft::$app->userGroups->getGroupsByUserId($userId);
+            $groups = Craft::$app->getUserGroups()->getGroupsByUserId($userId);
 
             foreach ($groups as $index => $group) {
                 foreach ($layouts as $key => $layout) {

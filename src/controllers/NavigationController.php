@@ -149,9 +149,9 @@ class NavigationController extends Controller
 
         $template = $request->getParam('template', 'cp-nav/_includes/navigation-hud');
 
-        Craft::$app->view->startJsBuffer();
-        $bodyHtml = Craft::$app->view->renderTemplate($template, $variables);
-        $footHtml = Craft::$app->view->clearJsBuffer();
+        Craft::$app->getView()->startJsBuffer();
+        $bodyHtml = Craft::$app->getView()->renderTemplate($template, $variables);
+        $footHtml = Craft::$app->getView()->clearJsBuffer();
 
         return $this->asJson([
             'bodyHtml' => $bodyHtml,
@@ -279,7 +279,7 @@ class NavigationController extends Controller
 
     private function _getNavHtml()
     {
-        return Craft::$app->view->renderTemplate('cp-nav/_layouts/navs');
+        return Craft::$app->getView()->renderTemplate('cp-nav/_layouts/navs');
     }
     
     private function _getErrorString($object)

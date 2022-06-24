@@ -30,7 +30,7 @@ class NavigationsService extends Component
     const EVENT_AFTER_DELETE_NAVIGATION = 'afterDeleteNavigation';
 
     const CONFIG_NAVIGATION_KEY = 'cp-nav.navigations';
-    
+
 
     // Properties
     // =========================================================================
