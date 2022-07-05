@@ -1,5 +1,11 @@
 # Changelog
 
+## 4.0.3 - 2022-07-05
+
+### Fixed
+- Fix an error caused by Craft 4.1 removing font data.
+- Add checks around JS `waitForElm` function.
+
 ## 4.0.2 - 2022-06-08
 
 ### Fixed
