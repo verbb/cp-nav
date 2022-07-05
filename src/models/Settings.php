@@ -41,9 +41,7 @@ class Settings extends Model
 
             try {
                 $view = Craft::$app->getView();
-
-                $basePath = $view->getAssetManager()->getBundle(CpAsset::class)->sourcePath;
-                $path = FileHelper::normalizePath($basePath . DIRECTORY_SEPARATOR . '../src/craft-font/selection.json');
+                $path = FileHelper::normalizePath( __DIR__ . '/../json/craft-font.json');
                 $json = Json::decode(@file_get_contents($path));
 
                 foreach (($json['icons'] ?? []) as $icon) {
