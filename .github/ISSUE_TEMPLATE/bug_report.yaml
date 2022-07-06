@@ -1,0 +1,47 @@
+name: Bug Report
+about: Create a report to help us improve
+title: ''
+labels: ''
+assignees: ''
+body:
+  - type: textarea
+    id: bug-description
+    attributes:
+      label: Describe the bug
+      description: Describe the bug and what behaviour you expect if the bug is fixed.
+      placeholder: Bug description
+    validations:
+      required: true
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Detail how we can reproduce this issue.
+    validations:
+      required: true
+  - type: input
+    id: craft-version
+    attributes:
+      label: Craft version
+      description: What version of Craft you're using. Do **not** write "latest".
+    validations:
+      required: true
+  - type: input
+    id: plugin-version
+    attributes:
+      label: Plugin version
+      description: What version of the plugin you're using. Do **not** write "latest".
+    validations:
+      required: true
+  - type: checkboxes
+    id: multi-site
+    attributes:
+      label: Multi Site?
+      description: Whether your Craft install is a multi-site.
+      value: |
+        • Yes
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional context
+      description: Provide any additional information you think might be useful or worth noting. The more information you provide the easier it'll be for use to fix this bug!
