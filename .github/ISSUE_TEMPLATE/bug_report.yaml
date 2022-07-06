@@ -36,7 +36,7 @@ body:
       label: Multi Site?
       description: Whether your Craft install is a multi-site.
       options:
-        - Yes
+        - label: Yes
   - type: textarea
     id: additional-context
     attributes:
