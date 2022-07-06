@@ -7,8 +7,8 @@ body:
       value: |
         Before you send through your support request, please ensure you have taken these steps first:
         
-          ✅ I've searched the [documentation](https://verbb.io/craft-plugins/cp-nav/docs).
-          ✅ I've searched open and closed issues.
+          ✅ I‘ve searched the [documentation](https://verbb.io/craft-plugins/cp-nav/docs).
+          ✅ I‘ve searched open and closed issues.
 
   - type: textarea
     id: question

@@ -6,8 +6,8 @@ body:
       value: |
         Before you send through your bug report, please ensure you have taken these steps first:
 
-          ✅ I've searched the [documentation](https://verbb.io/craft-plugins/cp-nav/docs).
-          ✅ I've searched open and closed issues.
+          ✅ I‘ve searched the [documentation](https://verbb.io/craft-plugins/cp-nav/docs).
+          ✅ I‘ve searched open and closed issues.
 
   - type: textarea
     id: bug-description
@@ -31,29 +31,27 @@ body:
     id: craft-version
     attributes:
       label: Craft CMS version
-      description: What version of Craft CMS you're using. **Do not write "latest"**.
-      placeholder: 3.7.4
+      description: What version of Craft CMS you‘re using. **Do not write "latest"**.
     validations:
       required: true
   - type: input
     id: plugin-version
     attributes:
       label: Plugin version
-      description: What version of the plugin you're using. **Do not write "latest"**.
-      placeholder: 2.0.1
+      description: What version of the plugin you‘re using. **Do not write "latest"**.
     validations:
       required: true
-  - type: checkboxes
+  - type: input
     id: multi-site
     attributes:
       label: Multi-site?
       description: Whether your install is a multi-site.
-      options:
-        - label: "Yes"
+      placeholder: |
+        "Yes" or "No"
   - type: textarea
     id: additional-context
     attributes:
       label: Additional context
-      description: Provide any additional information you think might be useful. The more information you provide the easier it'll be for use to fix this bug!
+      description: Provide any additional information you think might be useful. The more information you provide the easier it‘ll be for use to fix this bug!
       placeholder: |
         "I also have X plugin installed..." or "This only happens on production..."
