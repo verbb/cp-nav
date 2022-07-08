@@ -6,6 +6,7 @@ use verbb\cpnav\models\Layout;
 
 use Craft;
 use craft\db\Migration;
+use craft\helpers\MigrationHelper;
 
 class Install extends Migration
 {
@@ -23,6 +24,7 @@ class Install extends Migration
 
     public function safeDown(): bool
     {
+        $this->dropForeignKeys();
         $this->removeTables();
         $this->dropProjectConfig();
 
@@ -97,6 +99,17 @@ class Install extends Migration
     {
         $this->dropTableIfExists('{{%cpnav_navigation}}');
         $this->dropTableIfExists('{{%cpnav_layout}}');
+    }
+
+    public function dropForeignKeys(): void
+    {
+        if ($this->db->tableExists('{{%cpnav_navigation}}')) {
+            MigrationHelper::dropAllForeignKeysOnTable('{{%cpnav_navigation}}', $this);
+        }
+
+        if ($this->db->tableExists('{{%cpnav_layout}}')) {
+            MigrationHelper::dropAllForeignKeysOnTable('{{%cpnav_layout}}', $this);
+        }
     }
 
     public function dropProjectConfig(): void
