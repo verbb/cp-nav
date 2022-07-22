@@ -152,6 +152,14 @@
       "plM" : 3758088159,
       "prP" : 0
     },
+    "\/src\/json\/craft-font.json" : {
+      "ft" : 524288,
+      "oA" : 1,
+      "oAP" : "\/src\/json\/craft-font-min.json",
+      "oF" : 0,
+      "oO" : 0,
+      "oS" : 1
+    },
     "\/src\/migrations" : {
       "ft" : 65536,
       "oA" : 1,
@@ -260,6 +268,12 @@
       "ft" : 65536,
       "oA" : 1,
       "oAP" : "\/src\/templates",
+      "oF" : 0
+    },
+    "\/src\/translations" : {
+      "ft" : 65536,
+      "oA" : 1,
+      "oAP" : "\/src\/translations",
       "oF" : 0
     }
   },
