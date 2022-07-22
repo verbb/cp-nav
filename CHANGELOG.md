@@ -1,5 +1,15 @@
 # Changelog
 
+## 4.0.4 - 2022-07-22
+
+### Added
+- Add english translations.
+
+-### Fixed
+- Fix migration from Craft 3 not generating subnavs.
+- Fix an error when rebuilding project config.
+- Fix an error when uninstalling.
+
 ## 4.0.3 - 2022-07-05
 
 ### Fixed
