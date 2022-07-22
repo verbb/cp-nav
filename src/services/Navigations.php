@@ -60,6 +60,11 @@ class Navigations extends Component
         return $this->_navigations()->firstWhere('id', $id);
     }
 
+    public function getNavigationByHandle(string $handle): ?Navigation
+    {
+        return $this->_navigations()->firstWhere('handle', $handle, true);
+    }
+
     public function getNavigationByUid(string $uid): ?Navigation
     {
         return $this->_navigations()->firstWhere('uid', $uid, true);

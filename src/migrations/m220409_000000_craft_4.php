@@ -1,10 +1,16 @@
 <?php
 namespace verbb\cpnav\migrations;
 
+use verbb\cpnav\CpNav;
+use verbb\cpnav\helpers\Permissions;
+use verbb\cpnav\models\Navigation;
 use verbb\cpnav\services\Navigations;
 
 use Craft;
 use craft\db\Migration;
+use craft\db\Query;
+use craft\elements\User;
+use craft\helpers\ArrayHelper;
 
 use Throwable;
 
@@ -42,16 +48,6 @@ class m220409_000000_craft_4 extends Migration
 
         $this->dropTableIfExists('{{%cpnav_pending_navigations}}');
 
-        $projectConfig = Craft::$app->getProjectConfig();
-
-        // Don't make the same config changes twice
-        $schemaVersion = $projectConfig->get('plugins.cp-nav.schemaVersion', true);
-        if (version_compare($schemaVersion, '2.0.8', '>=')) {
-            return true;
-        }
-
-        $navs = $projectConfig->get(Navigations::CONFIG_NAVIGATION_KEY);
-
         $craftNavItems = [
             'dashboard',
             'entries',
@@ -80,15 +76,78 @@ class m220409_000000_craft_4 extends Migration
             }
         }
 
+        // Update all existing navs
+        $navItems = (new Query())
+            ->select(['*'])
+            ->from(['{{%cpnav_navigation}}'])
+            ->all();
+
+        // When we try to fetch the original nav via the CLI, it will use a guest user context. Because a lot of plugins use
+        // `checkPermission()` to show their subnav, we want to override that to ensure subnavs are generated. As such, 
+        // set the current identity to an admin so that the nav items can be generated properly.
+        Craft::$app->getUser()->setIdentity(User::find()->admin(true)->one());
+
+        $baseNavItems = Permissions::getBaseNavItems();
+        $navigationService = CpNav::$plugin->getNavigations();
+
+        foreach ($navItems as $navItem) {
+            if (in_array($navItem['handle'], $craftNavItems)) {
+                $this->update('{{%cpnav_navigation}}', ['type' => 'craft'], ['id' => $navItem['id']]);
+            }
+
+            if (in_array($navItem['handle'], $pluginNavItems)) {
+                $this->update('{{%cpnav_navigation}}', ['type' => 'plugin'], ['id' => $navItem['id']]);
+            }
+
+            // Migrate any sub-nav items from Craft 3, where they didn't exist.
+            $originalNav = ArrayHelper::firstWhere($baseNavItems, 'url', $navItem['url']);
+
+            if ($originalNav) {
+                $subnavs = $originalNav['subnav'] ?? [];
+
+                if ($subnavs) {
+                    foreach ($subnavs as $handle => $subnav) {
+                        $subNavigation = new Navigation();
+                        $subNavigation->handle = $handle;
+                        $subNavigation->currLabel = $subnav['label'] ?? '';
+                        $subNavigation->prevLabel = $subnav['label'] ?? '';
+                        $subNavigation->enabled = true;
+                        $subNavigation->url = $subnav['url'] ?? '';
+                        $subNavigation->prevUrl = $subnav['url'] ?? '';
+                        $subNavigation->type = $navItem['type'];
+                        $subNavigation->newWindow = $subnav['external'] ?? false;
+                        $subNavigation->layoutId = $navItem['layoutId'];
+                        $subNavigation->prevLevel = 2;
+                        $subNavigation->level = 2;
+                        $subNavigation->prevParentId = $navItem['id'];
+                        $subNavigation->parentId = $navItem['id'];
+
+                        $navigationService->saveNavigation($subNavigation);
+                    }
+                }
+            }
+        }
+
+        // Make the same changes to Project Config YAML files
+        $projectConfig = Craft::$app->getProjectConfig();
+
+        // Don't make the same config changes twice
+        $schemaVersion = $projectConfig->get('plugins.cp-nav.schemaVersion', true);
+        if (version_compare($schemaVersion, '2.0.8', '>=')) {
+            return true;
+        }
+
+        $navs = $projectConfig->get(Navigations::CONFIG_NAVIGATION_KEY);
+
         if (is_array($navs)) {
             foreach ($navs as $navUid => $nav) {
                 $nav['sortOrder'] = $nav['order'] ?? 0;
                 unset($nav['order']);
 
-                $nav['prevLevel'] = null;
-                $nav['level'] = 1;
-                $nav['prevParentId'] = null;
-                $nav['parentId'] = null;
+                $nav['prevLevel'] = $nav['prevLevel'] ?? null;
+                $nav['level'] = $nav['level'] ?? 1;
+                $nav['prevParentId'] = $nav['prevParentId'] ?? null;
+                $nav['parentId'] = $nav['parentId'] ?? null;
 
                 if (in_array($nav['handle'], $craftNavItems)) {
                     $nav['type'] = 'craft';
