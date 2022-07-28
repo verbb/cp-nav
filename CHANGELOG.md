@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.0.5 - 2022-07-29
+
+### Fixed
+- Fix an error when updating from Craft 3.
+
 ## 4.0.4 - 2022-07-22
 
 ### Added
