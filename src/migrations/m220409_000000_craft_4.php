@@ -76,6 +76,15 @@ class m220409_000000_craft_4 extends Migration
             }
         }
 
+        // Make the same changes to Project Config YAML files
+        $projectConfig = Craft::$app->getProjectConfig();
+
+        // Don't make the same config changes twice
+        $schemaVersion = $projectConfig->get('plugins.cp-nav.schemaVersion', true);
+        if (version_compare($schemaVersion, '2.0.8', '>=')) {
+            return true;
+        }
+
         // Update all existing navs
         $navItems = (new Query())
             ->select(['*'])
@@ -126,15 +135,6 @@ class m220409_000000_craft_4 extends Migration
                     }
                 }
             }
-        }
-
-        // Make the same changes to Project Config YAML files
-        $projectConfig = Craft::$app->getProjectConfig();
-
-        // Don't make the same config changes twice
-        $schemaVersion = $projectConfig->get('plugins.cp-nav.schemaVersion', true);
-        if (version_compare($schemaVersion, '2.0.8', '>=')) {
-            return true;
         }
 
         $navs = $projectConfig->get(Navigations::CONFIG_NAVIGATION_KEY);
