@@ -10,7 +10,7 @@
 ### Added
 - Add english translations.
 
--### Fixed
+### Fixed
 - Fix migration from Craft 3 not generating subnavs.
 - Fix an error when rebuilding project config.
 - Fix an error when uninstalling.
