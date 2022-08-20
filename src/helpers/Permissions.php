@@ -4,6 +4,8 @@ namespace verbb\cpnav\helpers;
 use Craft;
 use craft\base\UtilityInterface;
 
+use Throwable;
+
 class Permissions
 {
     // Public Methods
@@ -70,10 +72,20 @@ class Permissions
 
         // Add any Plugin nav items
         foreach (Craft::$app->getPlugins()->getAllPlugins() as $plugin) {
-            if ($plugin->hasCpSection && ($pluginNavItem = $plugin->getCpNavItem()) !== null) {
+            try {
+                if ($plugin->hasCpSection && ($pluginNavItem = $plugin->getCpNavItem()) !== null) {
+                    $pluginNavItem['type'] = 'plugin';
+
+                    $navItems[] = $pluginNavItem;
+                }
+            } catch (Throwable $e) {
+                // Just in case some plugins have complicated logic in their `getCpNavItem()` (like SEOmatic)
+                // Skip it, but also assume that it *does* have a nav item
                 $pluginNavItem['type'] = 'plugin';
 
                 $navItems[] = $pluginNavItem;
+
+                continue;
             }
         }
 
