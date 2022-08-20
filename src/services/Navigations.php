@@ -137,6 +137,13 @@ class Navigations extends Component
             $prevParent = $this->getNavigationByUid($prevParentUid);
             $parent = $this->getNavigationByUid($parentUid);
 
+            $level = $data['level'] ?? null;
+
+            // If a subnav item, and no parent exists yet, ensure that's applied first
+            if ($level === 2 && !$parent) {
+                Craft::$app->getProjectConfig()->processConfigChanges(self::CONFIG_NAVIGATION_KEY . '.' . $parentUid);
+            }
+
             $navigationRecord->layoutId = $layout->id;
             $navigationRecord->handle = $data['handle'] ?? '';
             $navigationRecord->prevLabel = $data['prevLabel'] ?? '';
