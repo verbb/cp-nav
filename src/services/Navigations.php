@@ -112,7 +112,13 @@ class Navigations extends Component
         $navigationUid = $event->tokenMatches[0];
         $data = $event->newValue;
 
-        $layoutUid = $data['layout'] ?? '';
+        $layoutUid = $data['layout'] ?? null;
+
+        // Ensure we have the layout in the place first
+        if ($layoutUid) {
+            Craft::$app->getProjectConfig()->processConfigChanges(Layouts::CONFIG_LAYOUT_KEY . '.' . $layoutUid);
+        }
+
         $layout = CpNav::$plugin->getLayouts()->getLayoutByUid($layoutUid);
 
         if (!$layout) {
