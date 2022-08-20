@@ -3,6 +3,7 @@ namespace verbb\cpnav\models;
 
 use verbb\cpnav\CpNav;
 use verbb\cpnav\models\Settings;
+use verbb\cpnav\helpers\Permissions;
 
 use Craft;
 use craft\base\Model;
@@ -322,7 +323,15 @@ class Navigation extends Model
         $children = [];
 
         foreach ($this->getChildren() as $child) {
-            if (!$child->enabled) {
+            $permission = null;
+
+            // For plugins, check if this subnav exists for this current user.
+            // We'll assume that if not, it's a permissions thing, and hide it.
+            if ($child->isPlugin()) {
+                $permission = Permissions::checkPluginSubnavPermission($child);
+            }
+
+            if ($permission === false || !$child->enabled) {
                 continue;
             }
 

@@ -3,6 +3,7 @@ namespace verbb\cpnav\helpers;
 
 use Craft;
 use craft\base\UtilityInterface;
+use craft\elements\User;
 
 use Throwable;
 
@@ -186,5 +187,22 @@ class Permissions
         }
 
         return $permissionMap;
+    }
+
+    public static function checkPluginSubnavPermission($navigation): bool
+    {
+        $pluginHandle = explode('/', $navigation->url)[0] ?? null;
+        
+        if ($pluginHandle) {
+            $plugin = Craft::$app->getPlugins()->getPlugin($pluginHandle);
+
+            if ($plugin) {
+                $subNavItems = $plugin->getCpNavItem()['subnav'] ?? [];
+
+                return isset($subNavItems[$navigation->handle]);
+            }
+        }
+
+        return true;
     }
 }
