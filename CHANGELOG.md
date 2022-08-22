@@ -1,5 +1,13 @@
 # Changelog
 
+## 4.0.6 - 2022-08-23
+
+### Fixed
+- Fix an issue with subnav items getting saved before their parent navigation item.
+- Fix an error when saving navigations and their layout was yet to exist.
+- Fix lack of permissions checks for plugin subnav items.
+- Fix Craft 3 migration for some plugins.
+
 ## 4.0.5 - 2022-07-29
 
 ### Fixed
