@@ -124,19 +124,15 @@ class NavigationController extends Controller
             $navigation->type = $request->getParam('type', Navigation::TYPE_MANUAL);
         }
 
-        $volumes = Craft::$app->getVolumes()->getAllVolumes();
-        $sourcesOptions = [];
+        $sources = [];
 
-        foreach ($volumes as $volume) {
-            $sourcesOptions[] = [
-                'label' => Html::encode($volume->name),
-                'value' => $volume->id,
-            ];
+        foreach (Craft::$app->getVolumes()->getAllVolumes() as $volume) {
+            $sources[] = 'volume:' . $volume->uid;
         }
 
         $variables = [
             'nav' => $navigation,
-            'sources' => $sourcesOptions,
+            'sources' => $sources,
             'elementType' => Asset::class,
         ];
 
