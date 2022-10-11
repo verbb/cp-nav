@@ -26,7 +26,6 @@
     .move {
         display: block;
         position: absolute;
-        top: calc(50% - 11px);
         font-size: 11px;
         text-decoration: none;
         z-index: 1;
@@ -35,7 +34,7 @@
     .toggle {
         display: block;
         position: absolute;
-        top: calc(50% - 7px);
+        top: calc(50% - 8px);
         padding: 4px;
     }
 
