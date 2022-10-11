@@ -1,6 +1,8 @@
 <?php
 namespace verbb\cpnav\helpers;
 
+use verbb\cpnav\CpNav;
+
 use Craft;
 use craft\base\UtilityInterface;
 use craft\elements\User;
@@ -80,11 +82,8 @@ class Permissions
                     $navItems[] = $pluginNavItem;
                 }
             } catch (Throwable $e) {
-                // Just in case some plugins have complicated logic in their `getCpNavItem()` (like SEOmatic)
-                // Skip it, but also assume that it *does* have a nav item
-                $pluginNavItem['type'] = 'plugin';
-
-                $navItems[] = $pluginNavItem;
+                // Log the error, but continue
+                CpNav::error('Error fetching navigation item for {plugin}: {e}', ['plugin' => $plugin->handle, 'e' => $e->getMessage()]);
 
                 continue;
             }

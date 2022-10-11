@@ -15,6 +15,7 @@ use craft\events\RebuildConfigEvent;
 use craft\events\RegisterUrlRulesEvent;
 use craft\helpers\UrlHelper;
 use craft\services\ProjectConfig;
+use craft\web\Application;
 use craft\web\UrlManager;
 
 use yii\base\Event;
@@ -104,6 +105,11 @@ class CpNav extends Plugin
 
     private function _registerTemplateHooks(): void
     {
+        // We need an authenticated session to proceed further
+        if (!Craft::$app->getUser()->getIdentity()) {
+            return;
+        }
+
         // We need to hook into the CP layout to save some global Twig variables, used in our custom navigation Twig template.
         // For Craft, these would already be there, but as we're providing our own template, we need to slot them in.
         // We don't actually output the HTML for the nav here, instead it's added via JS as early as possible.
