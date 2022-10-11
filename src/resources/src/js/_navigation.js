@@ -659,37 +659,6 @@ Craft.CpNav.NavAdminTable = Garnish.DragSort.extend({
         this.base();
     },
 
-    _showDraggee: function() {
-        // Remove the helpers
-        for (var i = 0; i < this.helpers.length; i++) {
-            this.helpers[i].remove();
-        }
-
-        this.helpers = null;
-
-        // Support drag/dropping expanded/collaped parents
-        // modified from https://github.com/pixelandtonic/garnishjs/blob/e80a7e087d566604aa17f480be6a280b226cec25/src/Drag.js#L349
-        var showChildren = true;
-
-        for (var i = 0; i < this.$draggee.length; i++) {
-            var $draggee = $(this.$draggee[i]);
-
-            if (showChildren) {
-                $draggee.show().css('visibility', 'inherit');
-            }
-
-            if (i === 0) {
-                if (!$draggee.find('.toggle').hasClass('expanded')) {
-                    showChildren = false;
-                }
-            }
-        }
-
-        this.onReturnHelpersToDraggees();
-
-        this._returningHelpersToDraggees = false;
-    },
-
     /**
      * On Drag Stop
      */
@@ -727,9 +696,9 @@ Craft.CpNav.NavAdminTable = Garnish.DragSort.extend({
             };
 
             var $elements = this.getElements();
+            var parentId = null;
 
             for (var i = 0; i < $elements.length; i++) {
-                var parentId = null;
                 var $item = $($elements[i]);
                 var $prevItem = $($elements[i-1]);
 
