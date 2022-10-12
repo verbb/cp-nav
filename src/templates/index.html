@@ -85,8 +85,6 @@
                     <th data-title="{{ nav.currLabel }}" data-titlecell style="padding-{{ padding }}: {{ (nav.level - 1) * 22 }}px;">
                         <a class="move icon" title="{{ 'Reorder' | t('cp-nav') }}" aria-label="{{ 'Reorder' | t('cp-nav') }}" role="button"></a>
 
-                        {%- if totalDescendants %}<span class="toggle expanded" title="{{ 'Show/hide children' | t('app') }}" aria-label="{{ 'Show/hide children' | t('app') }}"></span>{% endif %}
-
                         <span class="element">
                             <a class="js-edit-nav">{{ (nav.currLabel ?? '[none]') | t('app') }}</a>
 

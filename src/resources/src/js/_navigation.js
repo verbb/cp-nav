@@ -407,7 +407,6 @@ Craft.CpNav.NavAdminTable = Garnish.DragSort.extend({
 
     _draggeeLevel: null,
     _draggeeLevelDelta: null,
-    _loadingDraggeeLevelDelta: false,
 
     _targetLevel: null,
     _targetLevelBounds: null,
@@ -439,16 +438,6 @@ Craft.CpNav.NavAdminTable = Garnish.DragSort.extend({
         });
 
         this.base(this.getElements(), settings);
-
-        this.addListener(this.$elementContainer, 'click', function(ev) {
-            var $target = $(ev.target);
-
-            if ($target.hasClass('toggle')) {
-                if (this._collapseElement($target) === false) {
-                    this._expandElement($target);
-                }
-            }
-        });
     },
 
     getElements: function() {
@@ -514,52 +503,6 @@ Craft.CpNav.NavAdminTable = Garnish.DragSort.extend({
         return $draggee;
     },
 
-    _collapseElement: function($toggle, force) {
-        if (!force && !$toggle.hasClass('expanded')) {
-            return false;
-        }
-
-        $toggle.removeClass('expanded');
-
-        // Find and hide the descendant rows
-        var $row = $toggle.parent().parent(),
-            level = $row.data('level'),
-            $nextRow = $row.next();
-
-        while ($nextRow.length) {
-            if ($nextRow.data('level') <= level) {
-                break;
-            }
-
-            var $nextNextRow = $nextRow.next();
-            $nextRow.hide();
-            $nextRow = $nextNextRow;
-        }
-    },
-
-    _expandElement: function($toggle, force) {
-        if (!force && $toggle.hasClass('expanded')) {
-            return false;
-        }
-
-        $toggle.addClass('expanded');
-
-        // Find and hide the descendant rows
-        var $row = $toggle.parent().parent(),
-            level = $row.data('level'),
-            $nextRow = $row.next();
-
-        while ($nextRow.length) {
-            if ($nextRow.data('level') <= level) {
-                break;
-            }
-
-            var $nextNextRow = $nextRow.next();
-            $nextRow.show();
-            $nextRow = $nextNextRow;
-        }
-    },
-
     /**
      * Returns the drag helper.
      */
@@ -608,10 +551,6 @@ Craft.CpNav.NavAdminTable = Garnish.DragSort.extend({
      * Returns whether the draggee can be inserted before a given item.
      */
     canInsertBefore: function($item) {
-        if (this._loadingDraggeeLevelDelta) {
-            return false;
-        }
-
         return (this._getLevelBounds($item.prev(), $item) !== false);
     },
 
@@ -619,10 +558,6 @@ Craft.CpNav.NavAdminTable = Garnish.DragSort.extend({
      * Returns whether the draggee can be inserted after a given item.
      */
     canInsertAfter: function($item) {
-        if (this._loadingDraggeeLevelDelta) {
-            return false;
-        }
-
         return (this._getLevelBounds($item, $item.next()) !== false);
     },
 
@@ -657,37 +592,6 @@ Craft.CpNav.NavAdminTable = Garnish.DragSort.extend({
         this._setTargetLevelBounds();
         this._updateAncestorsBeforeRepaint();
         this.base();
-    },
-
-    _showDraggee: function() {
-        // Remove the helpers
-        for (var i = 0; i < this.helpers.length; i++) {
-            this.helpers[i].remove();
-        }
-
-        this.helpers = null;
-
-        // Support drag/dropping expanded/collaped parents
-        // modified from https://github.com/pixelandtonic/garnishjs/blob/e80a7e087d566604aa17f480be6a280b226cec25/src/Drag.js#L349
-        var showChildren = true;
-
-        for (var i = 0; i < this.$draggee.length; i++) {
-            var $draggee = $(this.$draggee[i]);
-
-            if (showChildren) {
-                $draggee.show().css('visibility', 'inherit');
-            }
-
-            if (i === 0) {
-                if (!$draggee.find('.toggle').hasClass('expanded')) {
-                    showChildren = false;
-                }
-            }
-        }
-
-        this.onReturnHelpersToDraggees();
-
-        this._returningHelpersToDraggees = false;
     },
 
     /**
@@ -727,9 +631,9 @@ Craft.CpNav.NavAdminTable = Garnish.DragSort.extend({
             };
 
             var $elements = this.getElements();
-            var parentId = null;
 
             for (var i = 0; i < $elements.length; i++) {
+                var parentId = null;
                 var $item = $($elements[i]);
                 var $prevItem = $($elements[i-1]);
 
@@ -939,12 +843,6 @@ Craft.CpNav.NavAdminTable = Garnish.DragSort.extend({
 
             // One less descendant now
             this._updateAncestors._$ancestor.data('descendants', this._updateAncestors._$ancestor.data('descendants') - 1);
-
-            // Is it now childless?
-            if (this._updateAncestors._$ancestor.data('descendants') == 0) {
-                // Remove its toggle
-                this._updateAncestors._$ancestor.find('> th > .toggle:first').remove();
-            }
         }
 
         // Update the new ancestors
@@ -957,13 +855,6 @@ Craft.CpNav.NavAdminTable = Garnish.DragSort.extend({
 
             // One more descendant now
             this._updateAncestors._$ancestor.data('descendants', this._updateAncestors._$ancestor.data('descendants') + 1);
-
-            // Is this its first child?
-            if (this._updateAncestors._$ancestor.data('descendants') == 1) {
-                // Create its toggle
-                $('<span class="toggle expanded" title="' + Craft.t('app', 'Show/hide children') + '"></span>')
-                    .insertAfter(this._updateAncestors._$ancestor.find('> th .move:first'));
-            }
         }
 
         this._ancestors = this._updateAncestors._newAncestors;
