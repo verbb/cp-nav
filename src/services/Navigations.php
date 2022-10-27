@@ -282,7 +282,9 @@ class Navigations extends Component
             // Also prepare and child navs, by setting them as children. Basically, a simplified
             // structure, that's limited to only 2 levels.
             foreach ($navigations as $navigation) {
-                if ($navigation->parentId && $parentNavigation = ArrayHelper::firstWhere($navigations, 'id', $navigation->parentId)) {
+                $parentId = $navigation->parentId ?? $navigation->prevParentId;
+
+                if ($parentId && $parentNavigation = ArrayHelper::firstWhere($navigations, 'id', $parentId)) {
                     $parentNavigation->addChild($navigation);
                 }
 
