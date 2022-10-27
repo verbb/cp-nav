@@ -6,6 +6,8 @@ use verbb\cpnav\CpNav;
 use Craft;
 use craft\base\UtilityInterface;
 use craft\elements\User;
+use craft\events\RegisterCpNavItemsEvent;
+use craft\web\twig\variables\Cp;
 
 use Throwable;
 
@@ -88,6 +90,13 @@ class Permissions
                 continue;
             }
         }
+
+        // Call the original `EVENT_REGISTER_CP_NAV_ITEMS` event, in case some plugin register nav items in an event.
+        $event = new RegisterCpNavItemsEvent([
+            'navItems' => $navItems,
+        ]);
+        $this->trigger(Cp::EVENT_REGISTER_CP_NAV_ITEMS, $event);
+        $navItems = $event->navItems;
 
         if ($craftPro && $generalConfig->enableGql) {
             $subNavItems = [];
