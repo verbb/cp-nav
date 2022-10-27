@@ -95,8 +95,14 @@ class Permissions
         $event = new RegisterCpNavItemsEvent([
             'navItems' => $navItems,
         ]);
-        $this->trigger(Cp::EVENT_REGISTER_CP_NAV_ITEMS, $event);
-        $navItems = $event->navItems;
+        (new Cp())->trigger(Cp::EVENT_REGISTER_CP_NAV_ITEMS, $event);
+
+        // Only deal with some menu items
+        foreach ($event->navItems as $key => $navItem) {
+            if (!is_numeric($key)) {
+                $navItems[] = $navItem;
+            }
+        }
 
         if ($craftPro && $generalConfig->enableGql) {
             $subNavItems = [];
