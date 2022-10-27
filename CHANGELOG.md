@@ -1,5 +1,20 @@
 # Changelog
 
+## 4.0.7 - 2022-10-27
+
+### Added
+- Add support for plugins that use `EVENT_REGISTER_CP_NAV_ITEMS` to register nav items.
+
+### Fixed
+- Fix top-level plugins with no subnavs being unable to be nested within another nav item.
+- Fix multi-level navigation items expanding when re-ordered.
+- Fix toggle/move indicator alignment for settings.
+- Fix navigation items being duplicated in some instances.
+- Fix an error when trying to set a custom icon on a navigation item.
+
+### Removed
+- Removed the ability to collapse/expand subnav items in the navigation builder, to fix a few tricky edge cases that are too tricky to deal with!
+
 ## 4.0.6 - 2022-08-23
 
 ### Fixed
