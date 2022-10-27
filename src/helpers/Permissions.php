@@ -211,9 +211,12 @@ class Permissions
             $plugin = Craft::$app->getPlugins()->getPlugin($pluginHandle);
 
             if ($plugin) {
-                $subNavItems = $plugin->getCpNavItem()['subnav'] ?? [];
+                // Chcek if the plugin has any subnav items
+                if (array_key_exists('subnav', $plugin->getCpNavItem())) {
+                    $subNavItems = $plugin->getCpNavItem()['subnav'] ?? [];
 
-                return isset($subNavItems[$navigation->handle]);
+                    return isset($subNavItems[$navigation->handle]);
+                }
             }
         }
 
