@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.0.8 - 2022-11-08
+
+### Fixed
+- Fix subnav items not showing correctly.
+
 ## 4.0.7 - 2022-10-27
 
 ### Added
