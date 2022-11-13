@@ -632,8 +632,10 @@ Craft.CpNav.NavAdminTable = Garnish.DragSort.extend({
 
             var $elements = this.getElements();
 
+            // Outside of loop on purpose to allow us to reset the parent when kicking back a level
+            var parentId = null;
+
             for (var i = 0; i < $elements.length; i++) {
-                var parentId = null;
                 var $item = $($elements[i]);
                 var $prevItem = $($elements[i-1]);
 
