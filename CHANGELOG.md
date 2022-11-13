@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.0.9 - 2022-11-13
+
+### Fixed
+- Fix multipe nested subnav items not appearing correctly.
+
 ## 4.0.8 - 2022-11-08
 
 ### Fixed
