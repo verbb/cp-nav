@@ -1,6 +1,6 @@
 {
     "name": "verbb/cp-nav",
-    "description": "Control Panel Nav helps you managing your Control Panel navigation.",
+    "description": "Manage the Craft Control Panel navigation.",
     "type": "craft-plugin",
     "version": "4.0.9",
     "keywords": [
