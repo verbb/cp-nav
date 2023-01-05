@@ -1,6 +1,8 @@
 {% extends 'cp-nav/_layouts' %}
 {% import '_includes/forms' as forms %}
 
+{% requireAdmin %}
+
 {% set crumbs = [
     { label: 'Control Panel Nav' | t, url: url('cp-nav') },
     { label: 'Settings' | t, url: url('cp-nav') }
