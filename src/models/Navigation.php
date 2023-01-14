@@ -158,7 +158,8 @@ class Navigation extends Model
     public function getFontIcon(): ?string
     {
         // Ignore any icon with a directory separator - that's not an icon font
-        if (!str_contains($this->icon, DIRECTORY_SEPARATOR)) {
+        // Be sure to check for Windows-based paths too.
+        if (!str_contains($this->icon, '/') && !str_contains($this->icon, '\\')) {
             return $this->icon;
         }
 
@@ -175,7 +176,8 @@ class Navigation extends Model
         // Get the original navs path, so we can handle multi-environment paths correctly. Path's will be stored
         // in one environment, so they'll be different on another. The original nav will already have the correct path,
         // so it's efficient to just swap that in. This will also handle things like Craft' GQL, being `@appicons/graphql.svg`.
-        if (str_contains($this->icon, DIRECTORY_SEPARATOR)) {
+        // Be sure to check for Windows-based paths too.
+        if (str_contains($this->icon, '/') || str_contains($this->icon, '\\')) {
             return $this->_originalNavItem['icon'] ?? $this->icon;
         }
 
@@ -209,7 +211,7 @@ class Navigation extends Model
                     $volumePath = $asset->getVolume()->path ?? null;
 
                     if ($volumePath) {
-                        $path = FileHelper::normalizePath($volumePath . DIRECTORY_SEPARATOR . $asset->folderPath . DIRECTORY_SEPARATOR . $asset->filename);
+                        $path = FileHelper::normalizePath($volumePath . '/' . $asset->folderPath . '/' . $asset->filename);
                         $path = App::parseEnv($path);
 
                         if (@file_exists($path)) {
