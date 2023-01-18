@@ -38,6 +38,11 @@ class Service extends Component
 
     public function renderNavigation($context): void
     {
+        // We need an authenticated session to proceed further
+        if (!Craft::$app->getUser()->getIdentity()) {
+            return;
+        }
+
         try {
             $view = Craft::$app->getView();
 
