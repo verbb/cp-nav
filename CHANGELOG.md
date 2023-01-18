@@ -1,5 +1,14 @@
 # Changelog
 
+## 4.0.10 - 2023-01-18
+
+### Changed
+- Only admins are now allowed to access plugin settings.
+
+### Fixed
+- Fix an error when checking for an authenticated users too early before Craft (and other plugins) are ready.
+- Fix icons not rendering correctly on Windows.
+
 ## 4.0.9 - 2022-11-13
 
 ### Fixed
