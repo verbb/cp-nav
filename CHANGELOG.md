@@ -1,5 +1,14 @@
 # Changelog
 
+## 3.1.0 - 2023-03-21
+
+### Changed
+- Now requires Craft 3.8+.
+- Update icons for Craft 3.8.
+
+### Fixed
+- Fix `getLayoutForCurrentUser()` not returning the first default layout.
+
 ## 3.0.17 - 2021-06-30
 
 ### Fixed
