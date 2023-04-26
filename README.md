@@ -1,6 +1,6 @@
 # Control Panel Nav Plugin for Craft CMS
 
-<img width="500" src="https://verbb.io/uploads/plugins/cp-nav/cp-nav-social-card.png?v=1">
+<img width="500" src="https://verbb.imgix.net/plugins/cp-nav/cp-nav-social-card.png?v=1">
 
 Control Panel Nav is a Craft CMS plugin to help manage your Control Panel navigation. Take control over your Craft CMS control panel navigation with CP Nav. Rename, reorder, hide and show menu items in the control panel. You can even add your own custom menu items for external links, or commonly used URLs within Craft. Divider menu items can also be added to logically group menu items into sections.
 
@@ -21,7 +21,7 @@ Control Panel Nav is a Craft CMS plugin to help manage your Control Panel naviga
 - Full support for your existing user permissions. Menu items for Craft and plugins will only be shown if the users is permitted to view them.
 - Unlimited use, free forever.
 
-<img src="https://verbb.io/uploads/plugins/v1/main-new.png" style="box-shadow: 0 4px 16px rgba(0,0,0,0.08); border-radius: 4px; border: 1px solid rgba(0,0,0,0.12);">
+<img src="https://verbb.imgix.net/plugins/v1/main-new.png" style="box-shadow: 0 4px 16px rgba(0,0,0,0.08); border-radius: 4px; border: 1px solid rgba(0,0,0,0.12);">
 
 ## Documentation
 Visit the [CP Nav Plugin page](https://verbb.io/craft-plugins/cp-nav) for all documentation, guides, pricing and developer resources.
