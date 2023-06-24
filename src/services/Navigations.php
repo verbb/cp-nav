@@ -117,6 +117,9 @@ class Navigations extends Component
         // Ensure we have the layout in the place first
         if ($layoutUid) {
             Craft::$app->getProjectConfig()->processConfigChanges(Layouts::CONFIG_LAYOUT_KEY . '.' . $layoutUid);
+        } else {
+            // In case the layout UID isn't set yet, we can't go further
+            return;
         }
 
         $layout = CpNav::$plugin->getLayouts()->getLayoutByUid($layoutUid);
