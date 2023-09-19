@@ -1,5 +1,4 @@
 # Navigation
-
 This plugin allows you to rename, reorder, or toggle visibility on menu items for the Control Panel.
 
 You can also create your own menu items to link to either pages inside the control panel, or external links.
