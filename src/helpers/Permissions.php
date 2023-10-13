@@ -30,7 +30,7 @@ class Permissions
             ],
         ];
 
-        if (Craft::$app->getSections()->getAllSections()) {
+        if (Craft::$app->getEntries()->getAllSections()) {
             $navItems[] = [
                 'label' => Craft::t('app', 'Entries'),
                 'url' => 'entries',
@@ -180,7 +180,7 @@ class Permissions
 
         // Prepare a key-may of permission-handling
         $permissionMap = [
-            'entries' => (bool)Craft::$app->getSections()->getTotalEditableSections(),
+            'entries' => (bool)Craft::$app->getEntries()->getTotalEditableSections(),
             'globals' => (bool)Craft::$app->getGlobals()->getEditableSets(),
             'categories' => (bool)Craft::$app->getCategories()->getEditableGroupIds(),
             'assets' => (bool)Craft::$app->getVolumes()->getTotalViewableVolumes(),

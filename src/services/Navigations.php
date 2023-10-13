@@ -82,7 +82,7 @@ class Navigations extends Component
         }
 
         if ($runValidation && !$navigation->validate()) {
-            Craft::info('Navigation not saved due to validation error.', __METHOD__);
+            CpNav::info('Navigation not saved due to validation error.');
             return false;
         }
 

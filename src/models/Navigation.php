@@ -66,15 +66,6 @@ class Navigation extends Model
     // Public Methods
     // =========================================================================
 
-    public function defineRules(): array
-    {
-        return [
-            [['currLabel'], 'required', 'when' => function($model) {
-                return !$model->isDivider();
-            }],
-        ];
-    }
-
     public function getConfig(): array
     {
         return [
@@ -365,5 +356,18 @@ class Navigation extends Model
                 }
             }
         }
+    }
+
+
+    // Protected Methods
+    // =========================================================================
+
+    protected function defineRules(): array
+    {
+        return [
+            [['currLabel'], 'required', 'when' => function($model) {
+                return !$model->isDivider();
+            }],
+        ];
     }
 }

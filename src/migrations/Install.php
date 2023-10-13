@@ -82,8 +82,8 @@ class Install extends Migration
     public function insertDefaultData(): void
     {
         // Don't make the same config changes twice
-        $installed = (Craft::$app->projectConfig->get('plugins.cp-nav', true) !== null);
-        $configExists = (Craft::$app->projectConfig->get('cp-nav', true) !== null);
+        $installed = (Craft::$app->getProjectConfig()->get('plugins.cp-nav', true) !== null);
+        $configExists = (Craft::$app->getProjectConfig()->get('cp-nav', true) !== null);
 
         if (!$installed && !$configExists) {
             $layout = new Layout([
@@ -114,6 +114,6 @@ class Install extends Migration
 
     public function dropProjectConfig(): void
     {
-        Craft::$app->projectConfig->remove('cp-nav');
+        Craft::$app->getProjectConfig()->remove('cp-nav');
     }
 }

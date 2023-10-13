@@ -1,6 +1,7 @@
 <?php
 namespace verbb\cpnav\services;
 
+use verbb\cpnav\CpNav;
 use verbb\cpnav\events\LayoutEvent;
 use verbb\cpnav\events\ReorderLayoutsEvent;
 use verbb\cpnav\models\Layout;
@@ -118,7 +119,7 @@ class Layouts extends Component
         }
 
         if ($runValidation && !$layout->validate()) {
-            Craft::info('Layout not saved due to validation error.', __METHOD__);
+            CpNav::info('Layout not saved due to validation error.');
             return false;
         }
 

@@ -86,7 +86,7 @@
                         <a class="move icon" title="{{ 'Reorder' | t('cp-nav') }}" aria-label="{{ 'Reorder' | t('cp-nav') }}" role="button"></a>
 
                         <span class="element">
-                            <a class="js-edit-nav">{{ (nav.currLabel ?? '[none]') | t('app') }}</a>
+                            <a href="#" class="js-edit-nav">{{ (nav.currLabel ?? '[none]') | t('app') }}</a>
 
                             {% if nav.prevLabel %}
                                 <span>({{ nav.prevLabel | t('app') }})</span>
