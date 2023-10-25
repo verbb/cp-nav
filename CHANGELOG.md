@@ -1,5 +1,11 @@
 # Changelog
 
+## 4.0.11 - 2023-10-25
+
+### Fixed
+- Fix an error when migrating from Craft 3.
+- Fix an error for some plugins when trying to determine any subnav items.
+
 ## 4.0.10 - 2023-01-18
 
 ### Changed
