@@ -7,7 +7,7 @@
       "uuidString" : "ECE3F09A-2816-43C6-9715-3F4A30BD28C5"
     }
   ],
-  "creatorBuild" : "34365",
+  "creatorBuild" : "34518",
   "files" : {
     "\/.github" : {
       "ft" : 65536,
@@ -187,7 +187,7 @@
     "\/src\/resources\/src\/js\/_layout.js" : {
       "bF" : 0,
       "ft" : 64,
-      "ma" : 0,
+      "ma" : 1,
       "mi" : 1,
       "oA" : 1,
       "oAP" : "\/src\/resources\/dist\/js\/_layout.js",
@@ -198,7 +198,7 @@
     "\/src\/resources\/src\/js\/_navigation.js" : {
       "bF" : 0,
       "ft" : 64,
-      "ma" : 0,
+      "ma" : 1,
       "mi" : 1,
       "oA" : 1,
       "oAP" : "\/src\/resources\/dist\/js\/_navigation.js",
@@ -209,7 +209,7 @@
     "\/src\/resources\/src\/js\/cp-nav-settings.js" : {
       "bF" : 0,
       "ft" : 64,
-      "ma" : 0,
+      "ma" : 1,
       "mi" : 1,
       "oA" : 0,
       "oAP" : "\/src\/resources\/dist\/js\/cp-nav-settings.js",
@@ -220,7 +220,7 @@
     "\/src\/resources\/src\/js\/cp-nav.js" : {
       "bF" : 0,
       "ft" : 64,
-      "ma" : 0,
+      "ma" : 1,
       "mi" : 1,
       "oA" : 0,
       "oAP" : "\/src\/resources\/dist\/js\/cp-nav.js",
@@ -804,6 +804,10 @@
         "active" : 0,
         "optionString" : "'always', {exceptAfterSingleLine: false}"
       },
+      "logical-assignment-operators" : {
+        "active" : 0,
+        "optionString" : "'always',  {'enforceForIfStatements': false}"
+      },
       "max-classes-per-file" : {
         "active" : 0,
         "optionString" : "1"
@@ -964,6 +968,9 @@
       "no-empty-pattern" : {
         "active" : 1
       },
+      "no-empty-static-block" : {
+        "active" : 0
+      },
       "no-eq-null" : {
         "active" : 0
       },
@@ -995,7 +1002,8 @@
         "active" : 1
       },
       "no-fallthrough" : {
-        "active" : 1
+        "active" : 1,
+        "optionString" : "{'allowEmptyCase': false}"
       },
       "no-floating-decimal" : {
         "active" : 0
@@ -1103,6 +1111,9 @@
       "no-new-func" : {
         "active" : 0
       },
+      "no-new-native-nonconstructor" : {
+        "active" : 0
+      },
       "no-new-object" : {
         "active" : 0
       },
@@ -1157,7 +1168,8 @@
         "optionString" : "'event', 'fdescribe'"
       },
       "no-restricted-imports" : {
-        "active" : 0
+        "active" : 0,
+        "optionString" : ""
       },
       "no-restricted-properties" : {
         "active" : 0,
@@ -1170,9 +1182,6 @@
       "no-return-assign" : {
         "active" : 0,
         "optionString" : "'except-parens'"
-      },
-      "no-return-await" : {
-        "active" : 0
       },
       "no-script-url" : {
         "active" : 0
@@ -1618,7 +1627,7 @@
       "autoOutputPathStyle" : 2,
       "bundleFormat" : 0,
       "minifierStyle" : 1,
-      "sourceMapStyle" : 0,
+      "sourceMapStyle" : 1,
       "syntaxCheckerStyle" : 0,
       "transpilerStyle" : 0
     },
@@ -1785,11 +1794,12 @@
       "createDeclarationFile" : 0,
       "jsxMode" : 0,
       "minifierStyle" : 0,
+      "moduleDetectionType" : 0,
       "moduleResolutionType" : 0,
       "moduleType" : 2,
       "removeComments" : 0,
       "sourceMapStyle" : 0,
-      "targetECMAVersion" : 0
+      "targetECMAVersion" : 2018
     },
     "languageDefaultsUserDefined" : [
 
@@ -1841,10 +1851,14 @@
       "ENVIRONMENT:::$NODE_ENV"
     ],
     "rollupTreeshakingEnabled" : 1,
+    "rollupTreeshakingModuleSideEffects" : 1,
     "skippedFoldersString" : "log, _logs, logs, _cache, cache, \/storage\/framework\/sessions, node_modules, \/src\/migrations, \/src\/translations, \/src\/assetbundles\/cpnav\/dist, \/src\/assetbundles\/cpnav\/dist\/img, \/src\/records, \/src\/services, \/src\/models, \/src\/templates, \/src\/controllers, \/.idea, \/.github, \/screenshots, \/docs, \/src\/assetbundles, \/src\/base, \/src\/resources\/dist, \/src\/events",
     "sourceFolderName" : "source",
     "susyVersion" : 3,
+    "tsAllowArbitraryExtensions" : 0,
+    "tsAllowImportingTSExtensions" : 0,
     "tsAllowSyntheticDefaultImports" : 0,
+    "tsAllowUMDGlobalAccess" : 0,
     "tsAllowUnreachableCode" : 0,
     "tsAllowUnusedLabels" : 0,
     "tsAlwaysStrict" : 0,
@@ -1853,36 +1867,36 @@
     "tsEmitDecoratorMetadata" : 0,
     "tsESModuleInterop" : 0,
     "tsExactOptionalPropertyTypes" : 0,
+    "tsExperimentalDecorators" : 0,
     "tsForceConsistentCasingInFileNames" : 0,
     "tsImportHelpers" : 0,
     "tsIsolatedModules" : 0,
     "tsJSXFactory" : "React.createElement",
-    "tsKeyofStringsOnly" : 0,
     "tsNoEmitHelpers" : 0,
     "tsNoFallthroughCasesInSwitch" : 0,
     "tsNoImplicitAny" : 0,
     "tsNoImplicitOverride" : 0,
     "tsNoImplicitReturns" : 0,
     "tsNoImplicitThis" : 0,
-    "tsNoImplicitUseStrict" : 0,
     "tsNoLib" : 0,
     "tsNoPropertyAccessFromIndexSignature" : 0,
     "tsNoResolve" : 0,
-    "tsNoStrictGenericChecks" : 0,
     "tsNoUncheckedIndexAccess" : 0,
     "tsNoUnusedLocals" : 0,
     "tsNoUnusedParameters" : 0,
     "tsPreserveConstEnums" : 0,
     "tsPreserveSymlinks" : 0,
     "tsResolveJsonModule" : 0,
+    "tsSkipDefaultLibCheck" : 0,
     "tsSkipLibCheck" : 0,
+    "tsStrictBindCallApply" : 0,
     "tsStrictFunctionTypes" : 0,
     "tsStrictNullChecks" : 0,
     "tsStrictPropertyInitialization" : 0,
     "tsStripInternal" : 0,
-    "tsSuppressExcessPropertyErrors" : 0,
-    "tsSuppressImplicitAnyIndexErrors" : 0,
+    "tsUseDefineForClassFields" : 0,
     "tsUseUnknownInCatchVariables" : 0,
+    "tsVerbatimModuleSyntax" : 0,
     "uglifyDefinesString" : "",
     "uglifyFlags2" : {
       "arguments" : {
@@ -1915,7 +1929,7 @@
       },
       "comments" : {
         "active" : 0,
-        "flagValue" : -1
+        "flagValue" : 1
       },
       "comparisons" : {
         "active" : 1,
