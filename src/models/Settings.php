@@ -78,7 +78,7 @@ class Settings extends Model
                     return $a['label'] > $b['label'];
                 });
             } catch (Throwable $e) {
-                CpNav::error(Craft::t('app', '{e} - {f}: {l}.', ['e' => $e->getMessage(), 'f' => $e->getFile(), 'l' => $e->getLine()]));
+                CpNav::error('{e} - {f}: {l}.', ['e' => $e->getMessage(), 'f' => $e->getFile(), 'l' => $e->getLine()]);
             }
 
             return array_merge([
