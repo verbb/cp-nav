@@ -37,9 +37,8 @@ class LayoutController extends Controller
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $request = Craft::$app->getRequest();
         $view = Craft::$app->getView();
-        $layoutId = $request->getParam('id');
+        $layoutId = $this->request->getParam('id');
 
         if ($layoutId) {
             $layout = CpNav::$plugin->getLayouts()->getLayoutById($layoutId);
@@ -57,7 +56,7 @@ class LayoutController extends Controller
             $variables['allGroups'] = Craft::$app->userGroups->getAllGroups();
         }
 
-        $template = $request->getParam('template', 'cp-nav/_includes/layout-hud');
+        $template = $this->request->getParam('template', 'cp-nav/_includes/layout-hud');
 
         $view->startJsBuffer();
         $bodyHtml = $view->renderTemplate($template, $variables);
@@ -74,12 +73,10 @@ class LayoutController extends Controller
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $request = Craft::$app->getRequest();
-
         $layout = new Layout();
-        $layout->name = $request->getRequiredParam('name');
+        $layout->name = $this->request->getRequiredParam('name');
         $layout->isDefault = false;
-        $layout->permissions = $request->getParam('permissions');
+        $layout->permissions = $this->request->getParam('permissions');
 
         if (!CpNav::$plugin->getLayouts()->saveLayout($layout)) {
             return $this->asModelFailure($layout, Craft::t('cp-nav', 'Couldn’t save layout.'), 'layout');
@@ -98,18 +95,16 @@ class LayoutController extends Controller
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $request = Craft::$app->getRequest();
-
-        $layoutId = $request->getRequiredParam('id');
+        $layoutId = $this->request->getRequiredParam('id');
         $layout = CpNav::$plugin->getLayouts()->getLayoutById($layoutId);
 
         if (!$layout) {
             return $this->asFailure(Craft::t('cp-nav', 'No layout model found.'));
         }
 
-        $layout->name = $request->getRequiredParam('name');
+        $layout->name = $this->request->getRequiredParam('name');
         $layout->isDefault = false;
-        $layout->permissions = $request->getParam('permissions');
+        $layout->permissions = $this->request->getParam('permissions');
 
         if (!CpNav::$plugin->getLayouts()->saveLayout($layout)) {
             return $this->asModelFailure($layout, Craft::t('cp-nav', 'Couldn’t save layout.'), 'layout');
