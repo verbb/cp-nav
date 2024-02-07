@@ -40,21 +40,61 @@
         }
     }
 
-    .cp-nav-toggle {
-        right: 0;
-        color: #e4edf6;
-        transition: color linear 100ms, background-color linear 100ms;
-        cursor: pointer;
-        border-radius: 5px;
-        user-select: none;
-        width: 36px !important;
-        height: 100% !important;
-        z-index: 9 !important;
+    .nav-item__subnav {
+        height: auto;
+        margin: 0;
+        overflow: visible;
+        padding: 0;
+        position: static;
+        width: auto;
+        clip: auto;
+        white-space: normal;
     }
 
-    .cp-nav-toggle:hover,
-    a:hover + .cp-nav-toggle {
-        background-color: #1f2933;
-        color: #fff;
+    .cp-nav-toggle {
+        position: relative;
+        display: block;
+        width: 30px;
+        height: 30px;
+
+        &::before {
+            transform: none !important;
+            border: 0;
+            opacity: 1;
+
+            content: '';
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            z-index: 2;
+            top: 0;
+            left: 0;
+            display: block;
+            background-size: 7px;
+            background-repeat: no-repeat;
+            background-position: center center;
+            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" aria-hidden="true"><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"></path></svg>');
+        }
+
+        &::after {
+            content: '';
+            width: 100%;
+            height: 100%;
+            border-radius: 6px;
+            position: absolute;
+            z-index: 1;
+            top: 0;
+            left: 0;
+            display: block;
+        }
+
+        &.expanded::before {
+            transform: rotate(90deg) !important;
+        }
+    }
+
+    .cp-nav-toggle:hover::after,
+    a:hover + .cp-nav-toggle::after {
+        background-color: #c1cdda;
     }
 }

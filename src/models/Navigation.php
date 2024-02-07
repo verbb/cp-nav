@@ -150,8 +150,9 @@ class Navigation extends Model
     {
         // Ignore any icon with a directory separator - that's not an icon font
         // Be sure to check for Windows-based paths too.
-        if (!str_contains($this->icon, '/') && !str_contains($this->icon, '\\')) {
-            return $this->icon;
+        // if (!str_contains($this->icon, '/') && !str_contains($this->icon, '\\')) {
+        if (str_contains($this->icon, 'fontIcon:')) {
+            return str_replace('fontIcon:', '', $this->icon);
         }
 
         return null;
@@ -172,7 +173,7 @@ class Navigation extends Model
             return $this->_originalNavItem['icon'] ?? $this->icon;
         }
 
-        return null;
+        return $this->icon;
     }
 
     public function getUrl(): ?string

@@ -232,12 +232,19 @@ JS;
             $navigation->enabled = true;
             $navigation->url = $navItem['url'] ?? '';
             $navigation->prevUrl = $navItem['url'] ?? '';
-            $navigation->icon = $navItem['icon'] ?? $navItem['fontIcon'] ?? '';
             $navigation->type = $navItem['type'] ?? '';
             $navigation->newWindow = $navItem['external'] ?? false;
             $navigation->layoutId = $layoutId;
             $navigation->prevLevel = 1;
             $navigation->level = 1;
+
+            $fontIcon = $navItem['fontIcon'] ?? '';
+
+            if ($fontIcon) {
+                $navigation->icon = 'fontIcon:' . $fontIcon;
+            } else {
+                $navigation->icon = $navItem['icon'] ?? '';
+            }
 
             $navigationService->saveNavigation($navigation);
 

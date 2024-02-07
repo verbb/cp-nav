@@ -8,7 +8,7 @@ Craft.CpNav.ToggleMenuItem = Garnish.Base.extend({
     init: function($element) {
         this.$element = $element;
         this.$a = $element.find('a:first');
-        this.$subnav = $element.find('.subnav');
+        this.$subnav = $element.find('.nav-item__subnav');
         this.$toggle = $('<span class="cp-nav-toggle toggle" />');
         this.stateKey = 'cp-nav-toggle-' + $element.attr('id');
 

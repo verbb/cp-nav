@@ -5,12 +5,6 @@
         {% set subnavBehaviour = item.getSubnavBehaviour() %}
         {% set children = item.getChildrenForCurrentUser() %}
 
-        {% set itemAttributes = {
-            id: item.getId(),
-            'data-type': item.type,
-            'data-subnav-behaviour': subnavBehaviour,
-        } %}
-
         {# Set the parent to be selected, only if there are no children selected #}
         {# Otherwise you have two items selected, which looks odd #}
         {% set selected = item.isSelected() %}
@@ -30,48 +24,77 @@
         {% set linkAttributes = {
             href: item.getUrl() ?? false,
             class: [
+                'sidebar-action',
                 selected ? 'sel' : false,
-                activeOrActiveChild ? 'is-active' : false,
+                activeOrActiveChild ? 'sel is-active' : false,
                 (item.getUrl() and item.newWindow) ? 'external' : false,
             ] | filter,
             target: item.getUrl() and item.newWindow ? '_blank' : false,
             rel: item.getUrl() and item.newWindow ? 'noopener' : false,
         } %}
 
+        {% set itemAttributes = {
+            id: item.getId(),
+            class: [
+                'nav-item',
+                children ? 'has-subnav' : false,
+                activeOrActiveChild ? 'sel' : false,
+            ],
+            'data-type': item.type,
+            'data-subnav-behaviour': subnavBehaviour,
+        } %}
+
         <li {{ attr(itemAttributes) }}>
             <a {{ attr(linkAttributes) }}>
-                <span class="icon icon-mask" aria-hidden="true">
-                    {% if item.getIcon() %}
-                        {{ svg(item.getIcon(), sanitize=true, namespace=true) }}
-                    {% elseif item.getFontIcon() %}
-                        {% if item.getFontIcon() == 'title' %}
-                            {% include "_includes/defaulticon.svg.twig" with { label: item.label } %}
-                        {% else %}
-                            <span data-icon="{{ item.getFontIcon() }}"></span>
-                        {% endif %}
-                    {% endif %}
+                <span class="sidebar-action__prefix">
+                    <span class="nav-icon" aria-hidden="true">
+                        {% if item.getIcon() %}
+                            {{ iconSvg(item.getIcon()) }}
+                        {% elseif item.getFontIcon() %}
+                            <span data-icon="{{ item.fontIcon }}"></span>
+                        {%- else -%}
+                            {% include '_includes/fallback-icon.svg.twig' with { label: item.label } %}
+                        {%- endif -%}
+                    </span>
                 </span>
 
-                <span class="label">{{ item.label }}</span>
+                <span class="sidebar-action__label">
+                    <span class="label">{{ item.label }}</span>
+                    {% if (item.getUrl() and item.newWindow) %}<span class="cp-icon puny">{{ iconSvg('external') }}</span>{% endif %}
+                </span>
 
                 {% if not selected and item.badgeCount %}
-                    <span class="badge">{{ item.badgeCount | number(decimals=0) }}</span>
+                    <span class="sidebar-action__badge">
+                        <span class="badge" aria-hidden="true">{{ item.badgeCount | number(decimals=0) }}</span>
+
+                        {{ tag('span', {
+                            class: 'visually-hidden',
+                            data: {
+                                notification: true,
+                            },
+                            text: '{num, number} {num, plural, =1{notification} other{notifications}}' | t('app', {
+                                num: item.badgeCount,
+                            }),
+                        }) }}
+                    </span>
                 {% endif %}
             </a>
 
             {% if children %}
-                <ul class="subnav {{ subnavBehaviour == 'openToggle' ? 'hidden' }}">
+                <ul class="nav-item__subnav {{ subnavBehaviour == 'openToggle' ? 'hidden' }}">
                     {% for item in children %}
                         {% set itemIsSelected = (item.isSelected() or (selectedSubnavItem is defined and selectedSubnavItem == item.handle) and loop.parent.item.isSelected()) %}
 
                         {% set itemAttributes = {
                             id: item.getId(),
+                            class: 'nav-item nav-item--sub',
                             'data-type': item.type,
                         } %}
 
                         {% set linkAttributes = {
                             href: (item.url ?? false) ? url(item.url) : false,
                             class: [
+                                'sidebar-action sidebar-action--sub',
                                 itemIsSelected ? 'sel' : false,
                                 (item.newWindow ?? false) ? 'external' : false,
                             ] | filter,
@@ -81,12 +104,16 @@
 
                         <li {{ attr(itemAttributes) }}>
                             <a {{ attr(linkAttributes) }}>
-                                <span class="label">
-                                    {{ item.label }}
+                                <span class="sidebar-action__prefix"></span>
 
-                                    {% if not itemIsSelected and item.badgeCount %}
-                                        <span class="badge">{{ item.badgeCount | number(decimals=0) }}</span>
-                                    {% endif %}
+                                <span class="sidebar-action__label">
+                                    <span class="label">
+                                        {{ item.label }}
+
+                                        {% if not itemIsSelected and item.badgeCount %}
+                                            <span class="badge">{{ item.badgeCount | number(decimals=0) }}</span>
+                                        {% endif %}
+                                    </span>
                                 </span>
                             </a>
                         </li>

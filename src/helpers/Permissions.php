@@ -25,7 +25,7 @@ class Permissions
             [
                 'label' => Craft::t('app', 'Dashboard'),
                 'url' => 'dashboard',
-                'fontIcon' => 'gauge',
+                'icon' => 'gauge',
                 'type' => 'craft',
             ],
         ];
@@ -34,7 +34,7 @@ class Permissions
             $navItems[] = [
                 'label' => Craft::t('app', 'Entries'),
                 'url' => 'entries',
-                'fontIcon' => 'section',
+                'icon' => 'newspaper',
                 'type' => 'craft',
             ];
         }
@@ -43,7 +43,7 @@ class Permissions
             $navItems[] = [
                 'label' => Craft::t('app', 'Globals'),
                 'url' => 'globals',
-                'fontIcon' => 'globe',
+                'icon' => 'globe',
                 'type' => 'craft',
             ];
         }
@@ -52,7 +52,7 @@ class Permissions
             $navItems[] = [
                 'label' => Craft::t('app', 'Categories'),
                 'url' => 'categories',
-                'fontIcon' => 'tree',
+                'icon' => 'sitemap',
                 'type' => 'craft',
             ];
         }
@@ -61,7 +61,7 @@ class Permissions
             $navItems[] = [
                 'label' => Craft::t('app', 'Assets'),
                 'url' => 'assets',
-                'fontIcon' => 'asset',
+                'icon' => 'image',
                 'type' => 'craft',
             ];
         }
@@ -70,7 +70,7 @@ class Permissions
             $navItems[] = [
                 'label' => Craft::t('app', 'Users'),
                 'url' => 'users',
-                'fontIcon' => 'users',
+                'icon' => 'user-group',
                 'type' => 'craft',
             ];
         }
@@ -128,7 +128,7 @@ class Permissions
             $navItems[] = [
                 'label' => Craft::t('app', 'GraphQL'),
                 'url' => 'graphql',
-                'icon' => '@appicons/graphql.svg',
+                'icon' => 'graphql',
                 'type' => 'craft',
                 'subnav' => $subNavItems,
             ];
@@ -147,7 +147,7 @@ class Permissions
             $navItems[] = [
                 'url' => 'utilities',
                 'label' => Craft::t('app', 'Utilities'),
-                'fontIcon' => 'tool',
+                'icon' => 'wrench',
                 'type' => 'craft',
                 'badgeCount' => $badgeCount,
             ];
@@ -157,7 +157,7 @@ class Permissions
             $navItems[] = [
                 'url' => 'settings',
                 'label' => Craft::t('app', 'Settings'),
-                'fontIcon' => 'settings',
+                'icon' => 'gear',
                 'type' => 'craft',
             ];
         }
@@ -165,7 +165,7 @@ class Permissions
         $navItems[] = [
             'url' => 'plugin-store',
             'label' => Craft::t('app', 'Plugin Store'),
-            'fontIcon' => 'plugin',
+            'icon' => 'plug',
             'type' => 'craft',
         ];
 
