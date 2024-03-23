@@ -41,7 +41,10 @@ var $notification = $('.cp-nav-notice');
 if ($notification.length) {
     $notification.remove();
 
-    $notification.insertAfter('#global-sidebar #system-info').addClass('shown');
+    $('#global-sidebar .global-sidebar__nav').prepend($notification);
+
+    // Use a class toggle to prevent flicker before loaded
+    $notification.addClass('shown');
 }
 
 

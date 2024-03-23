@@ -2,11 +2,8 @@
 
 <ul>
     {% for item in cpNavItems %}
-        {% set subnavBehaviour = item.getSubnavBehaviour() %}
         {% set children = item.getChildrenForCurrentUser() %}
 
-        {# Set the parent to be selected, only if there are no children selected #}
-        {# Otherwise you have two items selected, which looks odd #}
         {% set selected = item.isSelected() %}
         {% set activeOrActiveChild = item.isSelected() %}
 
@@ -41,7 +38,6 @@
                 activeOrActiveChild ? 'sel' : false,
             ],
             'data-type': item.type,
-            'data-subnav-behaviour': subnavBehaviour,
         } %}
 
         <li {{ attr(itemAttributes) }}>
@@ -81,7 +77,13 @@
             </a>
 
             {% if children %}
-                <ul class="nav-item__subnav {{ subnavBehaviour == 'openToggle' ? 'hidden' }}">
+                <craft-disclosure class="nav-item__trigger">
+                    <button type="button" class="btn menubtn hairline" aria-controls="{{ item.getId() }}-subnav" aria-expanded="{{ item.isSelected() ? 'true' : 'false' }}">
+                        <span class="visually-hidden">{{ 'Open subnavigation' | t('app') }}</span>
+                    </button>
+                </craft-disclosure>
+
+                <ul class="nav-item__subnav {{ item.isSelected() ? 'is-open' : '' }}" id="{{ item.getId() }}-subnav" data-state="collapsed">
                     {% for item in children %}
                         {% set itemIsSelected = (item.isSelected() or (selectedSubnavItem is defined and selectedSubnavItem == item.handle) and loop.parent.item.isSelected()) %}
 

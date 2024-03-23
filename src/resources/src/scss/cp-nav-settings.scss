@@ -129,8 +129,6 @@ body.rtl {
 // ==========================================================================
 
 .cp-nav-notice {
-    top: 83px;
-    left: 0;
     width: 100%;
     background: #e12d3a;
     height: 30px;
@@ -138,16 +136,18 @@ body.rtl {
     font-weight: 600;
     text-align: left;
     padding-left: 15px;
+    margin-top: -8px;
+    margin-bottom: 10px;
     line-height: 30px;
     font-size: 11px;
     z-index: 1000;
     display: none;
     pointer-events: none;
     user-select: none;
+    white-space: nowrap;
 
     &.shown {
         display: block;
-        margin-bottom: -15px;
     }
 }
 
