@@ -1,5 +1,15 @@
 # Changelog
 
+## 5.0.0-beta.2 - 2024-03-22
+
+### Fixed
+- Fix move handle size.
+- Fix modal footers.
+- Update compatibility with Craft 5 menu changes.
+
+### Removed
+- Remove `subnavBehaviour` in favour of native Craft 5 menu updates.
+
 ## 5.0.0-beta.1 - 2024-03-04
 
 ### Changed
