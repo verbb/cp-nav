@@ -163,7 +163,6 @@ class Navigations extends Component
             $navigationRecord->customIcon = $data['customIcon'] ?? '';
             $navigationRecord->type = $data['type'] ?? '';
             $navigationRecord->newWindow = $data['newWindow'] ?? false;
-            $navigationRecord->subnavBehaviour = $data['subnavBehaviour'] ?? null;
             $navigationRecord->uid = $navigationUid;
 
             $navigationRecord->save(false);
@@ -329,7 +328,6 @@ class Navigations extends Component
                 'customIcon',
                 'type',
                 'newWindow',
-                'subnavBehaviour',
                 'dateUpdated',
                 'dateCreated',
                 'uid',

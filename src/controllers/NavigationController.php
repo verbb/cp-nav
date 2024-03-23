@@ -203,7 +203,6 @@ class NavigationController extends Controller
         $navigation->url = $this->request->getParam('url');
         $navigation->newWindow = (bool)$this->request->getParam('newWindow');
         $navigation->icon = $this->request->getParam('icon') ?: $navigation->icon;
-        $navigation->subnavBehaviour = $this->request->getParam('subnavBehaviour');
 
         $customIcon = $this->request->getParam('customIcon') ? Json::encode($this->request->getParam('customIcon')) : null;
         $navigation->customIcon = $customIcon;

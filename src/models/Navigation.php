@@ -50,7 +50,6 @@ class Navigation extends Model
     public ?string $customIcon = null;
     public ?string $type = null;
     public bool $newWindow = false;
-    public ?string $subnavBehaviour = null;
     public ?DateTime $dateCreated = null;
     public ?DateTime $dateUpdated = null;
     public ?string $uid = null;
@@ -85,7 +84,6 @@ class Navigation extends Model
             'customIcon' => $this->customIcon,
             'type' => $this->type,
             'newWindow' => $this->newWindow,
-            'subnavBehaviour' => $this->subnavBehaviour,
         ];
     }
 
@@ -221,24 +219,6 @@ class Navigation extends Model
         return '';
     }
 
-    public function getSubnavBehaviour(): ?string
-    {
-        if ($this->getChildren()) {
-            /* @var Settings $settings */
-            $settings = CpNav::$plugin->getSettings();
-
-            $behaviour = $settings->defaultSubnavBehaviour;
-
-            if ($this->subnavBehaviour) {
-                $behaviour = $this->subnavBehaviour;
-            }
-
-            return $behaviour;
-        }
-
-        return null;
-    }
-
     public function getLayout(): ?Layout
     {
         if ($this->_layout !== null) {
@@ -330,11 +310,6 @@ class Navigation extends Model
             }
 
             $children[] = $child;
-        }
-
-        // Return no children if the subnav is only set to show when active (and this isn't active)
-        if ($this->getSubnavBehaviour() === Settings::SUBNAV_DEFAULT && !$this->isSelected()) {
-            return [];
         }
 
         return $children;
