@@ -44,10 +44,10 @@
             <a {{ attr(linkAttributes) }}>
                 <span class="sidebar-action__prefix">
                     <span class="nav-icon" aria-hidden="true">
-                        {% if item.getIcon() %}
-                            {{ iconSvg(item.getIcon()) }}
-                        {% elseif item.getFontIcon() %}
+                        {% if item.getFontIcon() %}
                             <span data-icon="{{ item.fontIcon }}"></span>
+                        {% elseif item.getIcon() %}
+                            {{ iconSvg(item.getIcon()) }}
                         {%- else -%}
                             {% include '_includes/fallback-icon.svg.twig' with { label: item.label } %}
                         {%- endif -%}
