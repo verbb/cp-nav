@@ -48,10 +48,13 @@ class CpNav extends Plugin
         $this->_registerProjectConfigEventHandlers();
 
         if (Craft::$app->getRequest()->getIsCpRequest()) {
-            $this->_registerCpRoutes();
-            $this->_registerTemplateHooks();
+            // No need to do anything if this is an action request (despite being a CP request)
+            if (!Craft::$app->getRequest()->getIsActionRequest()) {
+                $this->_registerCpRoutes();
+                $this->_registerTemplateHooks();
 
-            Craft::$app->getView()->registerAssetBundle(CpNavAsset::class);
+                Craft::$app->getView()->registerAssetBundle(CpNavAsset::class);
+            }
         }
     }
 
