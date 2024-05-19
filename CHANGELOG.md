@@ -1,20 +1,14 @@
 # Changelog
 
-## 5.0.0-beta.2 - 2024-03-22
+## 5.0.0 - 2024-05-20
 
-### Fixed
-- Fix move handle size.
-- Fix modal footers.
+### Changed
+- Now requires PHP `8.2.0+`.
+- Now requires Craft `5.0.0+`.
 - Update compatibility with Craft 5 menu changes.
 
 ### Removed
 - Remove `subnavBehaviour` in favour of native Craft 5 menu updates.
-
-## 5.0.0-beta.1 - 2024-03-04
-
-### Changed
-- Now requires PHP `8.2.0+`.
-- Now requires Craft `5.0.0-beta.1+`.
 
 ## 4.0.12 - 2024-03-04
 
