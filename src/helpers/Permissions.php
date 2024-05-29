@@ -18,7 +18,7 @@ class Permissions
 
     public static function getBaseNavItems(): array
     {
-        $craftPro = Craft::$app->getEdition() === Craft::Pro;
+        $craftSolo = Craft::$app->getEdition() === Craft::Solo;
         $generalConfig = Craft::$app->getConfig()->getGeneral();
 
         $navItems = [
@@ -66,7 +66,7 @@ class Permissions
             ];
         }
 
-        if ($craftPro) {
+        if (!$craftSolo) {
             $navItems[] = [
                 'label' => Craft::t('app', 'Users'),
                 'url' => 'users',
@@ -174,7 +174,7 @@ class Permissions
 
     public static function getPermissionMap(): array
     {
-        $craftPro = Craft::$app->getEdition() === Craft::Pro;
+        $craftSolo = Craft::$app->getEdition() === Craft::Solo;
         $isAdmin = Craft::$app->getUser()->getIsAdmin();
         $generalConfig = Craft::$app->getConfig()->getGeneral();
 
@@ -184,11 +184,11 @@ class Permissions
             'globals' => (bool)Craft::$app->getGlobals()->getEditableSets(),
             'categories' => (bool)Craft::$app->getCategories()->getEditableGroupIds(),
             'assets' => (bool)Craft::$app->getVolumes()->getTotalViewableVolumes(),
-            'users' => $craftPro && Craft::$app->getUser()->checkPermission('editUsers'),
+            'users' => !$craftSolo && Craft::$app->getUser()->checkPermission('editUsers'),
 
             'utilities' => (bool)Craft::$app->getUtilities()->getAuthorizedUtilityTypes(),
 
-            'graphql' => $isAdmin && $craftPro && $generalConfig->enableGql,
+            'graphql' => $isAdmin && !$craftSolo && $generalConfig->enableGql,
             'settings' => $isAdmin && $generalConfig->allowAdminChanges,
             'plugin-store' => $isAdmin,
         ];

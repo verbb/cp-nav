@@ -80,7 +80,7 @@ class Layouts extends Component
 
         $layouts = $this->getAllLayouts();
 
-        if (Craft::$app->getEdition() == Craft::Solo) {
+        if (Craft::$app->getEdition() === Craft::Solo) {
             // Is there even a solo account?
             if ($solo = User::find()->status(null)->one()) {
                 foreach ($layouts as $layout) {
@@ -89,7 +89,7 @@ class Layouts extends Component
                     }
                 }
             }
-        } else if (Craft::$app->getEdition() == Craft::Pro) {
+        } else {
             if ($userId = Craft::$app->getUser()->id) {
                 $groups = Craft::$app->userGroups->getGroupsByUserId($userId);
 

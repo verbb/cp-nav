@@ -50,9 +50,9 @@ class LayoutController extends Controller
             'layout' => $layout,
         ];
 
-        if (Craft::$app->getEdition() == Craft::Solo) {
+        if (Craft::$app->getEdition() === Craft::Solo) {
             $variables['soloAccount'] = User::find()->status(null)->one();
-        } else if (Craft::$app->getEdition() == Craft::Pro) {
+        } else {
             $variables['allGroups'] = Craft::$app->userGroups->getAllGroups();
         }
 
