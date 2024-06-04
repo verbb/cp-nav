@@ -104,7 +104,7 @@ class Permissions
             }
         }
 
-        if ($craftPro && $generalConfig->enableGql) {
+        if (!$craftSolo && $generalConfig->enableGql) {
             $subNavItems = [];
 
             if ($generalConfig->allowAdminChanges) {
