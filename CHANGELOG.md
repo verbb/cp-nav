@@ -1,5 +1,16 @@
 # Changelog
 
+## 5.0.1 - 2024-06-24
+
+### Added
+- Add Craft Teams support for permissions.
+
+### Changed
+- Update English translations.
+
+### Fixed
+- Fix an error when saving or creating layouts.
+
 ## 5.0.0 - 2024-05-20
 
 ### Changed
