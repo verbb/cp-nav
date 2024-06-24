@@ -76,7 +76,7 @@ class LayoutController extends Controller
         $layout = new Layout();
         $layout->name = $this->request->getRequiredParam('name');
         $layout->isDefault = false;
-        $layout->permissions = $this->request->getParam('permissions');
+        $layout->permissions = $this->request->getParam('permissions') ?: [];
 
         if (!CpNav::$plugin->getLayouts()->saveLayout($layout)) {
             return $this->asModelFailure($layout, Craft::t('cp-nav', 'Couldn’t save layout.'), 'layout');
@@ -104,7 +104,7 @@ class LayoutController extends Controller
 
         $layout->name = $this->request->getRequiredParam('name');
         $layout->isDefault = false;
-        $layout->permissions = $this->request->getParam('permissions');
+        $layout->permissions = $this->request->getParam('permissions') ?: [];
 
         if (!CpNav::$plugin->getLayouts()->saveLayout($layout)) {
             return $this->asModelFailure($layout, Craft::t('cp-nav', 'Couldn’t save layout.'), 'layout');
