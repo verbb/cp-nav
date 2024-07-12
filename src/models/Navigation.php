@@ -163,6 +163,11 @@ class Navigation extends Model
             return $customIcon;
         }
 
+        // If set to `title` we want to fallback on the default
+        if ($this->icon === 'title') {
+            return null;
+        }
+
         // Get the original navs path, so we can handle multi-environment paths correctly. Path's will be stored
         // in one environment, so they'll be different on another. The original nav will already have the correct path,
         // so it's efficient to just swap that in. This will also handle things like Craft' GQL, being `@appicons/graphql.svg`.
