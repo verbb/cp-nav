@@ -31,5 +31,5 @@ Control Panel Nav is licensed under the MIT license, meaning it will always be f
 <h2></h2>
 
 <a href="https://verbb.io" target="_blank">
-    <img width="100" src="https://verbb.io/assets/img/verbb-pill.svg">
+    <img width="100" src="https://verbb.io/assets/img/verbb-pill.svg" alt="Verbb">
 </a>
