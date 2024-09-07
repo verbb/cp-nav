@@ -1,5 +1,11 @@
 # Changelog
 
+## 5.0.2 - 2024-09-07
+
+### Fixed
+- Fix an error when updating nav items.
+- Fix icon not working for nav item, when set to “First Letter”.
+
 ## 5.0.1 - 2024-06-24
 
 ### Added
