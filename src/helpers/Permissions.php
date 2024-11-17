@@ -104,7 +104,7 @@ class Permissions
             }
         }
 
-        if (!$craftSolo && $generalConfig->enableGql) {
+        if ($generalConfig->enableGql) {
             $subNavItems = [];
 
             if ($generalConfig->allowAdminChanges) {
@@ -188,7 +188,7 @@ class Permissions
 
             'utilities' => (bool)Craft::$app->getUtilities()->getAuthorizedUtilityTypes(),
 
-            'graphql' => $isAdmin && !$craftSolo && $generalConfig->enableGql,
+            'graphql' => $isAdmin && $generalConfig->enableGql,
             'settings' => $isAdmin && $generalConfig->allowAdminChanges,
             'plugin-store' => $isAdmin,
         ];
