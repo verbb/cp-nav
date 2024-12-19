@@ -77,13 +77,22 @@
             </a>
 
             {% if children %}
-                <craft-disclosure class="nav-item__trigger">
-                    <button type="button" class="btn menubtn hairline" aria-controls="{{ item.getId() }}-subnav" aria-expanded="{{ item.isSelected() ? 'true' : 'false' }}">
-                        <span class="visually-hidden">{{ 'Open subnavigation' | t('app') }}</span>
+                <craft-disclosure
+                    class="nav-item__trigger"
+                    state="{{ item.isSelected() ? 'expanded' : 'collapsed' }}"
+                >
+                    <button
+                        type="button"
+                        class="btn menubtn hairline"
+                        aria-controls="{{ item.getId() }}-subnav"
+                        aria-describedby="{{ item.getId() }}-link"
+                        aria-expanded="{{ item.isSelected() ? 'true' : 'false' }}"
+                    >
+                        <span class="visually-hidden">{{ 'Open subnavigation' |t('app') }}</span>
                     </button>
                 </craft-disclosure>
 
-                <ul class="nav-item__subnav {{ item.isSelected() ? 'is-open' : '' }}" id="{{ item.getId() }}-subnav" data-state="collapsed">
+                <ul class="nav-item__subnav {{ item.isSelected() ? 'is-open' : '' -}}" id="{{ item.getId() }}-subnav" data-state="{{ item.isSelected() ?  'expanded' : 'collapsed' }}">
                     {% for item in children %}
                         {% set itemIsSelected = (item.isSelected() or (selectedSubnavItem is defined and selectedSubnavItem == item.handle) and loop.parent.item.isSelected()) %}
 
