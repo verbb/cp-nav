@@ -48,6 +48,8 @@
                             <span data-icon="{{ item.fontIcon }}"></span>
                         {% elseif item.getIcon() %}
                             {{ iconSvg(item.getIcon()) }}
+                        {% elseif item.isDivider() %}
+                            {# No icon for divider #}
                         {%- else -%}
                             {% include '_includes/fallback-icon.svg.twig' with { label: item.label } %}
                         {%- endif -%}
