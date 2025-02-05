@@ -1,5 +1,14 @@
 # Changelog
 
+## 5.0.3 - 2025-02-05
+
+### Fixed
+- Update Craft icon collection.
+- Tweak color contrast for divider labels.
+- Fix nav icon showing for divider nodes.
+- Fix expanded subnav state not being respected.
+- Fix support for GraphQL on Craft Solo.
+
 ## 5.0.2 - 2024-09-07
 
 ### Fixed
