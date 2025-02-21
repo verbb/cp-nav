@@ -46,6 +46,8 @@
                     <span class="nav-icon" aria-hidden="true">
                         {% if item.getFontIcon() %}
                             <span data-icon="{{ item.fontIcon }}"></span>
+                        {% elseif item.getCustomIcon() %}
+                            {{ svg(item.getCustomIcon(), sanitize=true, namespace=true) }}
                         {% elseif item.getIcon() %}
                             {{ iconSvg(item.getIcon()) }}
                         {% elseif item.isDivider() %}

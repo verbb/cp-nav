@@ -7,6 +7,7 @@ use verbb\cpnav\helpers\Permissions;
 
 use Craft;
 use craft\base\Model;
+use craft\elements\Asset;
 use craft\helpers\App;
 use craft\helpers\ArrayHelper;
 use craft\helpers\FileHelper;
@@ -158,11 +159,6 @@ class Navigation extends Model
 
     public function getIcon(): ?string
     {
-        // Get custom icon content - takes precedence
-        if ($customIcon = $this->getCustomIconPath()) {
-            return $customIcon;
-        }
-
         // If set to `title` we want to fallback on the default
         if ($this->icon === 'title') {
             return null;
@@ -195,13 +191,30 @@ class Navigation extends Model
         return UrlHelper::url($url);
     }
 
+    public function getCustomIcon(): ?Asset
+    {
+        if ($this->customIcon) {
+            $customIcon = Json::decode($this->customIcon)[0] ?? null;
+
+            if ($customIcon) {
+                if ($asset = Craft::$app->getAssets()->getAssetById($customIcon)) {
+                    if ($asset->extension === 'svg') {
+                        return $asset;
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
     public function getCustomIconPath(): bool|string|null
     {
         try {
             if ($this->customIcon) {
                 $customIcon = Json::decode($this->customIcon)[0] ?? null;
 
-                if ($asset = Craft::$app->assets->getAssetById($customIcon)) {
+                if ($asset = Craft::$app->getAssets()->getAssetById($customIcon)) {
                     // Check if this volume supports the path (ie, local volume)
                     $volumePath = $asset->getVolume()->path ?? null;
 
