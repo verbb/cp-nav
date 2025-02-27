@@ -60,7 +60,10 @@
 
                 <span class="sidebar-action__label">
                     <span class="label">{{ item.label }}</span>
-                    {% if (item.getUrl() and item.newWindow) %}<span class="cp-icon puny">{{ iconSvg('external') }}</span>{% endif %}
+
+                    {% if (item.getUrl() and item.newWindow) %}
+                        <span data-icon="external" data-icon-size="puny" role="img" aria-label="{{ 'Opens in a new window' | t('app') }}"></span>
+                    {% endif %}
                 </span>
 
                 {% if not selected and item.badgeCount %}
@@ -129,6 +132,10 @@
                                             <span class="badge">{{ item.badgeCount | number(decimals=0) }}</span>
                                         {% endif %}
                                     </span>
+
+                                    {% if (item.getUrl() and item.newWindow) %}
+                                        <span data-icon="external" data-icon-size="puny" role="img" aria-label="{{ 'Opens in a new window' | t('app') }}"></span>
+                                    {% endif %}
                                 </span>
                             </a>
                         </li>
