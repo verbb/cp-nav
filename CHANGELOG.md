@@ -1,5 +1,11 @@
 # Changelog
 
+## 5.0.4 - 2025-03-05
+
+### Fixed
+- Fix external link icon style.
+- Fix custom icons not rendering correctly.
+
 ## 5.0.3 - 2025-02-05
 
 ### Fixed
