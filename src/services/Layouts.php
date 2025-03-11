@@ -149,6 +149,10 @@ class Layouts extends Component
         $layoutUid = $event->tokenMatches[0];
         $data = $event->newValue;
 
+        if (!$data) {
+            return;
+        }
+
         $transaction = Craft::$app->getDb()->beginTransaction();
 
         try {
