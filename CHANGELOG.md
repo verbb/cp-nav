@@ -1,5 +1,10 @@
 # Changelog
 
+## 5.0.5 - 2025-07-18
+
+### Fixed
+- Fix an error when applying Layout changes.
+
 ## 5.0.4 - 2025-03-05
 
 ### Fixed
