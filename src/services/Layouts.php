@@ -12,7 +12,7 @@ use craft\base\Component;
 use craft\base\MemoizableArray;
 use craft\db\Query;
 use craft\elements\User;
-use craft\events\ConfigEvent;
+use CraftCms\Cms\ProjectConfig\Events\ItemAdded;
 use craft\helpers\Db;
 use craft\helpers\StringHelper;
 
@@ -144,7 +144,7 @@ class Layouts extends Component
         return true;
     }
 
-    public function handleChangedLayout(ConfigEvent $event): void
+    public function handleChangedLayout($event): void
     {
         $layoutUid = $event->tokenMatches[0];
         $data = $event->newValue;
@@ -237,7 +237,7 @@ class Layouts extends Component
         return true;
     }
 
-    public function handleDeletedLayout(ConfigEvent $event): void
+    public function handleDeletedLayout($event): void
     {
         $layoutUid = $event->tokenMatches[0];
 

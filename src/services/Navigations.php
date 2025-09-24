@@ -10,7 +10,7 @@ use Craft;
 use craft\base\Component;
 use craft\base\MemoizableArray;
 use craft\db\Query;
-use craft\events\ConfigEvent;
+use CraftCms\Cms\ProjectConfig\Events\ItemAdded;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use craft\helpers\StringHelper;
@@ -107,7 +107,7 @@ class Navigations extends Component
         return true;
     }
 
-    public function handleChangedNavigation(ConfigEvent $event): void
+    public function handleChangedNavigation($event): void
     {
         $navigationUid = $event->tokenMatches[0];
         $data = $event->newValue;
@@ -225,7 +225,7 @@ class Navigations extends Component
         return true;
     }
 
-    public function handleDeletedNavigation(ConfigEvent $event): void
+    public function handleDeletedNavigation($event): void
     {
         $navigationUid = $event->tokenMatches[0];
 

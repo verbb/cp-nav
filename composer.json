@@ -2,7 +2,7 @@
     "name": "verbb/cp-nav",
     "description": "Manage the Craft Control Panel navigation.",
     "type": "craft-plugin",
-    "version": "5.0.5",
+    "version": "6.0.0-alpha.1",
     "keywords": [
         "craft",
         "cms",
@@ -27,9 +27,9 @@
         }
     ],
     "require": {
-        "php": "^8.2",
-        "craftcms/cms": "^5.0.0",
-        "verbb/base": "^3.0.0"
+        "php": "^8.4",
+        "craftcms/cms": "6.x-dev",
+        "verbb/base": "dev-craft-6"
     },
     "autoload": {
         "psr-4": {
@@ -39,7 +39,9 @@
     "extra": {
         "name": "Control Panel Nav",
         "handle": "cp-nav",
-        "changelogUrl": "https://raw.githubusercontent.com/verbb/cp-nav/craft-5/CHANGELOG.md",
+        "changelogUrl": "https://raw.githubusercontent.com/verbb/cp-nav/craft-6/CHANGELOG.md",
         "class": "verbb\\cpnav\\CpNav"
-    }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }
