@@ -1,5 +1,10 @@
 # Changelog
 
+## 5.0.7 - 2026-03-15
+
+### Fixed
+- Fix compatibility with Craft 5.9+ and new layout changes.
+
 ## 5.0.6 - 2026-03-03
 
 ### Fixed
