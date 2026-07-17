@@ -189,7 +189,7 @@ class Permissions
             'utilities' => (bool)Craft::$app->getUtilities()->getAuthorizedUtilityTypes(),
 
             'graphql' => $isAdmin && $generalConfig->enableGql,
-            'settings' => $isAdmin && $generalConfig->allowAdminChanges,
+            'settings' => $isAdmin && (version_compare(Craft::$app->getVersion(), '5.6.0', '>=') || $generalConfig->allowAdminChanges),
             'plugin-store' => $isAdmin,
         ];
 
