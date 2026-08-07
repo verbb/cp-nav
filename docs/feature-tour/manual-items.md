@@ -15,6 +15,10 @@ New manuals append at the end of the top-level tree for the current layout. Drag
 
 While Control Panel Nav is active, its labels and visibility for Craft/plugin items override names set in other plugins’ settings.
 
+## Environment variables and aliases
+
+Manual URLs support Craft [environment variables and aliases](https://craftcms.com/docs/5.x/configure.html#control-panel-settings) (for example `$PRIMARY_SITE_URL` or `@web`). Values are stored as entered and expanded when the nav is rendered.
+
 ## Site tokens
 
 Manual URLs may include:
@@ -24,7 +28,7 @@ Manual URLs may include:
 | `{site}` | Current site ID |
 | `{siteHandle}` | Current site handle |
 
-Tokens are replaced when the nav is rendered for the request.
+At render time, env/aliases are expanded first, then site tokens.
 
 ## Icons
 

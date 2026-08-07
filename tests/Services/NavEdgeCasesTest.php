@@ -85,6 +85,27 @@ describe('NavRenderer site tokens', function() {
         expect($url)->toBe("https://example.com/?site={$site->handle}&id={$site->id}");
     });
 
+    it('parses env variables before site tokens', function() {
+        $site = Craft::$app->getSites()->getPrimarySite();
+        $renderer = new NavRenderer();
+        $envName = 'CPNAV_TEST_URL_' . strtoupper(bin2hex(random_bytes(4)));
+        $base = 'https://example.test/cp';
+
+        putenv("{$envName}={$base}");
+        $_ENV[$envName] = $base;
+        $_SERVER[$envName] = $base;
+
+        try {
+            // Craft expands `$VAR/…` path form; site tokens run after parseEnv.
+            $url = $renderer->resolveUrl('$' . $envName . '/entries?site={siteHandle}');
+
+            expect($url)->toBe("{$base}/entries?site={$site->handle}");
+        } finally {
+            putenv($envName);
+            unset($_ENV[$envName], $_SERVER[$envName]);
+        }
+    });
+
     it('passes absolute URLs through toCraftNavItems', function() {
         $resolved = [
             new ResolvedNavNode(

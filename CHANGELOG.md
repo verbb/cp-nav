@@ -8,6 +8,8 @@
 ### Changed
 - Softened CP sidebar **divider** chrome for Craft 5 — line–label–line with muted hairline/text tokens instead of the solid dark label badge from Craft 3/4.
 - Layout selection for multi-group users now prefers layout table order (`sortOrder`) over Craft’s user-group order. (#150)
+- Manual URLs expand Craft env variables / aliases at render (`App::parseEnv`), then `{site}` / `{siteHandle}` tokens. (#128)
+
 ### Fixed
 - New Craft/plugin nav items now insert between their Craft default neighbours when the layout overlay still has frozen sorts from before those items existed (e.g. Entries after adding a section no longer lands after Assets on a key tie-break).
 

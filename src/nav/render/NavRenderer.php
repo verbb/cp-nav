@@ -9,6 +9,7 @@ use verbb\cpnav\nav\sources\NodeKey;
 
 use Craft;
 use craft\events\RegisterCpNavItemsEvent;
+use craft\helpers\App;
 use craft\helpers\StringHelper;
 use craft\services\Plugins;
 use craft\web\twig\variables\Cp;
@@ -51,7 +52,7 @@ final class NavRenderer extends Component
             return;
         }
 
-        // D27 — missing layout falls back to default; never fatal.
+        // Missing layout falls back to default; never fatal.
         $layout = CpNav::$plugin->getLayouts()->getLayoutForCurrentUser()
             ?? CpNav::$plugin->getLayouts()->getDefaultLayout();
 
@@ -96,7 +97,21 @@ final class NavRenderer extends Component
         return $this->_buildLevel($byParent, '', $registryIndex, $badgeCounts);
     }
 
-    /** Substitute `{site}` / `{siteHandle}` tokens in manual URLs (D24). */
+    /**
+     * Expand env/aliases, then site tokens, for a resolved nav URL.
+     * Stored overlay values stay raw; expansion is render-time only.
+     */
+    public function resolveUrl(string $url): string
+    {
+        $parsed = App::parseEnv($url);
+        if (is_string($parsed)) {
+            $url = $parsed;
+        }
+
+        return $this->substituteSiteTokens($url);
+    }
+
+    /** Substitute `{site}` / `{siteHandle}` tokens in manual URLs. */
     public function substituteSiteTokens(string $url): string
     {
         if (!str_contains($url, '{site')) {
@@ -131,7 +146,7 @@ final class NavRenderer extends Component
             // User-uploaded SVG overrides any Craft/plugin icon (font or path).
             $customIconPath = $this->_customIconPath($resolved->customIcon);
             $icon = $customIconPath ?: ($resolved->icon ?? $registry?->icon);
-            $url = $this->substituteSiteTokens($resolved->url);
+            $url = $this->resolveUrl($resolved->url);
 
             $item = [
                 'label' => $resolved->label,
