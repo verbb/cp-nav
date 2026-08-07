@@ -5,9 +5,10 @@ declare(strict_types=1);
 use Tests\Support\AdminUser;
 use Tests\Support\CpRequestContext;
 use verbb\cpnav\CpNav;
-use verbb\cpnav\nav\resolve\NavResolver;
-use verbb\cpnav\nav\sources\NodeKey;
 use verbb\cpnav\nav\customization\CustomizationNode;
+use verbb\cpnav\nav\resolve\NavResolver;
+use verbb\cpnav\nav\sources\NavNode;
+use verbb\cpnav\nav\sources\NodeKey;
 
 describe('NavResolver', function() {
     it('inserts new nav source nodes at default positions when customization is empty', function() {
@@ -81,5 +82,90 @@ describe('NavResolver', function() {
         $keys = array_map(fn($node) => $node->key, $resolved);
 
         expect($keys)->not->toContain('plugin:removed-plugin');
+    });
+
+    it('inserts a newly appeared registry key between frozen default-sibling sorts', function() {
+        // Overlay frozen before Entries existed: Assets still holds sort 20 (old slot 2).
+        // Absolute defaultOrder*10 would also give Entries 20 → assets wins the key tie-break.
+        $registry = [
+            new NavNode('craft:dashboard', 'craft', 'Dashboard', 'dashboard', 'gauge', 1, null),
+            new NavNode('craft:entries', 'craft', 'Entries', 'content/entries', 'newspaper', 2, null),
+            new NavNode('craft:assets', 'craft', 'Assets', 'assets', 'image', 3, null),
+            new NavNode('craft:users', 'craft', 'Users', 'users', 'user-group', 4, null),
+        ];
+
+        $overlay = [
+            'craft:dashboard' => new CustomizationNode('craft:dashboard', true, 10),
+            'craft:assets' => new CustomizationNode('craft:assets', true, 20),
+            'craft:users' => new CustomizationNode('craft:users', true, 30),
+        ];
+
+        $resolved = (new NavResolver())->resolve($registry, $overlay);
+        $topKeys = array_map(
+            fn($n) => $n->key,
+            array_values(array_filter($resolved, fn($n) => $n->parentKey === null)),
+        );
+
+        expect($topKeys)->toBe([
+            'craft:dashboard',
+            'craft:entries',
+            'craft:assets',
+            'craft:users',
+        ]);
+    });
+
+    it('inserts multiple new registry keys in Craft order between frozen siblings', function() {
+        $registry = [
+            new NavNode('craft:dashboard', 'craft', 'Dashboard', 'dashboard', 'gauge', 1, null),
+            new NavNode('craft:entries', 'craft', 'Entries', 'content/entries', 'newspaper', 2, null),
+            new NavNode('craft:categories', 'craft', 'Categories', 'categories', 'sitemap', 3, null),
+            new NavNode('craft:assets', 'craft', 'Assets', 'assets', 'image', 4, null),
+        ];
+
+        $overlay = [
+            'craft:dashboard' => new CustomizationNode('craft:dashboard', true, 10),
+            'craft:assets' => new CustomizationNode('craft:assets', true, 20),
+        ];
+
+        $resolved = (new NavResolver())->resolve($registry, $overlay);
+        $topKeys = array_map(
+            fn($n) => $n->key,
+            array_values(array_filter($resolved, fn($n) => $n->parentKey === null)),
+        );
+
+        expect($topKeys)->toBe([
+            'craft:dashboard',
+            'craft:entries',
+            'craft:categories',
+            'craft:assets',
+        ]);
+    });
+
+    it('opens an integer gap when frozen sibling sorts are adjacent', function() {
+        $registry = [
+            new NavNode('craft:dashboard', 'craft', 'Dashboard', 'dashboard', 'gauge', 1, null),
+            new NavNode('craft:entries', 'craft', 'Entries', 'content/entries', 'newspaper', 2, null),
+            new NavNode('craft:assets', 'craft', 'Assets', 'assets', 'image', 3, null),
+        ];
+
+        $overlay = [
+            'craft:dashboard' => new CustomizationNode('craft:dashboard', true, 10),
+            'craft:assets' => new CustomizationNode('craft:assets', true, 11),
+        ];
+
+        $resolved = (new NavResolver())->resolve($registry, $overlay);
+        $top = array_values(array_filter($resolved, fn($n) => $n->parentKey === null));
+        $byKey = [];
+        foreach ($top as $node) {
+            $byKey[$node->key] = $node->sort;
+        }
+
+        expect(array_map(fn($n) => $n->key, $top))->toBe([
+            'craft:dashboard',
+            'craft:entries',
+            'craft:assets',
+        ]);
+        expect($byKey['craft:entries'])->toBeGreaterThan($byKey['craft:dashboard']);
+        expect($byKey['craft:entries'])->toBeLessThan($byKey['craft:assets']);
     });
 });

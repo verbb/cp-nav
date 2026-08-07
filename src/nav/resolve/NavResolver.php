@@ -29,21 +29,9 @@ class NavResolver extends Component
     public function resolve(array $registryTree, array $overlayByKey = [], ?string $layoutUid = null): array
     {
         $registryIndex = $this->_indexRegistry($registryTree);
-        $workingOverlay = $overlayByKey;
-
-        // Default-position insert: ensure every nav source node has customization sort metadata.
-        foreach ($registryIndex as $key => $indexed) {
-            if (isset($workingOverlay[$key]) || NodeKey::isCustomizationOnly($key)) {
-                continue;
-            }
-
-            $workingOverlay[$key] = new CustomizationNode(
-                key: $key,
-                enabled: true,
-                sort: $indexed['defaultOrder'] * 10,
-                parent: $indexed['defaultParent'],
-            );
-        }
+        // D7 — missing registry keys get a resolve-time sort between Craft’s default neighbours,
+        // not absolute defaultOrder*10 (that collides with frozen pre-appearance overlay sorts).
+        $workingOverlay = $this->_insertMissingAtDefaultPositions($registryIndex, $overlayByKey);
 
         $resolved = [];
 
@@ -99,6 +87,169 @@ class NavResolver extends Component
 
     // Private Methods
     // =========================================================================
+
+    /**
+     * Ensure every nav source key has a working customization entry, with new keys sorted
+     * between the nearest lower/higher *default* siblings already present (D7).
+     */
+    private function _insertMissingAtDefaultPositions(array $registryIndex, array $overlayByKey): array
+    {
+        $workingOverlay = $overlayByKey;
+        $byParent = [];
+
+        foreach ($registryIndex as $key => $indexed) {
+            $parentGroup = $indexed['defaultParent'] ?? '';
+            $byParent[$parentGroup][] = [
+                'key' => $key,
+                'defaultOrder' => $indexed['defaultOrder'],
+                'defaultParent' => $indexed['defaultParent'],
+            ];
+        }
+
+        foreach ($byParent as &$siblings) {
+            usort($siblings, fn(array $a, array $b): int => $a['defaultOrder'] <=> $b['defaultOrder']);
+        }
+        unset($siblings);
+
+        // Insert in Craft defaultOrder so each new key can anchor against ones we just placed.
+        foreach ($byParent as $parentGroup => $siblings) {
+            $parentKey = $parentGroup === '' ? null : $parentGroup;
+
+            foreach ($siblings as $indexed) {
+                $key = $indexed['key'];
+
+                if (isset($workingOverlay[$key]) || NodeKey::isCustomizationOnly($key)) {
+                    continue;
+                }
+
+                $sort = $this->_defaultPositionSort(
+                    $key,
+                    $indexed['defaultOrder'],
+                    $parentKey,
+                    $siblings,
+                    $workingOverlay,
+                );
+
+                $workingOverlay[$key] = new CustomizationNode(
+                    key: $key,
+                    enabled: true,
+                    sort: $sort,
+                    parent: $indexed['defaultParent'],
+                );
+            }
+        }
+
+        return $workingOverlay;
+    }
+
+    /**
+     * Pick a sort between the nearest preceding/following registry siblings that still share
+     * this parent in the working overlay. Falls back to defaultOrder*10 only when no anchors exist.
+     */
+    private function _defaultPositionSort(
+        string $key,
+        int $defaultOrder,
+        ?string $parentKey,
+        array $registrySiblings,
+        array &$workingOverlay,
+    ): int {
+        $prevSort = null;
+        $nextSort = null;
+
+        foreach ($registrySiblings as $sibling) {
+            $siblingKey = $sibling['key'];
+
+            if ($siblingKey === $key || !isset($workingOverlay[$siblingKey])) {
+                continue;
+            }
+
+            // Skip anchors the admin reparented away from this default parent.
+            $effectiveParent = $workingOverlay[$siblingKey]->parent ?? $sibling['defaultParent'];
+            if ($effectiveParent !== $parentKey) {
+                continue;
+            }
+
+            if ($sibling['defaultOrder'] < $defaultOrder) {
+                $prevSort = $workingOverlay[$siblingKey]->sort;
+                continue;
+            }
+
+            if ($sibling['defaultOrder'] > $defaultOrder) {
+                $nextSort = $workingOverlay[$siblingKey]->sort;
+                break;
+            }
+        }
+
+        if ($prevSort !== null && $nextSort !== null) {
+            $mid = intdiv($prevSort + $nextSort, 2);
+
+            if ($mid > $prevSort && $mid < $nextSort) {
+                return $mid;
+            }
+
+            // No integer gap (e.g. 20 then 21) — open a slot after prev at resolve time only.
+            $sort = $prevSort + 1;
+            $this->_shiftSiblingSortsFrom($workingOverlay, $parentKey, $sort, $key);
+
+            return $sort;
+        }
+
+        if ($prevSort !== null) {
+            return $prevSort + 10;
+        }
+
+        if ($nextSort !== null) {
+            $sort = $nextSort - 10;
+
+            if ($sort < 0) {
+                $sort = 0;
+            }
+
+            // next was already at 0…9 — make room rather than collide / go negative.
+            if ($sort >= $nextSort) {
+                $sort = $nextSort;
+                $this->_shiftSiblingSortsFrom($workingOverlay, $parentKey, $sort, $key);
+            }
+
+            return $sort;
+        }
+
+        return $defaultOrder * 10;
+    }
+
+    /**
+     * Bump same-parent working sorts at/after $fromSort so a newly inserted key can own that slot.
+     * Resolve-time only — does not write project config.
+     */
+    private function _shiftSiblingSortsFrom(
+        array &$workingOverlay,
+        ?string $parentKey,
+        int $fromSort,
+        string $exceptKey,
+    ): void {
+        foreach ($workingOverlay as $key => $node) {
+            if ($key === $exceptKey || $node->sort < $fromSort) {
+                continue;
+            }
+
+            if (($node->parent ?? null) !== $parentKey) {
+                continue;
+            }
+
+            $workingOverlay[$key] = new CustomizationNode(
+                key: $node->key,
+                enabled: $node->enabled,
+                sort: $node->sort + 1,
+                parent: $node->parent,
+                label: $node->label,
+                type: $node->type,
+                url: $node->url,
+                icon: $node->icon,
+                customIcon: $node->customIcon,
+                newWindow: $node->newWindow,
+            );
+        }
+    }
 
     /**
      * @param ResolvedNavNode[] $resolved
