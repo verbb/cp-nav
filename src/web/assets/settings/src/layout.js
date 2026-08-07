@@ -37,6 +37,55 @@ $(document).on('click', 'tr.layout-item a.edit-layout', function(e) {
 });
 
 // ----------------------------------------
+// DUPLICATE LAYOUT
+// ----------------------------------------
+
+$(document).on('click', 'tr.layout-item a.duplicate', function(e) {
+    e.preventDefault();
+
+    var $row = $(this).closest('tr.layout-item');
+    var id = $row.data('id');
+    var name = $row.data('name');
+
+    Craft.sendActionRequest('POST', 'cp-nav/layout/duplicate', {
+        data: {
+            id: id,
+            name: Craft.t('cp-nav', '{name} copy', { name: name }),
+        },
+    })
+        .then((response) => {
+            Craft.cp.displayNotice(response.data.message);
+
+            var layout = response.data.layout;
+            var moveCell = '';
+
+            if ($('#layoutItems .move').length) {
+                moveCell = '<td class="thin">' +
+                    '<a class="move icon" title="' + Craft.t('app', 'Reorder') + '" role="button"></a>' +
+                    '</td>';
+            }
+
+            LayoutAdminTable.addRow('<tr class="layout-item" data-id="' + layout.id + '" data-name="' + Craft.escapeHtml(layout.name) + '">' +
+                '<td>' +
+                    '<a class="edit-layout"><strong>' + Craft.escapeHtml(layout.name) + '</strong></a>' +
+                '</td>' +
+                moveCell +
+                '<td class="thin">' +
+                    '<a class="duplicate icon" title="' + Craft.t('app', 'Duplicate') + '" role="button"></a>' +
+                    '<a class="delete icon" title="' + Craft.t('app', 'Delete') + '" role="button"></a>' +
+                '</td>' +
+            '</tr>');
+        })
+        .catch(({response}) => {
+            if (response && response.data && response.data.message) {
+                Craft.cp.displayError(response.data.message);
+            } else {
+                Craft.cp.displayError();
+            }
+        });
+});
+
+// ----------------------------------------
 // HUD FOR EDITING LAYOUT
 // ----------------------------------------
 
@@ -237,14 +286,15 @@ Craft.CpNav.CreateLayoutItem = Garnish.Base.extend({
 
                 var newLayout = response.data.layout;
 
-                var $tr = LayoutAdminTable.addRow('<tr class="layout-item" data-id="' + newLayout.id + '" data-name="' + newLayout.name + '">' +
+                LayoutAdminTable.addRow('<tr class="layout-item" data-id="' + newLayout.id + '" data-name="' + Craft.escapeHtml(newLayout.name) + '">' +
                     '<td>' +
-                        '<a class="edit-layout"><strong>' + newLayout.name + '</strong></a>' +
+                        '<a class="edit-layout"><strong>' + Craft.escapeHtml(newLayout.name) + '</strong></a>' +
                     '</td>' +
                     '<td class="thin">' +
                         '<a class="move icon" title="' + Craft.t('app', 'Reorder') + '" role="button"></a>' +
                     '</td>' +
                     '<td class="thin">' +
+                        '<a class="duplicate icon" title="' + Craft.t('app', 'Duplicate') + '" role="button"></a>' +
                         '<a class="delete icon" title="' + Craft.t('app', 'Delete') + '" role="button"></a>' +
                     '</td>' +
                 '</tr>');

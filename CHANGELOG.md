@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Added
+- Added **Duplicate** control on the Layouts tab (copies permissions + customizations). (#144)
+
 ### Changed
 - Softened CP sidebar **divider** chrome for Craft 5 — line–label–line with muted hairline/text tokens instead of the solid dark label badge from Craft 3/4.
 ### Fixed

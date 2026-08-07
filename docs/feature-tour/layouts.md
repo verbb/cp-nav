@@ -10,11 +10,13 @@ Layouts let you run different control panel navigations for different user group
 
 Open the **Layouts** tab from Control Panel Nav. The **default** layout cannot be deleted; it’s what users see when no other layout matches.
 
-On Craft Pro, create additional layouts and assign them to one or more user groups. Reorder layouts to control priority.
+On Craft Pro, create additional layouts and assign them to one or more user groups. Reorder layouts to control priority — the top of the list wins when a user matches more than one layout.
+
+Use **Duplicate** to copy a layout’s name suffix (`… copy`), user-group assignments, and navigation customizations into a new layout. After duplicating, adjust permissions and/or reorder so the right layout wins for multi-group users.
 
 ## Which layout wins?
 
-If a user belongs to multiple groups that each have a layout, CP Nav picks the **first matching layout by ascending sort order**.
+If a user belongs to multiple groups that each have a layout, CP Nav picks the **first matching layout by ascending sort order** (Layouts table order), not Craft’s user-group order.
 
 ## Editing a layout’s nav
 
