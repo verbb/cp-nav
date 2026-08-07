@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 6.0.0-beta.2 - 2026-08-07
 
 ### Added
 - Added **Duplicate** control on the Layouts tab (copies permissions + customizations). (#144)
