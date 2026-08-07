@@ -11,8 +11,20 @@
         "title": "Feature Tour",
         "collapsable": false,
         "children": [
+            "feature-tour/overview",
             "feature-tour/navigation",
-            "feature-tour/layouts"
+            "feature-tour/layouts",
+            "feature-tour/manual-items",
+            "feature-tour/dividers"
+        ]
+    },
+    {
+        "title": "Developers",
+        "collapsable": false,
+        "children": [
+            "developers/events",
+            "developers/node-keys",
+            "developers/console-commands"
         ]
     }
 ]

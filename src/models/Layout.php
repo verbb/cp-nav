@@ -25,9 +25,13 @@ class Layout extends Model
     // Public Methods
     // =========================================================================
 
-    public function getNavigations(): array
+    public function getLayoutNavItems(): array
     {
-        return CpNav::$plugin->getNavigations()->getAllNavigationsByLayoutId($this->id);
+        if (!$this->id) {
+            return [];
+        }
+
+        return CpNav::$plugin->getNavBuilder()->getLayoutNavItemsForLayout($this->id);
     }
 
     public function getConfig(): array

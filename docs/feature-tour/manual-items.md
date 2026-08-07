@@ -1,0 +1,31 @@
+# Manual Items
+
+Manual items are custom links you add to the sidebar — internal control panel paths or external URLs.
+
+## Create a manual item
+
+Use **New menu item** in the builder header. Enter a **Label** and **URL**, then save. Nothing is persisted until you save the create popover.
+
+New manuals append at the end of the top-level tree for the current layout. Drag to reposition or nest under another item (max two levels; dividers cannot be parents).
+
+## URLs
+
+- **Internal CP paths** — relative paths without your CP base URL, e.g. `entries/pages/homepage` or `settings/plugins`.
+- **External links** — absolute URLs including the protocol (`https://…`). Enable **New window** when the link should open externally.
+
+While Control Panel Nav is active, its labels and visibility for Craft/plugin items override names set in other plugins’ settings.
+
+## Site tokens
+
+Manual URLs may include:
+
+| Token | Substituted value |
+| --- | --- |
+| `{site}` | Current site ID |
+| `{siteHandle}` | Current site handle |
+
+Tokens are replaced when the nav is rendered for the request.
+
+## Icons
+
+Optional **Custom Icon** (SVG asset) for the sidebar glyph.

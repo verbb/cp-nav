@@ -1,0 +1,125 @@
+{% set bodyClass = 'body-cpnav-builder' %}
+
+{# Extend Craft CP directly so title/actions sit in #header-container, not content-pane. #}
+{% extends '_layouts/cp' %}
+
+{% set title = 'Control Panel Nav' | t('cp-nav') %}
+{% set selectedTab = 'navigation' %}
+
+{# Regular Craft CP page tabs (links), not Plugin Kit / React tabs. #}
+{% set tabs = {
+    navigation: { label: 'Navigation' | t('cp-nav'), url: url('cp-nav') },
+} %}
+
+{% if craft.app.getEditionName() != 'Solo' %}
+    {% set tabs = tabs | merge({
+        layouts: { label: 'Layouts' | t('cp-nav'), url: url('cp-nav/layouts') },
+    }) %}
+{% endif %}
+
+{% set crumbs = [
+    { label: 'Control Panel Nav' | t('cp-nav'), url: url('cp-nav') },
+    { label: 'Navigation' | t('cp-nav'), url: url('cp-nav') },
+] %}
+
+{% block pageTitle %}
+    <h1 id="page-heading" class="screen-title">{{ title }}</h1>
+    <div id="cpnav-builder-header-root"></div>
+{% endblock %}
+
+{% block actionButton %}
+    <div id="cpnav-builder-actions-root" class="btngroup"></div>
+{% endblock %}
+
+{% block content %}
+{# Styles target Craft CP DOM outside the React shadow root. #}
+<style>
+    .body-cpnav-builder #sidebar,
+    .body-cpnav-builder #content-container > #sidebar {
+        display: none;
+    }
+
+    /* Node edit is a HUD popover — hide Craft’s empty details column. */
+    .body-cpnav-builder #details-container,
+    .body-cpnav-builder #details-toggle-wrapper,
+    .body-cpnav-builder .content-grid__toggle,
+    .body-cpnav-builder #details-toggle {
+        display: none !important;
+    }
+
+    .body-cpnav-builder #page-title {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.75rem;
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    .body-cpnav-builder #page-title > #cpnav-builder-header-root {
+        display: flex;
+        flex: 1 1 auto;
+        align-items: center;
+        gap: 0.75rem;
+        min-width: 0;
+    }
+
+    /*
+     * Keep Craft’s content-pane chrome so #tabs (selected tab) visually joins the pane.
+     * Strip top padding so the tree sits tight under the tab bar.
+     * Pane-header defaults to margin-block: var(--neg-padding) var(--padding) — the
+     * bottom var(--padding) gap stacked with the new-items banner’s m-3; clear both.
+     */
+    .body-cpnav-builder #content.content-pane {
+        padding-top: 0;
+    }
+
+    .body-cpnav-builder #content-header.pane-header {
+        margin-block: 0;
+    }
+
+    .body-cpnav-builder #content.content-pane:focus,
+    .body-cpnav-builder #content.content-pane:focus-visible,
+    .body-cpnav-builder #content-container:focus,
+    .body-cpnav-builder #content-container:focus-visible {
+        outline: none;
+    }
+
+    /*
+     * Cancel content-pane side/bottom padding so the tree is flush with the pane.
+     * Do not pull upward — padding-top is already 0, and a negative top margin
+     * eats the new-items banner’s top spacing under the tab bar.
+     */
+    .body-cpnav-builder #cpnav-builder-app {
+        margin: 0 -24px -24px;
+        min-width: 0;
+        max-width: calc(100% + 48px);
+    }
+
+    /*
+     * On narrow viewports, negative side/bottom margin pulls past the pane edges —
+     * drop it so headers/rows stay in the content box.
+     */
+    @media (max-width: 767px) {
+        .body-cpnav-builder #cpnav-builder-app {
+            margin: 0;
+            max-width: 100%;
+        }
+    }
+</style>
+
+<div
+    id="cpnav-builder-app"
+    class="cpnav-builder-app"
+    data-layout-id="{{ layout.id }}"
+    data-layouts="{{ layoutOptions|json_encode }}"
+></div>
+
+{% js %}
+    window.CpNavBuilderConfig = {
+        layoutId: {{ layout.id }},
+        csrfTokenName: {{ craft.app.config.general.csrfTokenName | json_encode | raw }},
+        csrfTokenValue: {{ craft.app.request.csrfToken | json_encode | raw }},
+    };
+{% endjs %}
+{% endblock %}

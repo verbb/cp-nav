@@ -1,5 +1,44 @@
 # Changelog
 
+## 6.0.0-beta.1 - 2026-08-07
+
+### Added
+- Added React control panel **nav builder** replacing the legacy Garnish flat-table UI.
+- Added **nav sources** pipeline (`NavSources` / `NavSourceBuilder`) that captures Craft’s live CP nav (`Cp::nav()` / `Cp::EVENT_REGISTER_CP_NAV_ITEMS`) with fingerprint caching.
+- Added **nav customizations** overlay in project config (`customizations.nodes`) — only admin overrides are persisted (order, visibility, labels, icons, manual items, dividers).
+- Added stable **node keys** (`craft:`, `plugin:`, `manual:`, `divider:`) with encoded project config path segments.
+- Added resolve + render stack (`NavResolver`, `NavRenderer`, `NavPermissions`) injecting the resolved tree via Craft’s nav registration event.
+- Added builder APIs for create/update/delete/reorder/indent/outdent/reparent, layout reset, and sources refresh.
+- Added dismissible **new items** notice when registry keys appear that aren’t yet acknowledged.
+- Added custom SVG icon support via asset upload (local filesystem path or remote asset contents).
+- Added `{site}` / `{siteHandle}` token substitution for manual URLs at render.
+- Added console commands `cp-nav/migrate-customizations` and `cp-nav/audit-customizations` (with `--fix`).
+- Added public events `NavResolver::EVENT_MODIFY_RESOLVED_NAV` and `NavCustomization::EVENT_AFTER_SAVE_NODE` / `AFTER_REMOVE_NODE` / `AFTER_SET_NODES`.
+- Added Pest integration test harness covering sources parity, merge/default-position insert, read-only PC safety, builder APIs, and edge cases.
+
+### Changed
+- Frontend assets reorganised under `src/web/assets/{builder,settings,sidebar}` — each owns its `dist/`; builder uses `nystudio107/craft-plugin-vite` + manifest.
+- Control panel page views **never write project config** — sync-on-read / `_checkUpdatedNavItems` behaviour is gone.
+- New Craft/plugin nav items insert at their **default Craft position** among siblings (not append-to-end).
+- Reset layout clears the customization overlay for that layout (returns to live Craft/plugin order) instead of recreating snapshot rows.
+- Project config shape moves layout nav data under `cp-nav.layouts.{uid}.customizations.nodes.{encodedKey}`.
+- Layout priority for users in multiple groups is the first matching layout by ascending `sortOrder`.
+- Nesting depth is capped at **two levels** (Craft sidebar alignment).
+- Plugin settings tab removed — reset lives on the builder header for the selected layout; plugin gear still opens the builder.
+- Craft Icon picker removed from the node editor; override icons only via **Custom Icon** (SVG asset). Registry/migrated `icon` values still render.
+
+### Fixed
+- Fixed custom SVG icons on Craft 5 filesystems (local root path + remote `Asset::getContents()` fallback).
+- Fixed GraphiQL / external Craft items preserving `external` through resolve → render.
+- Fixed orphan `manual:*` / `divider:*` nodes under removed parents reparenting to top level.
+
+### Removed
+- Removed the `cpnav_navigation` database table (archived as `cpnav_navigation_v5_archive` on upgrade).
+- Removed legacy project config key `cp-nav.navigations`.
+- Removed `prev*` dual-state fields and full nav snapshot persistence.
+- Removed Garnish HUD / flat-table navigation editor.
+- Removed DOM MutationObserver / owned Twig nav swap as the primary render path (Craft event injection is canonical).
+
 ## 5.0.7 - 2026-03-15
 
 ### Fixed

@@ -1,0 +1,23 @@
+# Do not export those files in the Composer archive (lighter dependency)
+.gitattributes export-ignore
+.gitignore export-ignore
+.github/ export-ignore
+docs/ export-ignore
+
+.phpunit* export-ignore
+*.map export-ignore
+
+composer.lock export-ignore
+package-lock.json export-ignore
+package.json export-ignore
+vite.config.ts export-ignore
+vite.settings.config.ts export-ignore
+vite.sidebar.config.ts export-ignore
+
+src/web/assets/builder/src/ export-ignore
+src/web/assets/builder/tsconfig.json export-ignore
+src/web/assets/settings/src/ export-ignore
+src/web/assets/sidebar/src/ export-ignore
+tests/ export-ignore
+
+* text=auto

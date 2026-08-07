@@ -2,7 +2,7 @@
     "name": "verbb/cp-nav",
     "description": "Manage the Craft Control Panel navigation.",
     "type": "craft-plugin",
-    "version": "5.0.7",
+    "version": "6.0.0-beta.1",
     "keywords": [
         "craft",
         "cms",
@@ -17,7 +17,7 @@
         "issues": "https://github.com/verbb/cp-nav/issues?state=open",
         "source": "https://github.com/verbb/cp-nav",
         "docs": "https://github.com/verbb/cp-nav",
-        "rss": "https://github.com/verbb/cp-nav/commits/v2.atom"
+        "rss": "https://github.com/verbb/cp-nav/commits/craft-5.atom"
     },
     "license": "MIT",
     "authors": [
@@ -29,12 +29,37 @@
     "require": {
         "php": "^8.2",
         "craftcms/cms": "^5.0.0",
+        "nystudio107/craft-plugin-vite": "^5.0.0",
         "verbb/base": "^3.0.0"
+    },
+    "require-dev": {
+        "craftcms/cms": "^5.9",
+        "pestphp/pest": "^3.8",
+        "pestphp/pest-plugin": "^3.0",
+        "vlucas/phpdotenv": "^5.6",
+        "yiisoft/yii2-shell": "^2.0.3"
     },
     "autoload": {
         "psr-4": {
             "verbb\\cpnav\\": "src/"
         }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "craftcms/plugin-installer": true,
+            "pestphp/pest-plugin": true,
+            "yiisoft/yii2-composer": true
+        }
+    },
+    "scripts": {
+        "test": "./vendor/bin/pest --bootstrap tests/bootstrap-craft.php -c phpunit.craft.xml tests",
+        "test:setup": "@php tests/bin/test-setup.php",
+        "test:all": "./vendor/bin/pest --bootstrap tests/bootstrap-craft.php -c phpunit.craft.xml tests"
     },
     "extra": {
         "name": "Control Panel Nav",

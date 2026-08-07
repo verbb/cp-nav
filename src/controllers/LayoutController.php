@@ -2,6 +2,7 @@
 namespace verbb\cpnav\controllers;
 
 use verbb\cpnav\CpNav;
+use verbb\cpnav\helpers\Plugin as CpNavPluginHelper;
 use verbb\cpnav\models\Layout;
 
 use Craft;
@@ -26,6 +27,8 @@ class LayoutController extends Controller
     public function actionIndex(): Response
     {
         $layouts = CpNav::$plugin->getLayouts()->getAllLayouts();
+
+        CpNavPluginHelper::registerSettingsAssets();
 
         return $this->renderTemplate('cp-nav/layouts', [
             'layouts' => $layouts,
@@ -82,8 +85,8 @@ class LayoutController extends Controller
             return $this->asModelFailure($layout, Craft::t('cp-nav', 'Couldn’t save layout.'), 'layout');
         }
 
-        // Populate the navigation items for the new layout
-        CpNav::$plugin->getService()->resetLayout($layout->id);
+        // New layouts start with an empty overlay (registry default-position insert at render).
+        CpNav::$plugin->getNavBuilder()->resetLayout($layout->id);
 
         return $this->asModelSuccess($layout, Craft::t('cp-nav', '{layout} saved.', [
             'layout' => $layout->name,
@@ -136,5 +139,32 @@ class LayoutController extends Controller
         CpNav::$plugin->getLayouts()->deleteLayoutById($layoutId);
 
         return $this->asSuccess();
+    }
+
+    public function actionDuplicate(): Response
+    {
+        $this->requirePostRequest();
+        $this->requireAcceptsJson();
+
+        $layoutId = (int)$this->request->getRequiredBodyParam('id');
+        $source = CpNav::$plugin->getLayouts()->getLayoutById($layoutId);
+
+        if (!$source) {
+            return $this->asFailure(Craft::t('cp-nav', 'No layout model found.'));
+        }
+
+        $name = (string)$this->request->getParam('name', Craft::t('cp-nav', '{name} copy', [
+            'name' => $source->name,
+        ]));
+
+        $layout = CpNav::$plugin->getLayouts()->duplicateLayout($source, $name);
+
+        if (!$layout) {
+            return $this->asFailure(Craft::t('cp-nav', 'Couldn’t save layout.'));
+        }
+
+        return $this->asModelSuccess($layout, Craft::t('cp-nav', '{layout} saved.', [
+            'layout' => $layout->name,
+        ]), 'layout');
     }
 }

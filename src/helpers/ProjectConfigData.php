@@ -2,9 +2,8 @@
 namespace verbb\cpnav\helpers;
 
 use verbb\cpnav\CpNav;
-
-use Craft;
-use craft\models\Structure;
+use verbb\cpnav\nav\customization\CustomizationSchema;
+use verbb\cpnav\nav\sources\NodeKey;
 
 class ProjectConfigData
 {
@@ -13,35 +12,46 @@ class ProjectConfigData
 
     public static function rebuildProjectConfig(): array
     {
-        $configData = [];
-
-        $configData['layouts'] = self::_getLayoutsData();
-        $configData['navigations'] = self::_getNavigationsData();
-
-        return array_filter($configData);
+        return [
+            'schemaVersion' => CustomizationSchema::SCHEMA_VERSION,
+            'layouts' => self::_getLayoutsData(),
+        ];
     }
 
-    
+
     // Private Methods
     // =========================================================================
 
     private static function _getLayoutsData(): array
     {
         $data = [];
+        $navCustomization = CpNav::$plugin->getNavCustomization();
 
         foreach (CpNav::$plugin->getLayouts()->getAllLayouts() as $layout) {
-            $data[$layout->uid] = $layout->getConfig();
-        }
+            $layoutData = $layout->getConfig();
+            $overlayNodes = $navCustomization->getCustomizationForLayout($layout->uid);
+            $acknowledged = $navCustomization->getAcknowledgedRegistryKeys($layout->uid);
+            $customizations = [];
 
-        return $data;
-    }
+            if ($overlayNodes !== []) {
+                $nodes = [];
 
-    private static function _getNavigationsData(): array
-    {
-        $data = [];
+                foreach ($overlayNodes as $node) {
+                    $nodes[NodeKey::encodePathKey($node->key)] = $node->toConfig();
+                }
 
-        foreach (CpNav::$plugin->getNavigations()->getAllNavigations() as $navigation) {
-            $data[$navigation->uid] = $navigation->getConfig();
+                $customizations[CustomizationSchema::NODES_KEY] = $nodes;
+            }
+
+            if ($acknowledged !== null) {
+                $customizations[CustomizationSchema::ACKNOWLEDGED_REGISTRY_KEYS_KEY] = $acknowledged;
+            }
+
+            if ($customizations !== []) {
+                $layoutData[CustomizationSchema::CUSTOMIZATIONS_KEY] = $customizations;
+            }
+
+            $data[$layout->uid] = $layoutData;
         }
 
         return $data;

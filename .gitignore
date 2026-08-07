@@ -3,8 +3,17 @@
 .env.sh
 .env
 
+# TESTING ENVIRONMENT
+.env.testing
+.env.testing.local
+/tests/_craft/config/license.key
+/tests/_craft/config/project
+/tests/_craft/storage
+/tests/_craft/web
+
 # COMPOSER
 /vendor
+/composer.lock
 
 # BUILD FILES
 /bower_components/*
@@ -29,3 +38,13 @@
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+node_modules
+
+# DOCS (local VitePress preview only)
+/docs/node_modules
+/docs/.vitepress/cache
+/docs/.vitepress/dist
+/docs/package-lock.json
+
+# Docs screenshot disposable Craft installs
+.cache/docs-screenshots/

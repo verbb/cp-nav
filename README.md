@@ -1,31 +1,42 @@
 <p align="center"><img src="https://assets.verbb.io/plugins/cp-nav/cp-nav-icon.svg" width="100" height="100" alt="Control Panel Nav icon"></p>
 <h1 align="center">Control Panel Nav for Craft CMS</h1>
 
-Control Panel Nav is a Craft CMS plugin to help manage your Control Panel navigation. Take control over your Craft CMS control panel navigation with CP Nav. Rename, reorder, hide and show menu items in the control panel. You can even add your own custom menu items for external links, or commonly used URLs within Craft. Divider menu items can also be added to logically group menu items into sections.
+Control Panel Nav is a Craft CMS plugin to help manage your Control Panel navigation. Rename, reorder, hide, and show menu items — including Craft core and plugin items. Add your own manual links and dividers, and assign different layouts per user group.
+
+## What's new in Control Panel Nav 6
+
+- **React nav builder** — [Plugin Kit](https://docs.verbb.io/plugin-kit/overview/) tree builder with drag-and-drop, indent/outdent, and immediate persistence (no Save/Discard session).
+- **Nav sources + customizations** — Live menu items come from Craft’s nav pipeline; you only store overrides (order, visibility, labels, icons, manual items, dividers) in project config.
+- **Stable node keys** — `craft:`, `plugin:`, `manual:`, and `divider:` keys keep customizations aligned as Craft and plugins change.
+- **No sync-on-read** — Control panel page views never write project config. Registry invalidation uses events + fingerprinting.
+- **New items notice** — When Craft or a plugin adds a new nav item, the builder can surface it so you can acknowledge or customise it.
+- **Custom SVG icons** — Upload an SVG asset to replace a Craft/plugin icon; registry icons stay live until overridden.
+- **Site tokens** — Manual URLs support `{site}` / `{siteHandle}` substitution at render.
+- **Console tools** — `cp-nav/migrate-customizations` and `cp-nav/audit-customizations` for upgrade and cleanup.
 
 ## Features
-- Modify the main sidebar navigation in the Craft control panel.
-- Rename, reorder, remove any existing navigation items - including plugins and modules.
-- Full support for nesting items up to 2 levels deep.
-- Change the behaviour of subnav items:
-    - Only open subnav items when the parent page is active (Craft default behaviour).
-    - Always have subnav items open and visible.
-    - Add a toggle next to each parent menu item to show/hide the subnav items. Will also remember the state!
-- Add new custom URLs. Great for documentation, external links or nested pages.
-- Add divider menu items. Great for grouping pages together or providing a logical gap between groups of different pages.
-- Manage icons of menu items. Choose from existing Craft icons, or upload your own assets.
-- Support for layouts to manage multiple navigations depending on user groups.
-- Project Config support, so your navigations are the same across environments.
-- Full support for your existing user permissions. Menu items for Craft and plugins will only be shown if the users is permitted to view them.
-- Unlimited use, free forever.
+
+- Modify the main sidebar navigation in the Craft control panel
+- Rename, reorder, and show/hide Craft and plugin menu items
+- Nest items up to 2 levels deep
+- Add manual URLs (internal CP paths or external links)
+- Add divider section breaks with optional labels
+- Custom SVG icons per menu item
+- Layouts assigned to user groups (Craft Pro)
+- Project Config support for environment parity
+- Live user permissions — items stay hidden when the user cannot access them
+- Unlimited use, free forever
 
 ## Documentation
+
 Visit the [Control Panel Nav Plugin page](https://verbb.io/craft-plugins/cp-nav) for all documentation, guides, pricing and developer resources.
 
 ## Support
+
 Get in touch with us via the [Control Panel Nav Support page](https://verbb.io/craft-plugins/cp-nav/support) or by [creating a Github issue](https://github.com/verbb/cp-nav/issues)
 
 ## Sponsor
+
 Control Panel Nav is licensed under the MIT license, meaning it will always be free and open source – we love free stuff! If you'd like to show your support to the plugin regardless, [Sponsor](https://github.com/sponsors/verbb) development.
 
 <h2></h2>

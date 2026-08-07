@@ -1,0 +1,23 @@
+{
+  "name": "cp-nav-docs",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "Local VitePress preview for the main Control Panel Nav plugin docs.",
+  "scripts": {
+    "docs:dev": "vitepress dev .",
+    "docs:screenshots": "verbb-docs-screenshots"
+  },
+  "devDependencies": {
+    "@verbb/docs-screenshots": "1.0.0",
+    "@tailwindcss/typography": "^0.5.19",
+    "@tailwindcss/vite": "^4.2.4",
+    "@verbb/vitepress-theme": "1.0.0",
+    "playwright": "^1.59.1",
+    "tailwindcss": "^4.2.4",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.3",
+    "vite": "^8.0.10",
+    "vitepress": "^1.6.4"
+  }
+}

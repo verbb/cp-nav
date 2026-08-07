@@ -1,0 +1,44 @@
+{
+  "name": "cp-nav",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "docs"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "dev:settings": "vite --config vite.settings.config.ts --port 4022",
+    "dev:sidebar": "vite --config vite.sidebar.config.ts --port 4023",
+    "build": "npm run build:builder && npm run build:settings && npm run build:sidebar",
+    "build:builder": "tsc -p src/web/assets/builder/tsconfig.json && vite build",
+    "build:settings": "vite build --config vite.settings.config.ts",
+    "build:sidebar": "vite build --config vite.sidebar.config.ts",
+    "dev:plugin-docs": "npm run docs:dev --prefix docs",
+    "docs:screenshots": "npm --prefix docs run docs:screenshots --"
+  },
+  "dependencies": {
+    "@headless-tree/core": "^1.7.0",
+    "@headless-tree/react": "^1.7.0",
+    "@verbb/plugin-kit-core": "^2.0.3",
+    "@verbb/plugin-kit-forms": "^2.0.3",
+    "@verbb/plugin-kit-icons": "^2.0.3",
+    "@verbb/plugin-kit-react": "^2.0.7",
+    "@verbb/plugin-kit-web": "^2.0.3",
+    "clsx": "^2.1.1",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "tailwind-merge": "^3.3.1",
+    "zustand": "^5.0.12"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.2.4",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "sass": "^1.93.2",
+    "tailwindcss": "^4.2.4",
+    "typescript": "^5.7.3",
+    "vite": "^8.0.10",
+    "vite-plugin-tailwind-shadowdom": "^1.1.1"
+  }
+}

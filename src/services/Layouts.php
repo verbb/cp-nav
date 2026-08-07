@@ -237,6 +237,34 @@ class Layouts extends Component
         return true;
     }
 
+    /**
+     * Copy a layout's metadata + customization nodes into a new layout.
+     */
+    public function duplicateLayout(Layout $source, string $name): ?Layout
+    {
+        $layout = new Layout([
+            'name' => $name,
+            'isDefault' => false,
+            'permissions' => $source->permissions,
+        ]);
+
+        if (!$this->saveLayout($layout)) {
+            return null;
+        }
+
+        $nodes = CpNav::$plugin->getNavCustomization()->getCustomizationForLayout($source->uid);
+        CpNav::$plugin->getNavCustomization()->setCustomizationNodes($layout->uid, $nodes);
+
+        $acknowledged = CpNav::$plugin->getNavCustomization()->getAcknowledgedRegistryKeys($source->uid);
+        if ($acknowledged !== null) {
+            CpNav::$plugin->getNavCustomization()->setAcknowledgedRegistryKeys($layout->uid, $acknowledged);
+        } else {
+            CpNav::$plugin->getNavCustomization()->acknowledgeCurrentRegistry($layout->uid);
+        }
+
+        return $this->getLayoutById($layout->id);
+    }
+
     public function handleDeletedLayout(ConfigEvent $event): void
     {
         $layoutUid = $event->tokenMatches[0];
