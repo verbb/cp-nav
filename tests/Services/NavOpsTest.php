@@ -7,6 +7,7 @@ use craft\events\RegisterCpNavItemsEvent;
 use Tests\Support\AdminUser;
 use Tests\Support\CpRequestContext;
 use verbb\cpnav\CpNav;
+use verbb\cpnav\models\Layout;
 use yii\base\Event;
 
 describe('CP render project-config safety', function() {
@@ -49,6 +50,52 @@ describe('CP render project-config safety', function() {
             Event::off(get_class($projectConfig), 'update', $handler);
             Event::off(get_class($projectConfig), 'add', $handler);
             Event::off(get_class($projectConfig), 'remove', $handler);
+        }
+    });
+});
+
+describe('Layouts priority', function() {
+    it('matches by ascending sortOrder even when a later group would match first', function() {
+        AdminUser::login();
+        CpRequestContext::activate();
+
+        $projectConfig = Craft::$app->getProjectConfig();
+        $readOnly = $projectConfig->readOnly;
+        $projectConfig->readOnly = false;
+
+        $layoutsService = CpNav::$plugin->getLayouts();
+        $created = [];
+
+        try {
+            // Early sortOrder + group B; Late sortOrder + group A.
+            // Probe lists A before B — the old groups-outer loop would return Late.
+            $early = new Layout([
+                'name' => 'Priority Early ' . uniqid(),
+                'isDefault' => false,
+                'permissions' => ['group-uid-b'],
+            ]);
+            expect($layoutsService->saveLayout($early))->toBeTrue();
+            $created[] = $layoutsService->getLayoutByUid($early->uid);
+
+            $late = new Layout([
+                'name' => 'Priority Late ' . uniqid(),
+                'isDefault' => false,
+                'permissions' => ['group-uid-a'],
+            ]);
+            expect($layoutsService->saveLayout($late))->toBeTrue();
+            $created[] = $layoutsService->getLayoutByUid($late->uid);
+
+            $match = $layoutsService->getLayoutMatchingPermissions(['group-uid-a', 'group-uid-b']);
+            expect($match)->not->toBeNull();
+            expect($match->uid)->toBe($created[0]->uid);
+            expect($match->sortOrder)->toBeLessThan($created[1]->sortOrder);
+        } finally {
+            foreach (array_reverse($created) as $layout) {
+                if ($layout) {
+                    $layoutsService->deleteLayout($layout);
+                }
+            }
+            $projectConfig->readOnly = $readOnly;
         }
     });
 });

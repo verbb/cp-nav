@@ -71,40 +71,58 @@ class Layouts extends Component
 
     public function getLayoutForCurrentUser(): ?Layout
     {
-        // Check if we're editing
+        // Preview/edit override from the builder layout picker.
         $layoutId = Craft::$app->getRequest()->getParam('layoutId');
 
         if ($layoutId) {
             return $this->getLayoutById($layoutId);
         }
 
-        $layouts = $this->getAllLayouts();
-
         if (Craft::$app->getEdition() === Craft::Solo) {
             // Is there even a solo account?
-            if ($solo = User::find()->status(null)->one()) {
-                foreach ($layouts as $layout) {
-                    if (is_array($layout->permissions) && in_array('solo', $layout->permissions, false)) {
-                        return $layout;
-                    }
+            if (User::find()->status(null)->one()) {
+                $match = $this->getLayoutMatchingPermissions(['solo']);
+                if ($match) {
+                    return $match;
                 }
             }
-        } else {
-            if ($userId = Craft::$app->getUser()->id) {
-                $groups = Craft::$app->userGroups->getGroupsByUserId($userId);
+        } elseif ($userId = Craft::$app->getUser()->id) {
+            $groups = Craft::$app->userGroups->getGroupsByUserId($userId);
+            $groupUids = array_map(static fn($group) => $group->uid, $groups);
+            $match = $this->getLayoutMatchingPermissions($groupUids);
+            if ($match) {
+                return $match;
+            }
+        }
 
-                foreach ($groups as $group) {
-                    foreach ($layouts as $layout) {
-                        if (is_array($layout->permissions) && in_array($group->uid, $layout->permissions, false)) {
-                            return $layout;
-                        }
-                    }
+        return $this->getDefaultLayout();
+    }
+
+    /**
+     * First layout by ascending sortOrder that lists any of the given permission IDs
+     * (user group UIDs, or `solo`). Layout table order = priority.
+     *
+     * @param string[] $permissionIds
+     */
+    public function getLayoutMatchingPermissions(array $permissionIds): ?Layout
+    {
+        if ($permissionIds === []) {
+            return null;
+        }
+
+        foreach ($this->getAllLayouts() as $layout) {
+            if (!is_array($layout->permissions)) {
+                continue;
+            }
+
+            foreach ($permissionIds as $permissionId) {
+                if (in_array($permissionId, $layout->permissions, false)) {
+                    return $layout;
                 }
             }
         }
 
-        // Otherwise, fetch the default layout
-        return $this->getDefaultLayout();
+        return null;
     }
 
     public function saveLayout(Layout $layout, bool $runValidation = true): bool
