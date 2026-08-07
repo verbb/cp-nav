@@ -37,7 +37,7 @@ final class NavSourcesInvalidator
                 ->onRemove("{$path}.{uid}", $invalidate);
         }
 
-        // D25 — Commerce product types change conditional CP subnav.
+        // Commerce product types change conditional CP subnav.
         $projectConfig
             ->onAdd('commerce.productTypes.{uid}', $invalidate)
             ->onUpdate('commerce.productTypes.{uid}', $invalidate)

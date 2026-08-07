@@ -119,7 +119,7 @@ class NavCustomization extends Component
     }
 
     /**
-     * Remove stale canonical customization keys that are no longer in nav sources (D19 CLI cleanup).
+     * Remove stale canonical customization keys that are no longer in nav sources.
      *
      * @return string[] removed keys
      */

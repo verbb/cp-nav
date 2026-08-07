@@ -27,7 +27,7 @@ final class NavFingerprint
             'globalSets' => $this->_uidList('{{%globalsets}}'),
             'categoryGroups' => $this->_uidList('{{%categorygroups}}'),
             'entryPages' => $this->_entryPages(),
-            // D25 — Commerce (and similar) conditional subnav depends on product type set.
+            // Commerce (and similar) conditional subnav depends on product type set.
             'commerceProductTypes' => $this->_commerceProductTypeUids(),
         ];
 

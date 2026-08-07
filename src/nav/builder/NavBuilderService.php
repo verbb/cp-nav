@@ -160,7 +160,7 @@ class NavBuilderService extends Component
             if ($parentId) {
                 $parent = $this->getLayoutNavItemByBuilderId($layoutId, (int)$parentId);
 
-                // Parent must exist and be a root (D15).
+                // Parent must exist and be a root.
                 if (!$parent || !$parent->nodeKey || $parent->parentId) {
                     return false;
                 }
@@ -190,7 +190,7 @@ class NavBuilderService extends Component
     }
 
     /**
-     * Indent a node under the previous root sibling (D15).
+     * Indent a node under the previous root sibling.
      */
     public function indentNode(int $layoutId, string $nodeKey): bool
     {
@@ -205,7 +205,7 @@ class NavBuilderService extends Component
     }
 
     /**
-     * Outdent a nested node to top level, after its former parent block (D15).
+     * Outdent a nested node to top level, after its former parent block.
      */
     public function outdentNode(int $layoutId, string $nodeKey): bool
     {
@@ -236,7 +236,7 @@ class NavBuilderService extends Component
             if ($parentKey !== null && ($node['key'] ?? null) === $parentKey) {
                 $parentBuilderId = (int)$node['builderId'];
 
-                // Parent must be a current root (D15).
+                // Parent must be a current root.
                 if (!empty($node['parentId'])) {
                     return false;
                 }

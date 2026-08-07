@@ -204,7 +204,7 @@ export function NodeEditorPopover() {
   }, [session, nodes, closeEditor]);
 
   // pk-input Enter → `pk-implicit-submit` on this form (not Craft `#main`).
-  // Must stay above early returns — otherwise opening the popover changes hook count (#310).
+  // Must stay above early returns — otherwise opening the popover changes hook count.
   // Depend on anchor/visibleSession too: the <form> only mounts once both exist.
   useEffect(() => {
     const formElement = formRef.current;

@@ -38,7 +38,7 @@ export type BuilderNode = {
   isCustomized: boolean;
   isNew: boolean;
   isOrphan: boolean;
-  /** Server: may nest under the previous root sibling (D15 max depth 2). */
+  /** Server: may nest under the previous root sibling (max depth 2). */
   canIndent: boolean;
   /** Server: may promote to top level. */
   canOutdent: boolean;
@@ -63,7 +63,7 @@ export type LayoutTreeResponse = {
   nodes: BuilderNode[];
   meta: {
     newItemCount: number;
-    /** D15 — currently 2. */
+    /** Max nesting depth — currently 2. */
     maxDepth: number;
     assetSources?: string[];
   };

@@ -32,7 +32,7 @@ describe('Sources read path', function() {
             $registry = CpNav::$plugin->getNavSources()->getTree(true);
             (new NavResolver())->resolve($registry, []);
 
-            // Non-admin identity must also be read-only safe (#151).
+            // Non-admin identity must also be read-only safe.
             $editor = User::find()->admin(false)->status(null)->one();
             if ($editor) {
                 Craft::$app->getUser()->setIdentity($editor);

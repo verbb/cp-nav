@@ -29,7 +29,7 @@ class NavResolver extends Component
     public function resolve(array $registryTree, array $overlayByKey = [], ?string $layoutUid = null): array
     {
         $registryIndex = $this->_indexRegistry($registryTree);
-        // D7 — missing registry keys get a resolve-time sort between Craft’s default neighbours,
+        // Missing registry keys get a resolve-time sort between Craft’s default neighbours,
         // not absolute defaultOrder*10 (that collides with frozen pre-appearance overlay sorts).
         $workingOverlay = $this->_insertMissingAtDefaultPositions($registryIndex, $overlayByKey);
 
@@ -39,7 +39,7 @@ class NavResolver extends Component
             $isCustomizationOnly = NodeKey::isCustomizationOnly($key);
             $registry = $registryIndex[$key] ?? null;
 
-            // Stale canonical customization keys are ignored at resolve time (D19).
+            // Stale canonical customization keys are ignored at resolve time.
             if (!$isCustomizationOnly && $registry === null) {
                 continue;
             }
@@ -66,7 +66,7 @@ class NavResolver extends Component
             );
         }
 
-        // D22 — manual/divider under a removed parent promote to top level.
+        // Manual/divider under a removed parent promote to top level.
         $resolved = $this->_reparentOrphans($resolved);
         // Dividers are section breaks — always top-level (never nested under another item).
         $resolved = $this->_forceDividersTopLevel($resolved);
@@ -90,7 +90,7 @@ class NavResolver extends Component
 
     /**
      * Ensure every nav source key has a working customization entry, with new keys sorted
-     * between the nearest lower/higher *default* siblings already present (D7).
+     * between the nearest lower/higher *default* siblings already present.
      */
     private function _insertMissingAtDefaultPositions(array $registryIndex, array $overlayByKey): array
     {

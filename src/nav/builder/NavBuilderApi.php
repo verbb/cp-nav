@@ -32,7 +32,7 @@ class NavBuilderApi extends Component
         $acknowledgedKeys = CpNav::$plugin->getNavCustomization()->getAcknowledgedRegistryKeys($layout->uid);
 
         // Only surface items that appeared in the registry since the admin last acknowledged — not
-        // every stock Craft item on a fresh/reset layout (D18).
+        // every stock Craft item on a fresh/reset layout.
         $newItemKeys = $acknowledgedKeys === null
             ? []
             : array_values(array_filter(

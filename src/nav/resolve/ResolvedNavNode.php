@@ -16,7 +16,7 @@ final class ResolvedNavNode
     public readonly ?string $icon;
     public readonly ?string $customIcon;
     public readonly bool $newWindow;
-    /** Manual/divider whose parent key no longer exists — rendered at top level (D22). */
+    /** Manual/divider whose parent key no longer exists — rendered at top level. */
     public readonly bool $isOrphan;
 
 

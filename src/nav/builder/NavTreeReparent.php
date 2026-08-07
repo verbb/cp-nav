@@ -2,7 +2,7 @@
 namespace verbb\cpnav\nav\builder;
 
 /**
- * Flat-list indent / outdent transforms for the nav builder (D15 — max depth 2).
+ * Flat-list indent / outdent transforms for the nav builder (max depth 2).
  *
  * Works on the same shape returned by {@see NavBuilderApi::getLayoutTree()} `nodes`:
  * each item has at least `key`, `builderId`, `parentId`.
@@ -157,7 +157,7 @@ final class NavTreeReparent
     }
 
     /**
-     * Validate a reorder payload against depth / parent rules (D15).
+     * Validate a reorder payload against depth / parent rules.
      *
      * @param array $items [{id, parentId}, ...]
      * @param array<int, array> $nodesByBuilderId keyed by builderId
