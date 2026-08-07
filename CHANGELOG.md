@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+- Softened CP sidebar **divider** chrome for Craft 5 — line–label–line with muted hairline/text tokens instead of the solid dark label badge from Craft 3/4.
+
 ## 6.0.0-beta.1 - 2026-08-07
 
 ### Added

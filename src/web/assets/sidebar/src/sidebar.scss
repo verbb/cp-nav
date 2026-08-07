@@ -12,7 +12,7 @@
 
     /*
      * Divider section breaks — tagged via JS (`data-type="divider"` on `#nav-divider-*`).
-     * Optional label becomes an uppercase badge sitting on the rule.
+     * Left-aligned label + trailing rule; colors track nav item text (`--text-color`).
      *
      * Craft’s `.sidebar-action` is a 3-col grid (prefix | label | suffix). Hiding the
      * prefix with `display: none` would auto-place the label into the ~30px prefix
@@ -26,50 +26,49 @@
         }
 
         .sidebar-action {
-            position: relative;
             pointer-events: none;
             cursor: default;
             grid-template-columns: minmax(0, 1fr);
+            color: var(--text-color);
         }
 
+        // Label first (left-aligned); rule grows to the right. Empty label → full rule.
         .sidebar-action__label {
             display: flex;
             align-items: center;
-            justify-content: flex-start;
+            gap: 0.5rem;
             min-width: 0;
             padding-inline: var(--s, 0.75rem);
+
+            &::after {
+                content: '';
+                flex: 1 1 auto;
+                min-width: 0.5rem;
+                height: 1px;
+                // Same ink as nav labels, eased so the rule doesn’t dominate the row.
+                background: color-mix(in srgb, currentcolor 55%, transparent);
+            }
         }
 
         .label {
-            text-transform: uppercase;
-            font-weight: 600;
+            flex: 0 1 auto;
+            min-width: 0;
+            max-width: calc(100% - 1.5rem);
+            padding: 0;
+            color: inherit;
             font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.04em;
             line-height: 1.2;
-            background: #3f4d5a;
-            color: #e5edf6;
-            position: relative;
-            z-index: 1;
-            padding: 0 5px;
-            // Keep “TEST DIV” on one line in the narrow CP sidebar.
+            text-transform: uppercase;
             white-space: nowrap;
-            max-width: 100%;
             overflow: hidden;
             text-overflow: ellipsis;
+            background: transparent;
 
             &:empty {
                 display: none;
             }
-        }
-
-        a::after {
-            content: '';
-            background: #858c95;
-            width: 100%;
-            display: block;
-            height: 1px;
-            position: absolute;
-            top: 50%;
-            left: 0;
         }
     }
 
