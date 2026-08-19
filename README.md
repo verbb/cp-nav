@@ -5,7 +5,7 @@ Control Panel Nav is a Craft CMS plugin to help manage your Control Panel naviga
 
 ## What's new in Control Panel Nav 6
 
-- **React nav builder** — [Plugin Kit](https://docs.verbb.io/plugin-kit/overview/) tree builder with drag-and-drop, indent/outdent, and immediate persistence (no Save/Discard session).
+- **New nav builder** — [Plugin Kit](https://docs.verbb.io/plugin-kit/overview/) tree builder with drag-and-drop, indent/outdent, and immediate persistence (no Save/Discard session).
 - **Nav sources + customizations** — Live menu items come from Craft’s nav pipeline; you only store overrides (order, visibility, labels, icons, manual items, dividers) in project config.
 - **Stable node keys** — `craft:`, `plugin:`, `manual:`, and `divider:` keys keep customizations aligned as Craft and plugins change.
 - **No sync-on-read** — Control panel page views never write project config. Registry invalidation uses events + fingerprinting.
