@@ -137,7 +137,8 @@ final class NavRenderer extends Component
 
         foreach ($byParent[$parentKey] ?? [] as $resolved) {
             if (NodeKey::isDivider($resolved->key)) {
-                // Section break — inert Craft nav item; JS tags `data-type="divider"` for CSS.
+                // Section break — inert Craft nav item; CSS keys off `id="nav-divider-*"`
+                // so styles apply before sidebar.js runs (avoids FOUT).
                 $items[] = $this->_dividerNavItem($resolved);
                 continue;
             }
@@ -184,7 +185,8 @@ final class NavRenderer extends Component
 
     /**
      * Divider payload for Craft's RegisterCpNavItemsEvent.
-     * Stable `id` is what CP Nav JS uses to find and style the sidebar row.
+     * Stable `id` is what sidebar CSS (and JS) uses to find the row — CSS must not
+     * wait on JS-added classes or we flash unstyled divider labels on load.
      */
     private function _dividerNavItem(ResolvedNavNode $resolved): array
     {

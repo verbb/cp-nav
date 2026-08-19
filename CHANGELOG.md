@@ -1,12 +1,17 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- CP sidebar divider styles now key off the server-rendered `nav-divider-*` id so labels no longer flash as normal nav items before sidebar JS runs.
+
 ## 6.0.0-beta.2 - 2026-08-07
 
 ### Added
 - Added **Duplicate** control on the Layouts tab (copies permissions + customizations). (#144)
 
 ### Changed
-- Softened CP sidebar **divider** chrome for Craft 5 — line–label–line with muted hairline/text tokens instead of the solid dark label badge from Craft 3/4.
+- Softened CP sidebar **divider** styles for Craft 5 — line–label–line with muted hairline/text tokens instead of the solid dark label badge from Craft 3/4.
 - Layout selection for multi-group users now prefers layout table order (`sortOrder`) over Craft’s user-group order. (#150)
 - Manual URLs expand Craft env variables / aliases at render (`App::parseEnv`), then `{site}` / `{siteHandle}` tokens. (#128)
 

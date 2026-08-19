@@ -28,8 +28,9 @@ function waitForElm(selector) {
 }
 
 /**
- * Mark divider rows and restore chrome hooks on Craft's native `#nav`.
- * Dividers are emitted with id `nav-divider-{uuid}` from NavRenderer.
+ * Optional decoration hooks on Craft's native `#nav`.
+ * Divider styles key off server-rendered `id="nav-divider-*"` in CSS (no FOUT).
+ * JS only adds convenience markers + inert click handling.
  */
 Craft.CpNav.decorateNav = function($nav) {
     $nav.addClass('cp-nav-menu');

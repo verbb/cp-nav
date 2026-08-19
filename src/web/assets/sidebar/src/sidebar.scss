@@ -5,20 +5,28 @@
 
 // ==========================================================================
 
-.cp-nav-menu {
+/*
+ * Scope to Craft’s `#nav` — not `.cp-nav-menu`. That class is still added by JS for
+ * click wiring / re-decorate hooks, but divider styles must not wait on it or we
+ * flash unstyled divider labels (FOUT) until sidebar.js runs.
+ *
+ * Dividers are emitted with stable `id="nav-divider-{uuid}"` from NavRenderer,
+ * so the attribute selector matches on first paint as soon as this CSS loads.
+ */
+#nav {
     li li .label {
         flex: none !important;
     }
 
     /*
-     * Divider section breaks — tagged via JS (`data-type="divider"` on `#nav-divider-*`).
-     * Left-aligned label + trailing rule; colors track nav item text (`--text-color`).
+     * Divider section breaks — left-aligned label + trailing rule; colors track
+     * nav item text (`--text-color`).
      *
      * Craft’s `.sidebar-action` is a 3-col grid (prefix | label | suffix). Hiding the
      * prefix with `display: none` would auto-place the label into the ~30px prefix
      * column and wrap each word onto its own line — override the grid instead.
      */
-    [data-type="divider"] {
+    li[id^="nav-divider-"] {
         .nav-icon,
         .sidebar-action__prefix,
         .sidebar-action__suffix {
