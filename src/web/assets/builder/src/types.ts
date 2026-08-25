@@ -83,7 +83,8 @@ declare global {
       csrfTokenValue: string;
     };
     Garnish: GarnishGlobal;
-    $: JQueryStatic;
+    // Optional to match @verbb/plugin-kit-core connect Window augmentation (`$?`).
+    $?: JQueryStatic;
   }
 }
 
