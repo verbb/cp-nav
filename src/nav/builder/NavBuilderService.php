@@ -2,6 +2,7 @@
 namespace verbb\cpnav\nav\builder;
 
 use verbb\cpnav\CpNav;
+use verbb\cpnav\helpers\ManualUrl;
 use verbb\cpnav\nav\customization\CustomizationNode;
 use verbb\cpnav\models\Layout;
 use verbb\cpnav\models\LayoutNavItem;
@@ -81,7 +82,7 @@ class NavBuilderService extends Component
             label: $customization->label ?? $registryNode->defaultLabel,
             url: $customization->url ?? $registryNode->defaultUrl,
             sort: $customization->sort,
-            parentKey: $customization->parent,
+            parentKey: $customization->resolvedParent($registryNode->parentKey),
             source: $registryNode->source,
             enabled: $customization->enabled,
             icon: $customization->icon ?? $registryNode->icon,
@@ -131,15 +132,25 @@ class NavBuilderService extends Component
             return false;
         }
 
-        $nodesByBuilderId = [];
+        // One layout tree + one overlay load for the whole mutation.
+        $nodesByKey = [];
         foreach ($this->getLayoutNavItemsForLayout($layoutId) as $navigation) {
-            $nodesByBuilderId[(int)$navigation->id] = ['builderId' => $navigation->id, 'key' => $navigation->nodeKey];
+            if ($navigation->nodeKey) {
+                $nodesByKey[$navigation->nodeKey] = $navigation;
+            }
             foreach ($navigation->getChildren() as $child) {
-                $nodesByBuilderId[(int)$child->id] = ['builderId' => $child->id, 'key' => $child->nodeKey];
+                if ($child->nodeKey) {
+                    $nodesByKey[$child->nodeKey] = $child;
+                }
             }
         }
 
-        if (NavTreeReparent::validateReorderItems($items, $nodesByBuilderId) !== []) {
+        $validationIndex = [];
+        foreach ($nodesByKey as $key => $navigation) {
+            $validationIndex[$key] = ['key' => $key];
+        }
+
+        if (NavTreeReparent::validateReorderItems($items, $validationIndex) !== []) {
             return false;
         }
 
@@ -147,18 +158,18 @@ class NavBuilderService extends Component
         $updated = $overlay;
 
         foreach ($items as $sort => $item) {
-            $builderId = (int)($item['id'] ?? 0);
-            $navigation = $this->getLayoutNavItemByBuilderId($layoutId, $builderId);
+            $key = (string)($item['key'] ?? '');
+            $navigation = $nodesByKey[$key] ?? null;
 
             if (!$navigation || !$navigation->nodeKey) {
                 continue;
             }
 
-            $parentKey = null;
-            $parentId = $item['parentId'] ?? null;
+            $parentKey = CustomizationNode::PARENT_ROOT;
+            $rawParent = $item['parentKey'] ?? null;
 
-            if ($parentId) {
-                $parent = $this->getLayoutNavItemByBuilderId($layoutId, (int)$parentId);
+            if ($rawParent !== null && $rawParent !== '') {
+                $parent = $nodesByKey[(string)$rawParent] ?? null;
 
                 // Parent must exist and be a root.
                 if (!$parent || !$parent->nodeKey || $parent->parentId) {
@@ -226,20 +237,10 @@ class NavBuilderService extends Component
     {
         $nodes = $this->_flatBuilderNodes($layoutId);
         $index = null;
-        $parentBuilderId = null;
 
         foreach ($nodes as $i => $node) {
             if (($node['key'] ?? null) === $nodeKey) {
                 $index = $i;
-            }
-
-            if ($parentKey !== null && ($node['key'] ?? null) === $parentKey) {
-                $parentBuilderId = (int)$node['builderId'];
-
-                // Parent must be a current root.
-                if (!empty($node['parentId'])) {
-                    return false;
-                }
             }
         }
 
@@ -256,27 +257,44 @@ class NavBuilderService extends Component
             return false;
         }
 
-        if ($parentKey !== null && $parentBuilderId === null) {
-            return false;
-        }
-
         if ($parentKey === $nodeKey) {
             return false;
         }
 
-        // Moving a node that has children under another parent would create depth 3.
         if ($parentKey !== null) {
-            $builderId = (int)$nodes[$index]['builderId'];
+            $parentIndex = null;
+            foreach ($nodes as $i => $node) {
+                if (($node['key'] ?? null) === $parentKey) {
+                    $parentIndex = $i;
+                    break;
+                }
+            }
 
+            if ($parentIndex === null || !empty($nodes[$parentIndex]['parentKey'])) {
+                return false;
+            }
+
+            // Moving a node that has children under another parent would create depth 3.
             foreach ($nodes as $node) {
-                if ((int)($node['parentId'] ?? 0) === $builderId) {
+                if (($node['parentKey'] ?? null) === $nodeKey) {
                     return false;
                 }
             }
         }
 
-        $nodes[$index]['parentId'] = $parentBuilderId;
-        $nodes[$index]['level'] = $parentBuilderId ? 2 : 1;
+        $nodes[$index]['parentKey'] = $parentKey;
+        $nodes[$index]['level'] = $parentKey ? 2 : 1;
+        if (array_key_exists('parentId', $nodes[$index])) {
+            $nodes[$index]['parentId'] = null;
+            if ($parentKey !== null) {
+                foreach ($nodes as $node) {
+                    if (($node['key'] ?? null) === $parentKey) {
+                        $nodes[$index]['parentId'] = (int)($node['builderId'] ?? 0);
+                        break;
+                    }
+                }
+            }
+        }
 
         return $this->reorder($layoutId, NavTreeReparent::toReorderPayload(array_values($nodes)));
     }
@@ -297,11 +315,32 @@ class NavBuilderService extends Component
         $overlay = CpNav::$plugin->getNavCustomization()->getCustomizationForLayout($layout->uid);
         $existing = $overlay[$key] ?? $this->_defaultCustomizationNode($key, $navigation);
         $registryNode = $this->_registryNodeForKey($key);
+        $isCustomizationOnly = NodeKey::isCustomizationOnly($key);
         $label = $navigation->currLabel;
 
-        if ($registryNode && $label === $registryNode->defaultLabel) {
+        // Manual/divider always store their label; canonical only stores an override delta.
+        if ($isCustomizationOnly) {
+            $label = $navigation->currLabel;
+        } elseif ($registryNode && $label === $registryNode->defaultLabel) {
             $label = null;
         }
+
+        // Manual/divider persist full URL; canonical stays sparse (D23 — no URL override from UI).
+        $url = $isCustomizationOnly
+            ? $navigation->url
+            : $existing->url;
+
+        if ($isCustomizationOnly && $url !== null && $url !== '' && !ManualUrl::isAllowed($url)) {
+            return false;
+        }
+
+        if (!$isCustomizationOnly && $registryNode && $url !== null && $url === $registryNode->defaultUrl) {
+            $url = null;
+        }
+
+        $type = $isCustomizationOnly
+            ? ($navigation->type ?? $existing->type)
+            : $existing->type;
 
         CpNav::$plugin->getNavCustomization()->saveNode(
             $layout->uid,
@@ -311,9 +350,9 @@ class NavBuilderService extends Component
                 sort: $existing->sort,
                 parent: $existing->parent,
                 label: $label,
-                type: $existing->type,
-                url: $navigation->url !== ($registryNode->defaultUrl ?? $navigation->url) ? $navigation->url : $existing->url,
-                icon: $navigation->icon ?: null,
+                type: $type,
+                url: $url,
+                icon: $isCustomizationOnly ? ($navigation->icon ?: null) : $existing->icon,
                 customIcon: $navigation->customIcon ?: null,
                 newWindow: (bool)$navigation->newWindow,
             ),
@@ -330,6 +369,14 @@ class NavBuilderService extends Component
 
         $layout = $navigation->getLayout();
         $type = $navigation->type ?? LayoutNavItem::TYPE_MANUAL;
+
+        if ($type === LayoutNavItem::TYPE_MANUAL) {
+            $url = (string)($navigation->url ?? '');
+            if ($url === '' || !ManualUrl::isAllowed($url)) {
+                return false;
+            }
+        }
+
         $uuid = StringHelper::UUID();
         $key = $type === LayoutNavItem::TYPE_DIVIDER
             ? NodeKey::divider($uuid)
@@ -347,7 +394,7 @@ class NavBuilderService extends Component
                 key: $key,
                 enabled: true,
                 sort: $maxSort + 10,
-                parent: null,
+                parent: CustomizationNode::PARENT_ROOT,
                 label: $navigation->currLabel,
                 type: $type,
                 url: $navigation->url,
@@ -402,7 +449,7 @@ class NavBuilderService extends Component
      * Flat builder nodes in display order — same shape as NavBuilderApi tree nodes
      * (subset of fields needed for reparent transforms).
      *
-     * @return array<int, array{builderId: int, key: string, parentId: int|null, level: int}>
+     * @return array<int, array{builderId: int, key: string, parentKey: string|null, parentId: int|null, level: int}>
      */
     private function _flatBuilderNodes(int $layoutId): array
     {
@@ -416,6 +463,7 @@ class NavBuilderService extends Component
             $nodes[] = [
                 'builderId' => (int)$navigation->id,
                 'key' => (string)$navigation->nodeKey,
+                'parentKey' => null,
                 'parentId' => null,
                 'level' => 1,
             ];
@@ -424,6 +472,7 @@ class NavBuilderService extends Component
                 $nodes[] = [
                     'builderId' => (int)$child->id,
                     'key' => (string)$child->nodeKey,
+                    'parentKey' => (string)$navigation->nodeKey,
                     'parentId' => (int)$navigation->id,
                     'level' => 2,
                 ];
@@ -521,16 +570,22 @@ class NavBuilderService extends Component
 
     private function _defaultCustomizationNode(string $key, LayoutNavItem $navigation): CustomizationNode
     {
+        // Sparse seed for first persist of a canonical key — never snapshot resolved URL/icon/type.
+        // Manual/divider are full definitions.
+        $isCustomizationOnly = NodeKey::isCustomizationOnly($key);
+
         return new CustomizationNode(
             key: $key,
             enabled: (bool)$navigation->enabled,
             sort: (int)($navigation->sortOrder ?? 0),
             parent: null,
-            label: $navigation->currLabel !== $navigation->prevLabel ? $navigation->currLabel : null,
-            type: $navigation->type,
-            url: $navigation->url,
-            icon: $navigation->icon,
-            customIcon: $navigation->customIcon,
+            label: $isCustomizationOnly
+                ? $navigation->currLabel
+                : ($navigation->currLabel !== $navigation->prevLabel ? $navigation->currLabel : null),
+            type: $isCustomizationOnly ? $navigation->type : null,
+            url: $isCustomizationOnly ? $navigation->url : null,
+            icon: null,
+            customIcon: $navigation->customIcon ?: null,
             newWindow: (bool)$navigation->newWindow,
         );
     }

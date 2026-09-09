@@ -12,6 +12,7 @@ use verbb\cpnav\nav\resolve\NavResolver;
 use verbb\cpnav\nav\sources\NavSourceBuilder;
 use verbb\cpnav\nav\sources\NavSources;
 use verbb\cpnav\services\Layouts;
+use verbb\cpnav\services\StaticIcons;
 use verbb\cpnav\web\assets\builder\BuilderAsset;
 
 use craft\helpers\App;
@@ -45,6 +46,7 @@ trait PluginTrait
         return [
             'components' => [
                 'layouts' => Layouts::class,
+                'staticIcons' => StaticIcons::class,
                 'navBuilder' => NavBuilderService::class,
                 'navBuilderApi' => NavBuilderApi::class,
                 'navSources' => NavSources::class,
@@ -77,6 +79,11 @@ trait PluginTrait
     public function getLayouts(): Layouts
     {
         return $this->get('layouts');
+    }
+
+    public function getStaticIcons(): StaticIcons
+    {
+        return $this->get('staticIcons');
     }
 
     public function getNavBuilder(): NavBuilderService

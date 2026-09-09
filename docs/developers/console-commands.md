@@ -5,15 +5,18 @@
 Convert archived or live v5 navigation rows into v6 project config customizations.
 
 ```shell
-php craft cp-nav/migrate-customizations [--dry-run] [--layoutUid=UID]
+php craft cp-nav/migrate-customizations [--dry-run] [--force] [--layoutUid=UID]
 ```
 
 | Option | Description |
 | --- | --- |
 | `--dry-run` | Report what would be written without saving |
+| `--force` | Replace layouts that already have v6 customizations (destructive) |
 | `--layoutUid` | Limit to a single layout UID |
 
-On plugin upgrade this runs automatically for layouts that do not already have v6 customizations. Re-running is safe (idempotent for empty-overlay layouts).
+On plugin upgrade this runs automatically for layouts that do not already have v6 customizations.
+
+Safe by default: layouts with existing customizations are **skipped** unless `--force` is passed. Layouts with no legacy v5 rows are skipped (never cleared). Status per layout is printed as `migrated`, `replaced`, `skipped_nonempty`, or `skipped_no_legacy`.
 
 ## Audit Customizations
 

@@ -9,7 +9,7 @@ import {
 import { Button, Field, Input, Lightswitch, Popover } from '@verbb/plugin-kit-react/components';
 import { useBuilderStore } from '../store';
 import { t } from '../api';
-import type { CustomIconAsset } from '../types';
+import type { CustomIconPreview } from '../types';
 import { type PkOpenChangeEvent } from '../utils/pluginKitEvents';
 import {
   emptyCreateForm,
@@ -34,7 +34,8 @@ const POPOVER_FLUSH_MAX = '375px';
 const PK_IMPLICIT_SUBMIT_EVENT = 'pk-implicit-submit';
 
 type FormState = NodeEditorFormState & {
-  customIconAsset: CustomIconAsset | null;
+  customIcon: string | null;
+  customIconPreview: CustomIconPreview | null;
 };
 
 type PkInputHost = HTMLElement & { value: string };
@@ -82,7 +83,6 @@ function readPkChangeValue(event: Event): string {
 export function NodeEditorPopover() {
   const session = useBuilderStore((s) => s.editorSession);
   const nodes = useBuilderStore((s) => s.nodes);
-  const assetSources = useBuilderStore((s) => s.assetSources);
   const closeEditor = useBuilderStore((s) => s.closeEditor);
   const createNode = useBuilderStore((s) => s.createNode);
   const updateNode = useBuilderStore((s) => s.updateNode);
@@ -94,20 +94,22 @@ export function NodeEditorPopover() {
   const [fieldMountKey, setFieldMountKey] = useState(0);
   const [fields, setFields] = useState<FormState>({
     ...emptyCreateForm('manual'),
-    customIconAsset: null,
+    customIcon: null,
+    customIconPreview: null,
   });
   const [errors, setErrors] = useState<NodeEditorFieldErrors>({});
   const [saving, setSaving] = useState(false);
-  // Craft asset modal lives outside the popover — light-dismiss would close us on every click.
-  const [craftOverlayOpen, setCraftOverlayOpen] = useState(false);
+  // ImageBrowser panel lives outside the editor popover — suppress light-dismiss while open.
+  const [iconBrowserOpen, setIconBrowserOpen] = useState(false);
   const formRef = useRef<HTMLFormElement | null>(null);
   const popoverRef = useRef<HTMLElement | null>(null);
   const fieldsRef = useRef(fields);
+  const iconBrowserOpenRef = useRef(false);
+
   const saveRef = useRef<() => Promise<void>>(async () => {});
-  const craftOverlayOpenRef = useRef(false);
 
   fieldsRef.current = fields;
-  craftOverlayOpenRef.current = craftOverlayOpen;
+  iconBrowserOpenRef.current = iconBrowserOpen;
 
   // Drive open/close from the store session; hold visibleSession through the exit motion.
   // Keep open=false here — layout effect applies positionMethod=fixed first, then opens.
@@ -125,7 +127,7 @@ export function NodeEditorPopover() {
     setSaving(false);
 
     if (session.kind === 'create') {
-      setFields({ ...emptyCreateForm(session.type), customIconAsset: null });
+      setFields({ ...emptyCreateForm(session.type), customIcon: null, customIconPreview: null });
       setFieldMountKey((key) => key + 1);
       return;
     }
@@ -135,7 +137,8 @@ export function NodeEditorPopover() {
     if (node) {
       setFields({
         ...formFromNode(node),
-        customIconAsset: node.customIconAsset,
+        customIcon: node.customIcon,
+        customIconPreview: node.customIconPreview,
       });
       setFieldMountKey((key) => key + 1);
     }
@@ -246,15 +249,15 @@ export function NodeEditorPopover() {
   const handleOpenChange = (event: Event) => {
     const nextOpen = (event as PkOpenChangeEvent).detail?.open;
 
-    // Ignore dismiss while Craft’s asset picker is open (clicks land “outside” the popover).
-    if (nextOpen === false && !saving && !craftOverlayOpenRef.current) {
+    // Ignore dismiss while the icon browser panel is open (clicks land “outside”).
+    if (nextOpen === false && !saving && !iconBrowserOpenRef.current) {
       closeEditor();
     }
   };
 
-  /** Cancelable `pk-hide` — abort light-dismiss / Esc while the asset modal is up. */
+  /** Cancelable `pk-hide` — abort light-dismiss / Esc while the icon browser is up. */
   const handleHide = (event: Event) => {
-    if (craftOverlayOpenRef.current) {
+    if (iconBrowserOpenRef.current) {
       event.preventDefault();
     }
   };
@@ -264,7 +267,7 @@ export function NodeEditorPopover() {
     setAnchor(null);
     setErrors({});
     setSaving(false);
-    setCraftOverlayOpen(false);
+    setIconBrowserOpen(false);
   };
 
   /** Prefer live CE values at submit time — React state can lag for pk-input. */
@@ -315,9 +318,9 @@ export function NodeEditorPopover() {
           ...(isManual
             ? { url: submitFields.url.trim(), newWindow: submitFields.newWindow }
             : {}),
-          // Craft/system `icon` stays registry/overlay-owned — only custom SVG is editable.
+          // Craft/system `icon` stays registry/overlay-owned — only custom SVG path is editable.
           ...(showIconFields
-            ? { customIcon: submitFields.customIconAsset?.id ?? null }
+            ? { customIcon: submitFields.customIcon }
             : {}),
         });
       }
@@ -452,24 +455,18 @@ export function NodeEditorPopover() {
                 label={t('Custom Icon')}
                 instructions={t('Specify an SVG asset for this menu item icon.')}
               >
-                  <CustomIconInput
-                    asset={fields.customIconAsset}
-                    sources={assetSources}
-                    onChange={(customIconAsset) => {
-                      setFields((prev) => ({ ...prev, customIconAsset }));
-                      fieldsRef.current = { ...fieldsRef.current, customIconAsset };
-                    }}
-                    onModalOpen={() => {
-                      // Sync ref immediately — setState alone lags one frame, and the
-                      // first modal click would still light-dismiss the editor.
-                      craftOverlayOpenRef.current = true;
-                      setCraftOverlayOpen(true);
-                    }}
-                    onModalClose={() => {
-                      craftOverlayOpenRef.current = false;
-                      setCraftOverlayOpen(false);
-                    }}
-                  />
+                <CustomIconInput
+                  value={fields.customIcon}
+                  preview={fields.customIconPreview}
+                  onChange={(customIcon, customIconPreview) => {
+                    setFields((prev) => ({ ...prev, customIcon, customIconPreview }));
+                    fieldsRef.current = { ...fieldsRef.current, customIcon, customIconPreview };
+                  }}
+                  onOpenChange={(nextOpen) => {
+                    iconBrowserOpenRef.current = nextOpen;
+                    setIconBrowserOpen(nextOpen);
+                  }}
+                />
               </Field>
             )}
           </div>

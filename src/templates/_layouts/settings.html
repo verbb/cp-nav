@@ -1,0 +1,27 @@
+{% extends 'verbb-base/_layouts/settings' %}
+
+{% import '_includes/forms' as forms %}
+{% import 'verbb-base/_macros' as macros %}
+
+{% requireAdmin %}
+
+{% do view.registerAssetBundle('verbb\\base\\assetbundles\\CpAsset') -%}
+
+{% set crumbs = [
+    { label: 'Settings' | t('app'), url: url('settings') },
+    { label: 'Plugins' | t('app'), url: url('settings/plugins') },
+    { label: 'Control Panel Nav' | t('cp-nav'), url: url('cp-nav/settings') },
+] | merge(crumbs ?? []) %}
+
+{% set pageTabs = {
+    general: { title: 'General Settings' | t('cp-nav'), url: url('cp-nav/settings') },
+} %}
+
+{% set pageTitle = pageTitle ?? false %}
+{% if title is not defined and pageTitle %}
+    {% set title = pageTitle %}
+{% endif %}
+
+{% block settingsMeta %}
+    {{ hiddenInput('pluginHandle', 'cp-nav') }}
+{% endblock %}

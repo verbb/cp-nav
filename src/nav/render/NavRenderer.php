@@ -136,51 +136,66 @@ final class NavRenderer extends Component
         $items = [];
 
         foreach ($byParent[$parentKey] ?? [] as $resolved) {
-            if (NodeKey::isDivider($resolved->key)) {
-                // Section break — inert Craft nav item; CSS keys off `id="nav-divider-*"`
-                // so styles apply before sidebar.js runs (avoids FOUT).
-                $items[] = $this->_dividerNavItem($resolved);
-                continue;
-            }
-
-            $registry = $registryIndex[$resolved->key] ?? null;
-            // User-uploaded SVG overrides any Craft/plugin icon (font or path).
-            $customIconPath = $this->_customIconPath($resolved->customIcon);
-            $icon = $customIconPath ?: ($resolved->icon ?? $registry?->icon);
-            $url = $this->resolveUrl($resolved->url);
-
-            $item = [
-                'label' => $resolved->label,
-                'url' => $this->_relativeUrl($url),
-            ];
-
-            if ($icon) {
-                $this->_applyIcon($item, $icon, (bool)$customIconPath);
-            }
-
-            // Craft `external` → target=_blank + sidebar icon. Driven only by resolved newWindow
-            // (overlay, or registry defaultExternal e.g. GraphiQL) — not by URL scheme. Otherwise
-            // placeholders like `https://` on new manuals would look/act as new-window links.
-            $item['external'] = $resolved->newWindow;
-
-            if (isset($badgeCounts[$resolved->key]) && $badgeCounts[$resolved->key] > 0) {
-                $item['badgeCount'] = $badgeCounts[$resolved->key];
-            }
-
-            $children = $this->_buildLevel($byParent, $resolved->key, $registryIndex, $badgeCounts);
-
-            if ($children !== []) {
-                $item['subnav'] = [];
-                foreach ($children as $child) {
-                    $handle = $this->_subnavHandle($child, $resolved->key);
-                    $item['subnav'][$handle] = $child;
-                }
-            }
-
-            $items[] = $item;
+            $items[] = $this->_buildItem($resolved, $byParent, $registryIndex, $badgeCounts);
         }
 
         return $items;
+    }
+
+    private function _buildItem(
+        ResolvedNavNode $resolved,
+        array $byParent,
+        array $registryIndex,
+        array $badgeCounts,
+    ): array {
+        if (NodeKey::isDivider($resolved->key)) {
+            // Section break — inert Craft nav item; CSS keys off `id="nav-divider-*"`
+            // so styles apply before sidebar.js runs (avoids FOUT).
+            return $this->_dividerNavItem($resolved);
+        }
+
+        $registry = $registryIndex[$resolved->key] ?? null;
+        // User-uploaded SVG overrides any Craft/plugin icon (font or path).
+        $customIconPath = $this->_customIconPath($resolved->customIcon);
+        $icon = $customIconPath ?: ($resolved->icon ?? $registry?->icon);
+        $url = $this->resolveUrl($resolved->url);
+
+        $item = [
+            'label' => $resolved->label,
+            'url' => $this->_relativeUrl($url),
+        ];
+
+        if ($icon) {
+            $this->_applyIcon($item, $icon, (bool)$customIconPath);
+        }
+
+        // Craft `external` → target=_blank + sidebar icon. Driven only by resolved newWindow
+        // (overlay, or registry defaultExternal e.g. GraphiQL) — not by URL scheme. Otherwise
+        // placeholders like `https://` on new manuals would look/act as new-window links.
+        $item['external'] = $resolved->newWindow;
+
+        if (isset($badgeCounts[$resolved->key]) && $badgeCounts[$resolved->key] > 0) {
+            $item['badgeCount'] = $badgeCounts[$resolved->key];
+        }
+
+        $childNodes = $byParent[$resolved->key] ?? [];
+
+        if ($childNodes !== []) {
+            $item['subnav'] = [];
+
+            foreach ($childNodes as $childResolved) {
+                $childItem = $this->_buildItem($childResolved, $byParent, $registryIndex, $badgeCounts);
+                $handle = $this->_subnavHandleFromResolved($childResolved, $registryIndex);
+
+                if (isset($item['subnav'][$handle])) {
+                    $handle = $this->_uniqueSubnavHandle($handle, $item['subnav']);
+                }
+
+                $item['subnav'][$handle] = $childItem;
+            }
+        }
+
+        return $item;
     }
 
     /**
@@ -262,21 +277,45 @@ final class NavRenderer extends Component
         return $url === '' ? 'dashboard' : $url;
     }
 
-    private function _subnavHandle(array $childItem, string $parentKey): string
+    /**
+     * Prefer the original provider subHandle from nav sources; fall back to a stable
+     * key-derived handle for manuals so same-basename siblings do not overwrite.
+     */
+    private function _subnavHandleFromResolved(ResolvedNavNode $resolved, array $registryIndex): string
     {
-        $url = (string)($childItem['url'] ?? '');
-        $parentPath = NodeKey::split($parentKey)[1] ?? '';
-        $prefix = $parentPath === '' ? '' : $parentPath . '/';
+        $registry = $registryIndex[$resolved->key] ?? null;
 
-        if ($prefix !== '' && str_starts_with($url, $prefix)) {
-            return StringHelper::toKebabCase(substr($url, strlen($prefix)));
+        if ($registry?->subHandle) {
+            return (string)$registry->subHandle;
         }
 
-        return StringHelper::toKebabCase(basename($url));
+        if (NodeKey::isManual($resolved->key) || NodeKey::isDivider($resolved->key)) {
+            [, $uuid] = NodeKey::split($resolved->key);
+
+            return 'manual-' . StringHelper::toKebabCase(substr($uuid, 0, 8));
+        }
+
+        [, $path] = NodeKey::split($resolved->key);
+        $basename = basename(str_replace(':', '/', $path));
+
+        return $basename !== '' ? $basename : StringHelper::toKebabCase($resolved->key);
+    }
+
+    private function _uniqueSubnavHandle(string $handle, array $existing): string
+    {
+        $suffix = 2;
+        $candidate = $handle . '-' . $suffix;
+
+        while (isset($existing[$candidate])) {
+            $suffix++;
+            $candidate = $handle . '-' . $suffix;
+        }
+
+        return $candidate;
     }
 
     /**
-     * Resolve a stored customIcon JSON blob (`[assetId]`) to a filesystem path or URL Craft can SVG-render.
+     * Resolve a stored relative SVG path under the plugin icons folder.
      */
     private function _customIconPath(?string $customIcon): ?string
     {

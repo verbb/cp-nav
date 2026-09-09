@@ -83,7 +83,23 @@ final class NodeKey
         return self::craft($relativeUrl);
     }
 
+    /**
+     * Encode a canonical key as a Craft project-config path segment.
+     *
+     * Uses base64url so `/`, `:`, and `_` in the path cannot collide. Legacy
+     * underscore encoding is still decoded when reading (canonical `key` in the
+     * stored value is authoritative).
+     */
     public static function encodePathKey(string $key): string
+    {
+        [$namespace, $path] = self::split($key);
+        $encodedPath = rtrim(strtr(base64_encode($path), '+/', '-_'), '=');
+
+        return $namespace . '__b64_' . $encodedPath;
+    }
+
+    /** Pre-v6.0.0-beta.3 path encoding — kept for cleanup of orphan PC segments. */
+    public static function encodePathKeyLegacy(string $key): string
     {
         [$namespace, $path] = self::split($key);
 
@@ -96,11 +112,26 @@ final class NodeKey
             return $canonicalKey;
         }
 
+        if (preg_match('/^([a-z]+)__b64_(.+)$/i', $encoded, $matches)) {
+            $padded = strtr($matches[2], '-_', '+/');
+            $padLen = (4 - strlen($padded) % 4) % 4;
+            $path = base64_decode($padded . str_repeat('=', $padLen), true);
+
+            if ($path !== false) {
+                return $matches[1] . ':' . $path;
+            }
+        }
+
         if (!str_contains($encoded, '__')) {
             return $encoded;
         }
 
         [$namespace, $path] = explode('__', $encoded, 2);
+
+        // Strip optional b64_ prefix if regex above missed.
+        if (str_starts_with($path, 'b64_')) {
+            $path = substr($path, 4);
+        }
 
         return $namespace . ':' . str_replace('_', '/', $path);
     }

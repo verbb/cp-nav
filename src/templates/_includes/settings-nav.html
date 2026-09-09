@@ -1,0 +1,22 @@
+{# Defined here rather than passed in, so every controller rendering a settings
+   screen gets the same sidebar without having to supply it. #}
+{% set settingsNavItems = {
+    'general': { title: 'General Settings' | t('cp-nav') },
+} %}
+
+<nav class="cpnav-settings-tabs">
+    <ul>
+        {% for handle, item in settingsNavItems %}
+            {% set itemUrl = handle == 'general'
+                ? url('cp-nav/settings')
+                : url('cp-nav/settings/' ~ handle)
+            %}
+
+            <li>
+                <a href="{{ itemUrl }}"{% if selectedTab == handle %} class="sel"{% endif %}>
+                    {{ item.title }}
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+</nav>

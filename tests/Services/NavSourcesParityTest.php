@@ -7,6 +7,7 @@ use craft\web\twig\variables\Cp;
 use Tests\Support\AdminUser;
 use Tests\Support\CpRequestContext;
 use verbb\cpnav\CpNav;
+use verbb\cpnav\nav\sources\NavSourceBuilder;
 use verbb\cpnav\nav\sources\NodeKey;
 use yii\base\Event;
 
@@ -32,23 +33,38 @@ describe('NavSourceBuilder parity', function() {
 });
 
 /**
+ * Capture Craft nav the same way NavSourceBuilder does: after ordinary handlers,
+ * while NavRenderer is suppressed via isCapturing().
+ *
  * @return list<string>
  */
 function captureCraftNavKeys(): array
 {
     $captured = [];
 
+    $handler = function(RegisterCpNavItemsEvent $event) use (&$captured) {
+        $captured = $event->navItems;
+    };
+
     Event::on(
         Cp::class,
         Cp::EVENT_REGISTER_CP_NAV_ITEMS,
-        function(RegisterCpNavItemsEvent $event) use (&$captured) {
-            $captured = $event->navItems;
-        },
+        $handler,
         null,
-        false,
+        true,
     );
 
-    (new Cp())->nav();
+    $reflection = new ReflectionProperty(NavSourceBuilder::class, '_capturing');
+    $reflection->setAccessible(true);
+    $previous = $reflection->getValue();
+    $reflection->setValue(null, true);
+
+    try {
+        (new Cp())->nav();
+    } finally {
+        $reflection->setValue(null, $previous);
+        Event::off(Cp::class, Cp::EVENT_REGISTER_CP_NAV_ITEMS, $handler);
+    }
 
     return extractKeysFromRawNav($captured);
 }

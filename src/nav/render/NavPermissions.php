@@ -8,6 +8,7 @@ use verbb\cpnav\nav\sources\NodeKey;
 use Craft;
 use craft\base\Component;
 use craft\enums\CmsEdition;
+use craft\helpers\StringHelper;
 
 /**
  * Live permission filtering for resolved nav nodes.
@@ -102,8 +103,9 @@ final class NavPermissions extends Component
             return $user->getIsAdmin() && $general->enableGql;
         }
 
+        // Craft still shows Settings when allowAdminChanges=false (gear-slash icon).
         if ($segment === 'settings') {
-            return $user->getIsAdmin() && $general->allowAdminChanges;
+            return $user->getIsAdmin();
         }
 
         if ($segment === 'plugin-store') {
@@ -136,14 +138,29 @@ final class NavPermissions extends Component
             return false;
         }
 
+        // Match Craft: plugins may deny the section for this user by returning null.
+        $pluginNavItem = $plugin->getCpNavItem();
+        if ($pluginNavItem === null) {
+            return false;
+        }
+
         $subHandle = $parts[2] ?? null;
         if (!$subHandle) {
             return true;
         }
 
-        $pluginNavItem = $plugin->getCpNavItem();
+        $subnav = $pluginNavItem['subnav'] ?? null;
+        if (!is_array($subnav)) {
+            return false;
+        }
 
-        return is_array($pluginNavItem)
-            && isset($pluginNavItem['subnav'][$subHandle]);
+        // Provider keys are authoritative — try stored segment, then kebab form.
+        if (array_key_exists($subHandle, $subnav)) {
+            return true;
+        }
+
+        $kebab = StringHelper::toKebabCase($subHandle);
+
+        return $kebab !== $subHandle && array_key_exists($kebab, $subnav);
     }
 }

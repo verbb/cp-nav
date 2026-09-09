@@ -1,11 +1,9 @@
 import type { BuilderNode, ReorderItem } from '../types';
 
-/** Map the current flat node list to the reorder API payload. */
+/** Map the current flat node list to the reorder API payload (canonical keys). */
 export function toReorderItems(nodes: BuilderNode[]): ReorderItem[] {
-  const builderIdByKey = new Map(nodes.map((node) => [node.key, node.builderId]));
-
   return nodes.map((node) => ({
-    id: node.builderId,
-    parentId: node.parentKey ? builderIdByKey.get(node.parentKey) ?? null : null,
+    key: node.key,
+    parentKey: node.parentKey,
   }));
 }

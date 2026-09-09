@@ -154,7 +154,7 @@ describe('NavBuilderApi', function() {
         }
 
         $tree = CpNav::$plugin->getNavBuilderApi()->getLayoutTree($layout->id);
-        $roots = array_values(array_filter($tree['nodes'], fn(array $node) => empty($node['parentId'])));
+        $roots = array_values(array_filter($tree['nodes'], fn(array $node) => empty($node['parentKey'])));
 
         if (count($roots) < 2) {
             $this->markTestSkipped('Need at least two root nav items to test reorder.');
@@ -167,15 +167,15 @@ describe('NavBuilderApi', function() {
         try {
             $reordered = array_reverse($roots);
             $items = array_map(fn(array $node) => [
-                'id' => $node['builderId'],
-                'parentId' => $node['parentId'],
+                'key' => $node['key'],
+                'parentKey' => $node['parentKey'],
             ], $reordered);
 
             foreach ($tree['nodes'] as $node) {
-                if (!empty($node['parentId'])) {
+                if (!empty($node['parentKey'])) {
                     $items[] = [
-                        'id' => $node['builderId'],
-                        'parentId' => $node['parentId'],
+                        'key' => $node['key'],
+                        'parentKey' => $node['parentKey'],
                     ];
                 }
             }
@@ -183,7 +183,7 @@ describe('NavBuilderApi', function() {
             expect(CpNav::$plugin->getNavBuilderApi()->reorderNodes($layout->id, $items))->toBeTrue();
 
             $after = CpNav::$plugin->getNavBuilderApi()->getLayoutTree($layout->id);
-            $afterRoots = array_values(array_filter($after['nodes'], fn(array $node) => empty($node['parentId'])));
+            $afterRoots = array_values(array_filter($after['nodes'], fn(array $node) => empty($node['parentKey'])));
 
             expect(array_column($afterRoots, 'key'))->toBe(array_column($reordered, 'key'));
         } finally {

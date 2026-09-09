@@ -4,11 +4,7 @@ namespace verbb\cpnav\nav\builder;
 /**
  * Flat-list indent / outdent transforms for the nav builder (max depth 2).
  *
- * Works on the same shape returned by {@see NavBuilderApi::getLayoutTree()} `nodes`:
- * each item has at least `key`, `builderId`, `parentId`.
- *
- * UI agents can call the HTTP actions, or reuse these static helpers client-side
- * by mirroring the rules — server remains the source of truth.
+ * Works on nodes identified by canonical `key` / `parentKey` (not CRC32 ids).
  */
 final class NavTreeReparent
 {
@@ -52,7 +48,7 @@ final class NavTreeReparent
         }
 
         // Already nested, or has children (would create depth 3).
-        if (!empty($node['parentId']) || self::_hasChildren($nodes, (int)$node['builderId'])) {
+        if (!empty($node['parentKey']) || self::_hasChildren($nodes, (string)$node['key'])) {
             return null;
         }
 
@@ -69,12 +65,15 @@ final class NavTreeReparent
             return null;
         }
 
-        $parentId = (int)$parent['builderId'];
+        $parentKey = (string)$parent['key'];
 
-        // Detach node (+ none of its children — roots with kids are rejected above).
         $moved = $nodes[$index];
-        $moved['parentId'] = $parentId;
+        $moved['parentKey'] = $parentKey;
         $moved['level'] = 2;
+        // Keep legacy parentId fields in sync when present (builder projection).
+        if (array_key_exists('parentId', $moved) && array_key_exists('builderId', $parent)) {
+            $moved['parentId'] = (int)$parent['builderId'];
+        }
 
         $without = array_values(array_filter(
             $nodes,
@@ -82,8 +81,7 @@ final class NavTreeReparent
             ARRAY_FILTER_USE_BOTH,
         ));
 
-        // Insert after the parent's last current child (or immediately after parent).
-        $insertAt = self::_indexOfBuilderId($without, $parentId);
+        $insertAt = self::_indexOfKey($without, $parentKey);
         if ($insertAt === null) {
             return null;
         }
@@ -91,7 +89,7 @@ final class NavTreeReparent
         $insertAt++;
         while (
             $insertAt < count($without)
-            && (int)($without[$insertAt]['parentId'] ?? 0) === $parentId
+            && ($without[$insertAt]['parentKey'] ?? null) === $parentKey
         ) {
             $insertAt++;
         }
@@ -115,21 +113,24 @@ final class NavTreeReparent
         }
 
         $node = $nodes[$index];
-        $parentId = $node['parentId'] ?? null;
+        $parentKey = $node['parentKey'] ?? null;
 
-        if (!$parentId) {
+        if (!$parentKey) {
             return null;
         }
 
-        $parentIndex = self::_indexOfBuilderId($nodes, (int)$parentId);
+        $parentIndex = self::_indexOfKey($nodes, (string)$parentKey);
 
         if ($parentIndex === null) {
             return null;
         }
 
         $moved = $node;
-        $moved['parentId'] = null;
+        $moved['parentKey'] = null;
         $moved['level'] = 1;
+        if (array_key_exists('parentId', $moved)) {
+            $moved['parentId'] = null;
+        }
 
         $without = array_values(array_filter(
             $nodes,
@@ -137,8 +138,7 @@ final class NavTreeReparent
             ARRAY_FILTER_USE_BOTH,
         ));
 
-        // After outdent, parent block ends at parent + its remaining children.
-        $insertAt = self::_indexOfBuilderId($without, (int)$parentId);
+        $insertAt = self::_indexOfKey($without, (string)$parentKey);
         if ($insertAt === null) {
             return null;
         }
@@ -146,7 +146,7 @@ final class NavTreeReparent
         $insertAt++;
         while (
             $insertAt < count($without)
-            && (int)($without[$insertAt]['parentId'] ?? 0) === (int)$parentId
+            && ($without[$insertAt]['parentKey'] ?? null) === $parentKey
         ) {
             $insertAt++;
         }
@@ -159,65 +159,67 @@ final class NavTreeReparent
     /**
      * Validate a reorder payload against depth / parent rules.
      *
-     * @param array $items [{id, parentId}, ...]
-     * @param array<int, array> $nodesByBuilderId keyed by builderId
+     * @param array $items [{key, parentKey}, ...]
+     * @param array<string, array> $nodesByKey keyed by canonical key
      * @return string[] error messages (empty = ok)
      */
-    public static function validateReorderItems(array $items, array $nodesByBuilderId): array
+    public static function validateReorderItems(array $items, array $nodesByKey): array
     {
         $errors = [];
-        $parentById = [];
+        $parentByKey = [];
 
         foreach ($items as $item) {
-            $id = (int)($item['id'] ?? 0);
-            $parentId = $item['parentId'] ?? null;
-            $parentById[$id] = $parentId ? (int)$parentId : null;
+            $key = (string)($item['key'] ?? '');
+            if ($key === '') {
+                $errors[] = 'Reorder item missing key.';
+                continue;
+            }
+
+            $parentKey = $item['parentKey'] ?? null;
+            $parentKey = $parentKey === '' || $parentKey === null ? null : (string)$parentKey;
+            $parentByKey[$key] = $parentKey;
         }
 
-        foreach ($parentById as $id => $parentId) {
-            if ($parentId === null) {
+        foreach ($parentByKey as $key => $parentKey) {
+            if ($parentKey === null) {
                 continue;
             }
 
-            if ($parentId === $id) {
-                $errors[] = "Node {$id} cannot be its own parent.";
+            if ($parentKey === $key) {
+                $errors[] = "Node {$key} cannot be its own parent.";
                 continue;
             }
 
-            if (!isset($nodesByBuilderId[$parentId]) && !isset($parentById[$parentId])) {
-                $errors[] = "Node {$id} references unknown parent {$parentId}.";
+            if (!isset($nodesByKey[$parentKey]) && !isset($parentByKey[$parentKey])) {
+                $errors[] = "Node {$key} references unknown parent {$parentKey}.";
                 continue;
             }
 
-            $nodeKey = (string)($nodesByBuilderId[$id]['key'] ?? '');
-            $parentKey = (string)($nodesByBuilderId[$parentId]['key'] ?? '');
-
-            if (str_starts_with($nodeKey, 'divider:')) {
-                $errors[] = "Divider {$id} must stay top-level.";
+            if (str_starts_with($key, 'divider:')) {
+                $errors[] = "Divider {$key} must stay top-level.";
                 continue;
             }
 
             if (str_starts_with($parentKey, 'divider:')) {
-                $errors[] = "Node {$id} cannot nest under a divider.";
+                $errors[] = "Node {$key} cannot nest under a divider.";
                 continue;
             }
 
             // Parent must itself be a root in this payload (max depth 2).
-            $grandParent = $parentById[$parentId] ?? null;
+            $grandParent = $parentByKey[$parentKey] ?? null;
             if ($grandParent !== null) {
-                $errors[] = "Node {$id} would nest deeper than " . self::MAX_DEPTH . " levels.";
+                $errors[] = "Node {$key} would nest deeper than " . self::MAX_DEPTH . " levels.";
             }
 
-            // Cycle: walk parents.
-            $seen = [$id => true];
-            $cursor = $parentId;
+            $seen = [$key => true];
+            $cursor = $parentKey;
             while ($cursor !== null) {
                 if (isset($seen[$cursor])) {
-                    $errors[] = "Node {$id} would create a parent cycle.";
+                    $errors[] = "Node {$key} would create a parent cycle.";
                     break;
                 }
                 $seen[$cursor] = true;
-                $cursor = $parentById[$cursor] ?? null;
+                $cursor = $parentByKey[$cursor] ?? null;
             }
         }
 
@@ -227,13 +229,13 @@ final class NavTreeReparent
     /**
      * Convert flat tree nodes into the reorder API payload.
      *
-     * @return array<int, array{id: int, parentId: int|null}>
+     * @return array<int, array{key: string, parentKey: string|null}>
      */
     public static function toReorderPayload(array $nodes): array
     {
         return array_map(static fn(array $node) => [
-            'id' => (int)$node['builderId'],
-            'parentId' => $node['parentId'] ?? null,
+            'key' => (string)$node['key'],
+            'parentKey' => $node['parentKey'] ?? null,
         ], $nodes);
     }
 
@@ -252,21 +254,10 @@ final class NavTreeReparent
         return null;
     }
 
-    private static function _indexOfBuilderId(array $nodes, int $builderId): ?int
-    {
-        foreach ($nodes as $i => $node) {
-            if ((int)($node['builderId'] ?? 0) === $builderId) {
-                return $i;
-            }
-        }
-
-        return null;
-    }
-
     private static function _previousRootIndex(array $nodes, int $fromIndex): ?int
     {
         for ($i = $fromIndex - 1; $i >= 0; $i--) {
-            if (empty($nodes[$i]['parentId'])) {
+            if (empty($nodes[$i]['parentKey'])) {
                 return $i;
             }
         }
@@ -274,10 +265,10 @@ final class NavTreeReparent
         return null;
     }
 
-    private static function _hasChildren(array $nodes, int $builderId): bool
+    private static function _hasChildren(array $nodes, string $key): bool
     {
         foreach ($nodes as $node) {
-            if ((int)($node['parentId'] ?? 0) === $builderId) {
+            if (($node['parentKey'] ?? null) === $key) {
                 return true;
             }
         }

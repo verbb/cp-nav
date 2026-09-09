@@ -9,7 +9,6 @@ use verbb\cpnav\services\Layouts;
 use verbb\cpnav\nav\sources\NavSourcesInvalidator;
 
 use Craft;
-use craft\base\Model;
 use craft\base\Plugin;
 use craft\events\RebuildConfigEvent;
 use craft\events\RegisterUrlRulesEvent;
@@ -60,7 +59,7 @@ class CpNav extends Plugin
 
     public function getSettingsResponse(): mixed
     {
-        return Craft::$app->getResponse()->redirect(UrlHelper::cpUrl('cp-nav'));
+        return Craft::$app->getResponse()->redirect(UrlHelper::cpUrl('cp-nav/settings'));
     }
 
 
@@ -81,6 +80,7 @@ class CpNav extends Plugin
         Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_CP_URL_RULES, function(RegisterUrlRulesEvent $event) {
             $event->rules = array_merge($event->rules, [
                 'cp-nav' => 'cp-nav/admin/index',
+                'cp-nav/settings' => 'cp-nav/settings/index',
                 'cp-nav/api/layout-tree' => 'cp-nav/api/layout-tree',
                 'cp-nav/api/update-node' => 'cp-nav/api/update-node',
                 'cp-nav/api/create-node' => 'cp-nav/api/create-node',
@@ -92,6 +92,8 @@ class CpNav extends Plugin
                 'cp-nav/api/refresh-sources' => 'cp-nav/api/refresh-sources',
                 'cp-nav/api/acknowledge-new-items' => 'cp-nav/api/acknowledge-new-items',
                 'cp-nav/api/reset-layout' => 'cp-nav/api/reset-layout',
+                'cp-nav/static-icons' => 'cp-nav/static-icons/index',
+                'cp-nav/static-icons/view' => 'cp-nav/static-icons/view',
                 'cp-nav/layouts' => 'cp-nav/layout/index',
                 'cp-nav/layouts/get-hud-html' => 'cp-nav/layouts/getHudHtml',
             ]);

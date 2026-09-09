@@ -7,8 +7,8 @@ type UpdateNodeData = {
   url?: string;
   newWindow?: boolean;
   icon?: string | null;
-  /** Asset id, id list, or null to clear. */
-  customIcon?: number | number[] | null;
+  /** Relative SVG path under iconsPath, or null to clear. */
+  customIcon?: string | null;
 };
 
 type CreateNodeData = {

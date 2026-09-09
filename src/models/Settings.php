@@ -2,9 +2,21 @@
 namespace verbb\cpnav\models;
 
 use craft\base\Model;
+use craft\helpers\App;
+use craft\helpers\FileHelper;
 
 class Settings extends Model
 {
+    // Properties
+    // =========================================================================
+
+    /**
+     * Folder of SVG icons for nav customizations. Relative paths are stored on
+     * nodes for Project Config portability — not Craft assets.
+     */
+    public string $iconsPath = '@webroot/cpnav-icons/';
+
+
     // Public Methods
     // =========================================================================
 
@@ -16,4 +28,12 @@ class Settings extends Model
         parent::__construct($config);
     }
 
+    public function getIconsPath(): string
+    {
+        if ($this->iconsPath) {
+            return FileHelper::normalizePath(App::parseEnv($this->iconsPath));
+        }
+
+        return $this->iconsPath;
+    }
 }

@@ -28,7 +28,8 @@ type NodeMutationData = {
   newWindow?: boolean;
   enabled?: boolean;
   icon?: string | null;
-  customIcon?: number | null;
+  /** Relative SVG path under iconsPath, or null to clear. */
+  customIcon?: string | null;
 };
 
 type BuilderStore = {
@@ -43,7 +44,8 @@ type BuilderStore = {
 
   nodes: BuilderNode[];
   newItemCount: number;
-  assetSources: string[];
+  /** Configured icons folder (alias string from settings). */
+  iconsPath: string;
 
   /** Create/edit HUD session — null when closed. */
   editorSession: EditorSession | null;
@@ -80,18 +82,30 @@ type BuilderStore = {
 };
 
 export const useBuilderStore = create<BuilderStore>((set, get) => {
+  // Monotonic counters so a slow response cannot overwrite a newer user intent (ASTRA-13).
+  let treeEpoch = 0;
+  const toggleGeneration: Record<string, number> = {};
+
+  const nextTreeEpoch = () => ++treeEpoch;
+
   const applyMeta = (meta: {
     newItemCount?: number;
-    assetSources?: string[];
+    iconsPath?: string;
   }) => ({
     ...(meta.newItemCount !== undefined ? { newItemCount: meta.newItemCount } : {}),
-    ...(meta.assetSources ? { assetSources: meta.assetSources } : {}),
+    ...(meta.iconsPath !== undefined ? { iconsPath: meta.iconsPath } : {}),
   });
 
   const applyServerTree = (
     serverNodes: BuilderNode[] | undefined,
-    meta?: { newItemCount?: number; assetSources?: string[] },
+    meta: { newItemCount?: number; iconsPath?: string } | undefined,
+    epoch: number,
+    layoutIdAtStart: number,
   ) => {
+    if (epoch !== treeEpoch || get().layoutId !== layoutIdAtStart) {
+      return;
+    }
+
     if (!serverNodes) {
       void get().refresh();
       return;
@@ -107,11 +121,16 @@ export const useBuilderStore = create<BuilderStore>((set, get) => {
   const persistStructure = async (nodes: BuilderNode[]) => {
     const { layoutId } = get();
     const previous = get().nodes;
+    const epoch = nextTreeEpoch();
 
     set({ nodes, reordering: true });
 
     try {
       const res = await reorderNodes(layoutId, toReorderItems(nodes));
+
+      if (epoch !== treeEpoch || get().layoutId !== layoutId) {
+        return;
+      }
 
       if (res.tree) {
         set({
@@ -124,11 +143,15 @@ export const useBuilderStore = create<BuilderStore>((set, get) => {
 
       getCraft().cp.displayNotice(res.message ?? t('New position saved.'));
     } catch (error) {
-      set({ nodes: previous });
+      if (epoch === treeEpoch && get().layoutId === layoutId) {
+        set({ nodes: previous });
+      }
       displayError(error);
       await get().refresh();
     } finally {
-      set({ reordering: false });
+      if (epoch === treeEpoch) {
+        set({ reordering: false });
+      }
     }
   };
 
@@ -144,16 +167,21 @@ export const useBuilderStore = create<BuilderStore>((set, get) => {
 
     nodes: [],
     newItemCount: 0,
-    assetSources: [],
+    iconsPath: '',
 
     editorSession: null,
     collapsedNodeKeys: {},
 
     init: async (layoutId, layouts) => {
+      nextTreeEpoch();
       set({ loading: true, layoutId, layouts, error: null, editorSession: null });
 
       try {
         const data = await fetchLayoutTree(layoutId);
+
+        if (get().layoutId !== layoutId) {
+          return;
+        }
 
         set({
           layout: data.layout,
@@ -164,15 +192,22 @@ export const useBuilderStore = create<BuilderStore>((set, get) => {
         });
       } catch (error) {
         displayError(error);
-        set({ loading: false, error: t('Couldn’t load navigation.') });
+        if (get().layoutId === layoutId) {
+          set({ loading: false, error: t('Couldn’t load navigation.') });
+        }
       }
     },
 
     refresh: async () => {
       const { layoutId } = get();
+      const epoch = nextTreeEpoch();
 
       try {
         const data = await fetchLayoutTree(layoutId);
+
+        if (epoch !== treeEpoch || get().layoutId !== layoutId) {
+          return;
+        }
 
         set({
           layout: data.layout,
@@ -240,11 +275,17 @@ export const useBuilderStore = create<BuilderStore>((set, get) => {
 
     updateNode: async (key, data) => {
       const { layoutId } = get();
+      const epoch = nextTreeEpoch();
 
       try {
         const res = await updateNodeApi(layoutId, key, data);
+
+        if (epoch !== treeEpoch || get().layoutId !== layoutId) {
+          return true;
+        }
+
         getCraft().cp.displayNotice(res.message ?? t('Navigation updated.'));
-        applyServerTree(res.tree?.nodes, res.tree?.meta);
+        applyServerTree(res.tree?.nodes, res.tree?.meta, epoch, layoutId);
         return true;
       } catch (error) {
         displayError(error);
@@ -255,6 +296,8 @@ export const useBuilderStore = create<BuilderStore>((set, get) => {
     toggleEnabled: async (key, enabled) => {
       const { layoutId, nodes } = get();
       const previousEnabled = nodes.find((node) => node.key === key)?.enabled;
+      const gen = (toggleGeneration[key] ?? 0) + 1;
+      toggleGeneration[key] = gen;
 
       // Optimistic — don’t wait on the network, and don’t toast. Craft’s
       // `#notifications` is a fixed hit layer over the Show column, so a notice
@@ -265,6 +308,12 @@ export const useBuilderStore = create<BuilderStore>((set, get) => {
 
       try {
         const res = await updateNodeApi(layoutId, key, { enabled });
+
+        // A newer toggle for this row (or layout switch) wins — ignore this response.
+        if (toggleGeneration[key] !== gen || get().layoutId !== layoutId) {
+          return;
+        }
+
         const serverNode = res.tree?.nodes?.find((node) => node.key === key);
 
         // Patch only this row — a full tree replace would clobber other in-flight toggles.
@@ -287,7 +336,7 @@ export const useBuilderStore = create<BuilderStore>((set, get) => {
           ...(res.tree?.meta ? applyMeta(res.tree.meta) : {}),
         });
       } catch (error) {
-        if (previousEnabled !== undefined) {
+        if (toggleGeneration[key] === gen && previousEnabled !== undefined) {
           set({
             nodes: get().nodes.map((node) =>
               node.key === key ? { ...node, enabled: previousEnabled } : node,
@@ -301,11 +350,17 @@ export const useBuilderStore = create<BuilderStore>((set, get) => {
 
     createNode: async (data) => {
       const { layoutId } = get();
+      const epoch = nextTreeEpoch();
 
       try {
         const res = await createNodeApi(layoutId, data);
+
+        if (epoch !== treeEpoch || get().layoutId !== layoutId) {
+          return true;
+        }
+
         getCraft().cp.displayNotice(res.message ?? t('Navigation item added.'));
-        applyServerTree(res.tree?.nodes, res.tree?.meta);
+        applyServerTree(res.tree?.nodes, res.tree?.meta, epoch, layoutId);
         return true;
       } catch (error) {
         displayError(error);
@@ -315,16 +370,22 @@ export const useBuilderStore = create<BuilderStore>((set, get) => {
 
     deleteNode: async (key) => {
       const { layoutId, editorSession } = get();
+      const epoch = nextTreeEpoch();
 
       try {
         const res = await deleteNodeApi(layoutId, key);
+
+        if (epoch !== treeEpoch || get().layoutId !== layoutId) {
+          return;
+        }
+
         getCraft().cp.displayNotice(res.message ?? t('Navigation item deleted.'));
 
         if (editorSession?.kind === 'edit' && editorSession.nodeKey === key) {
           set({ editorSession: null });
         }
 
-        applyServerTree(res.tree?.nodes, res.tree?.meta);
+        applyServerTree(res.tree?.nodes, res.tree?.meta, epoch, layoutId);
       } catch (error) {
         displayError(error);
       }
@@ -332,13 +393,19 @@ export const useBuilderStore = create<BuilderStore>((set, get) => {
 
     resetLayout: async () => {
       const { layoutId } = get();
+      const epoch = nextTreeEpoch();
       set({ resettingLayout: true });
 
       try {
         const res = await resetLayoutApi(layoutId);
+
+        if (epoch !== treeEpoch || get().layoutId !== layoutId) {
+          return;
+        }
+
         getCraft().cp.displayNotice(res.message ?? t('Navigation reset.'));
         set({ editorSession: null, collapsedNodeKeys: {} });
-        applyServerTree(res.tree?.nodes, res.tree?.meta);
+        applyServerTree(res.tree?.nodes, res.tree?.meta, epoch, layoutId);
 
         if (res.tree?.layout) {
           set({
@@ -349,16 +416,19 @@ export const useBuilderStore = create<BuilderStore>((set, get) => {
       } catch (error) {
         displayError(error);
       } finally {
-        set({ resettingLayout: false });
+        if (epoch === treeEpoch) {
+          set({ resettingLayout: false });
+        }
       }
     },
 
     acknowledgeNewItems: async () => {
       const { layoutId } = get();
+      const epoch = nextTreeEpoch();
 
       try {
         const res = await acknowledgeNewItemsApi(layoutId);
-        applyServerTree(res.tree?.nodes, res.tree?.meta);
+        applyServerTree(res.tree?.nodes, res.tree?.meta, epoch, layoutId);
       } catch (error) {
         displayError(error);
       }

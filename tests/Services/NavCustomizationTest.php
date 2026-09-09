@@ -37,7 +37,7 @@ describe('NavCustomization', function() {
             $overlay->saveNode($layoutUid, $node);
 
             $path = $overlay->nodePath($layoutUid, $key);
-            expect($path)->toEndWith('craft__dashboard');
+            expect($path)->toContain('__b64_');
             expect($projectConfig->get($path)['key'])->toBe($key);
 
             $loaded = $overlay->getCustomizationForLayout($layoutUid);

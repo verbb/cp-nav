@@ -18,7 +18,15 @@ describe('NodeKey', function() {
         $key = 'craft:content/entries';
         $encoded = NodeKey::encodePathKey($key);
 
-        expect($encoded)->toBe('craft__content_entries');
+        expect($encoded)->toStartWith('craft__b64_');
+        expect(NodeKey::decodePathKey($encoded))->toBe($key);
         expect(NodeKey::decodePathKey($encoded, $key))->toBe($key);
+    });
+
+    it('does not collide distinct paths that share underscore forms', function() {
+        $a = NodeKey::craft('reports/team_one');
+        $b = NodeKey::craft('reports_team/one');
+
+        expect(NodeKey::encodePathKey($a))->not->toBe(NodeKey::encodePathKey($b));
     });
 });

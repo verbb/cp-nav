@@ -1,0 +1,23 @@
+{% extends 'cp-nav/_layouts/settings' %}
+
+{% import '_includes/forms' as forms %}
+{% import 'verbb-base/_macros' as macros %}
+
+{% set selectedTab = 'general' %}
+{% set fullPageForm = true %}
+{% set pageTitle = 'General Settings' | t('cp-nav') %}
+{% set pageAction = 'plugins/save-plugin-settings' %}
+{% set pageUrl = 'cp-nav/settings' %}
+
+{% block settingsContent %}
+    {{ forms.autosuggestField({
+        label: 'Icons Path' | t('cp-nav'),
+        instructions: 'Provide the full path to your icon files. Aliases are also supported.' | t('cp-nav'),
+        name: 'iconsPath',
+        value: settings.iconsPath,
+        suggestEnvVars: true,
+        suggestAliases: true,
+        errors: settings.getErrors('iconsPath'),
+        warning: macros.configWarning('iconsPath', 'cp-nav'),
+    }) }}
+{% endblock %}

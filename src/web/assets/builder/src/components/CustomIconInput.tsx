@@ -1,95 +1,105 @@
-import { Button, Icon } from '@verbb/plugin-kit-react/components';
-import type { CustomIconAsset } from '../types';
+import { useEffect, useState } from 'react';
+import {
+  ImageBrowser,
+  type PkImageBrowserItem,
+} from '@verbb/plugin-kit-react/components';
+import type { CustomIconPreview } from '../types';
 import { getCraft } from '../utils/cp';
 import { t } from '../api';
 
+type CatalogOption = {
+  value: string;
+  label: string;
+  url?: string | null;
+};
+
 type CustomIconInputProps = {
-  asset: CustomIconAsset | null;
-  sources: string[];
-  onChange: (asset: CustomIconAsset | null) => void;
-  /** So the parent editor can suppress light-dismiss while Craft’s modal is up. */
-  onModalOpen?: () => void;
-  onModalClose?: () => void;
+  /** Relative path under the plugin icons folder, or null. */
+  value: string | null;
+  preview: CustomIconPreview | null;
+  onChange: (path: string | null, preview: CustomIconPreview | null) => void;
+  /** So the parent editor can suppress light-dismiss while the browser panel is open. */
+  onOpenChange?: (open: boolean) => void;
 };
 
 /**
- * Craft AssetSelectInput stand-in for the edit pane — opens Craft's element selector modal
- * (lives outside the shadow root) and keeps a compact chip for the chosen SVG.
+ * Static SVG path picker via Plugin Kit ImageBrowser — portable project-config
+ * values (not Craft assets). Catalog comes from `cp-nav/static-icons`.
  */
-export function CustomIconInput({
-  asset,
-  sources,
-  onChange,
-  onModalOpen,
-  onModalClose,
-}: CustomIconInputProps) {
-  const openModal = () => {
-    onModalOpen?.();
+export function CustomIconInput({ value, preview, onChange, onOpenChange }: CustomIconInputProps) {
+  const [items, setItems] = useState<PkImageBrowserItem[]>([]);
 
-    getCraft().createElementSelectorModal('craft\\elements\\Asset', {
-      multiSelect: false,
-      sources: sources.length > 0 ? sources : undefined,
-      criteria: { kind: ['image'] },
-      storageKey: 'cpnav.customIcon',
-      onSelect: (elements) => {
-        const selected = elements[0];
+  useEffect(() => {
+    let cancelled = false;
 
-        if (!selected) {
+    void (async () => {
+      try {
+        const response = await getCraft().sendActionRequest('GET', 'cp-nav/static-icons');
+        const options = (response.data as { options?: CatalogOption[] })?.options ?? [];
+
+        if (cancelled) {
           return;
         }
 
-        const previewUrl = selected.url ?? null;
+        setItems(
+          options.map((option) => ({
+            value: option.value,
+            // Docs: when scanning a folder, pass the path as both value and label.
+            label: option.label || option.value,
+            preview: option.url ?? undefined,
+          })),
+        );
+      } catch {
+        if (!cancelled) {
+          setItems([]);
+        }
+      }
+    })();
 
-        onChange({
-          id: selected.id,
-          title: selected.label ?? selected.title ?? `Asset #${selected.id}`,
-          url: previewUrl,
-          thumbUrl: previewUrl,
-        });
-      },
-      // Any dismiss path (Cancel, shade, Esc, post-Select hide) — not only onCancel.
-      onHide: () => {
-        onModalClose?.();
-      },
-    });
-  };
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
-  if (!asset) {
-    return (
-      <Button type="button" variant="dashed" size="sm" onClick={openModal}>
-        <Icon slot="start" icon="plus" className="size-3.5" />
-        {t('Choose')}
-      </Button>
-    );
-  }
-
-  const previewSrc = asset.thumbUrl ?? asset.url;
-
-  // Chip mirrors Craft’s elementselect chip: thumb + label + quiet dismiss (not a filled btn).
   return (
-    <div className="flex min-w-0 items-center gap-1 rounded-md border border-gray-200 bg-gray-50 py-1 pr-1 pl-1.5">
-      <button
-        type="button"
-        className="flex min-w-0 flex-1 items-center gap-2 text-left"
-        onClick={openModal}
-      >
-        <span className="flex size-7 shrink-0 items-center justify-center overflow-hidden rounded bg-white ring-1 ring-gray-150">
-          {previewSrc ? (
-            <img src={previewSrc} alt="" className="max-h-full max-w-full object-contain" />
-          ) : (
-            <span className="text-[10px] text-gray-400">SVG</span>
-          )}
-        </span>
-        <span className="truncate text-sm text-gray-700">{asset.title}</span>
-      </button>
-      <button
-        type="button"
-        className="flex size-7 shrink-0 items-center justify-center rounded text-gray-400 transition-colors hover:bg-gray-150 hover:text-gray-700"
-        aria-label={t('Remove')}
-        onClick={() => onChange(null)}
-      >
-        <Icon icon="xmark" className="size-3.5" />
-      </button>
-    </div>
+    <ImageBrowser
+      value={value ?? ''}
+      mode="icon"
+      width="full"
+      withClear
+      items={items}
+      selectedLabel={value ?? ''}
+      selectedPreview={preview?.url ?? ''}
+      placeholder={t('Select an SVG…')}
+      emptyMessage={t('No SVG files found in the icons folder.')}
+      searchPlaceholder={t('Search icons…')}
+      aria-label={t('Custom Icon')}
+      onChange={(next) => {
+        const path = next.trim();
+
+        if (!path) {
+          onChange(null, null);
+          return;
+        }
+
+        const match = items.find((item) => item.value === path);
+        const previewUrl =
+          typeof match?.preview === 'string' && !match.preview.trim().startsWith('<')
+            ? match.preview
+            : preview?.path === path
+              ? preview.url
+              : null;
+
+        onChange(path, {
+          path,
+          url: previewUrl,
+          label: match?.label ?? path,
+        });
+      }}
+      onPkClear={() => onChange(null, null)}
+      onPkShow={() => onOpenChange?.(true)}
+      onPkHide={() => onOpenChange?.(false)}
+      onPkAfterHide={() => onOpenChange?.(false)}
+    />
   );
 }

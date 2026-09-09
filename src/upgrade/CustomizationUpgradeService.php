@@ -25,12 +25,40 @@ final class CustomizationUpgradeService
         $this->migrator = $migrator;
     }
 
-    public function upgradeLayouts(?string $layoutUid = null, bool $dryRun = false): array
+    /**
+     * @param bool $force Replace nonempty v6 customizations. Default skips them.
+     * @return array<int, array{layoutUid: string, layoutName: string, nodeCount: int, status: string}>
+     */
+    public function upgradeLayouts(?string $layoutUid = null, bool $dryRun = false, bool $force = false): array
     {
         $results = [];
 
         foreach ($this->_layouts($layoutUid) as $layout) {
+            $existing = CpNav::$plugin->getNavCustomization()->getCustomizationForLayout($layout->uid);
             $navigations = (new LegacyNavigationReader())->getLayoutNavItemsForLayout((int)$layout->id);
+
+            // Protect existing v6 curation unless --force.
+            if ($existing !== [] && !$force) {
+                $results[] = [
+                    'layoutUid' => $layout->uid,
+                    'layoutName' => (string)$layout->name,
+                    'nodeCount' => count($existing),
+                    'status' => 'skipped_nonempty',
+                ];
+                continue;
+            }
+
+            // No legacy rows: never treat that as "clear the destination" (even with --force).
+            if ($navigations === []) {
+                $results[] = [
+                    'layoutUid' => $layout->uid,
+                    'layoutName' => (string)$layout->name,
+                    'nodeCount' => count($existing),
+                    'status' => 'skipped_no_legacy',
+                ];
+                continue;
+            }
+
             $customizations = $this->migrator->upgradeNavigations($navigations);
 
             if (!$dryRun) {
@@ -41,6 +69,7 @@ final class CustomizationUpgradeService
                 'layoutUid' => $layout->uid,
                 'layoutName' => (string)$layout->name,
                 'nodeCount' => count($customizations),
+                'status' => $force && $existing !== [] ? 'replaced' : 'migrated',
             ];
         }
 

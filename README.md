@@ -10,7 +10,7 @@ Control Panel Nav is a Craft CMS plugin to help manage your Control Panel naviga
 - **Stable node keys** — `craft:`, `plugin:`, `manual:`, and `divider:` keys keep customizations aligned as Craft and plugins change.
 - **No sync-on-read** — Control panel page views never write project config. Registry invalidation uses events + fingerprinting.
 - **New items notice** — When Craft or a plugin adds a new nav item, the builder can surface it so you can acknowledge or customise it.
-- **Custom SVG icons** — Upload an SVG asset to replace a Craft/plugin icon; registry icons stay live until overridden.
+- **Custom SVG icons** — Point the plugin **Icons Path** setting at a folder of SVGs; pick (or type) a relative path per item. Paths are portable in project config.
 - **Site tokens** — Manual URLs support `{site}` / `{siteHandle}` substitution at render.
 - **Console tools** — `cp-nav/migrate-customizations` and `cp-nav/audit-customizations` for upgrade and cleanup.
 
@@ -19,9 +19,9 @@ Control Panel Nav is a Craft CMS plugin to help manage your Control Panel naviga
 - Modify the main sidebar navigation in the Craft control panel
 - Rename, reorder, and show/hide Craft and plugin menu items
 - Nest items up to 2 levels deep
-- Add manual URLs (internal CP paths or external links)
+- Add manual URLs (internal CP paths, `http(s)`, `mailto:`, `tel:`)
 - Add divider section breaks with optional labels
-- Custom SVG icons per menu item
+- Custom SVG icons per menu item (static files under Icons Path)
 - Layouts assigned to user groups (Craft Pro)
 - Project Config support for environment parity
 - Live user permissions — items stay hidden when the user cannot access them

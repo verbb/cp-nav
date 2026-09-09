@@ -52,6 +52,19 @@ final class V5KeyMap
             return NodeKey::plugin(self::_resolvePluginHandle($navigation));
         }
 
+        // Craft subnav identity is parent path + handle (e.g. craft:graphql/graphiql), not the child URL alone.
+        if ($navigation->isSubnav() && $parent) {
+            $parentUrl = self::remapCraftUrl($parent->prevUrl ?? $parent->url);
+            $subHandle = trim((string)($navigation->handle ?: ''), '/');
+
+            if ($subHandle === '') {
+                $childUrl = self::remapCraftUrl($navigation->prevUrl ?? $navigation->url);
+                $subHandle = basename($childUrl);
+            }
+
+            return NodeKey::craftSubnav($parentUrl, $subHandle);
+        }
+
         $relativeUrl = self::remapCraftUrl($navigation->prevUrl ?? $navigation->url);
 
         return NodeKey::craft($relativeUrl);

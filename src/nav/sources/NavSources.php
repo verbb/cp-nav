@@ -6,14 +6,27 @@ use craft\base\Component;
 
 /**
  * Cached nav sources tree.
+ *
+ * Shared Craft cache is keyed by generation + fingerprint. `invalidate()` bumps the
+ * generation so every worker drops stale entries without enumerating fingerprint keys.
+ * Labels are language-sensitive — language is part of the fingerprint.
  */
 final class NavSources extends Component
 {
+    // Constants
+    // =========================================================================
+
+    private const CACHE_GENERATION_KEY = 'cpnav:sources:generation';
+    /** v3 — generation eviction + language in fingerprint. */
+    private const CACHE_KEY_PREFIX = 'cpnav:sources:v3:';
+
+
     // Properties
     // =========================================================================
 
     private ?string $_fingerprint = null;
     private ?array $_tree = null;
+    private ?int $_generation = null;
 
 
     // Public Methods
@@ -26,28 +39,26 @@ final class NavSources extends Component
 
     public function getTree(bool $forceRebuild = false): array
     {
-        $fingerprint = (new NavFingerprint())->compute();
-
-        if (!$forceRebuild && $this->_tree !== null && $this->_fingerprint === $fingerprint) {
+        // Same-request memo — invalidate()/forceRebuild clear it. Avoid re-fingerprinting
+        // on every builder lookup (reorder used to recompute hundreds of times).
+        if (!$forceRebuild && $this->_tree !== null) {
             return $this->_tree;
         }
 
+        $fingerprint = $this->getFingerprint();
+        $generation = $this->_cacheGeneration();
         $cache = Craft::$app->getCache();
-        // v2 — includes defaultExternal (Craft `external`, e.g. GraphiQL).
-        $cacheKey = 'cpnav:sources:v2:' . $fingerprint;
+        $cacheKey = self::CACHE_KEY_PREFIX . $generation . ':' . $fingerprint;
         $cached = $cache->get($cacheKey);
 
         if (!$forceRebuild && is_array($cached)) {
-            $this->_fingerprint = $fingerprint;
             $this->_tree = $this->_hydrateTree($cached);
 
             return $this->_tree;
         }
 
         $tree = (new NavSourceBuilder())->build();
-        $this->_fingerprint = $fingerprint;
         $this->_tree = $tree;
-
         $cache->set($cacheKey, $this->_dehydrateTree($tree));
 
         return $tree;
@@ -57,11 +68,33 @@ final class NavSources extends Component
     {
         $this->_tree = null;
         $this->_fingerprint = null;
+        $this->_generation = null;
+
+        $cache = Craft::$app->getCache();
+        $next = ((int)$cache->get(self::CACHE_GENERATION_KEY)) + 1;
+        $cache->set(self::CACHE_GENERATION_KEY, $next);
     }
 
 
     // Private Methods
     // =========================================================================
+
+    private function _cacheGeneration(): int
+    {
+        if ($this->_generation !== null) {
+            return $this->_generation;
+        }
+
+        $cache = Craft::$app->getCache();
+        $generation = (int)$cache->get(self::CACHE_GENERATION_KEY);
+
+        if ($generation < 1) {
+            $generation = 1;
+            $cache->set(self::CACHE_GENERATION_KEY, $generation);
+        }
+
+        return $this->_generation = $generation;
+    }
 
     private function _dehydrateTree(array $tree): array
     {

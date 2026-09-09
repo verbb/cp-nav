@@ -15,7 +15,11 @@ export type CpNavCraft = {
   sendActionRequest: (
     method: 'GET' | 'POST',
     action: string,
-    options?: { data?: Record<string, unknown> },
+    options?: {
+      data?: Record<string, unknown>;
+      params?: Record<string, unknown>;
+      signal?: AbortSignal;
+    },
   ) => Promise<{ data: Record<string, unknown> }>;
   createElementSelectorModal: (
     elementType: string,

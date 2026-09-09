@@ -59,6 +59,16 @@ class NavCustomization extends Component
     public function saveNode(string $layoutUid, CustomizationNode $node): void
     {
         $path = $this->nodePath($layoutUid, $node->key);
+        $legacyPath = $this->nodesPath($layoutUid) . '.' . NodeKey::encodePathKeyLegacy($node->key);
+
+        // Drop legacy underscore-encoded segment when the new encoding differs.
+        if ($legacyPath !== $path && Craft::$app->getProjectConfig()->get($legacyPath) !== null) {
+            Craft::$app->getProjectConfig()->remove(
+                $legacyPath,
+                "Remove legacy CP Nav path for {$node->key}",
+            );
+        }
+
         Craft::$app->getProjectConfig()->set(
             $path,
             $node->toConfig(),

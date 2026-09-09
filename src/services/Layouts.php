@@ -71,11 +71,12 @@ class Layouts extends Component
 
     public function getLayoutForCurrentUser(): ?Layout
     {
-        // Preview/edit override from the builder layout picker.
+        // Preview/edit override from the builder layout picker — admin CP only.
+        // Non-admins must not select another group’s layout via `layoutId`.
         $layoutId = Craft::$app->getRequest()->getParam('layoutId');
 
-        if ($layoutId) {
-            return $this->getLayoutById($layoutId);
+        if ($layoutId && Craft::$app->getUser()->getIsAdmin()) {
+            return $this->getLayoutById((int)$layoutId);
         }
 
         if (Craft::$app->getEdition() === Craft::Solo) {
@@ -152,11 +153,22 @@ class Layouts extends Component
         }
 
         $configPath = self::CONFIG_LAYOUT_KEY . '.' . $layout->uid;
-
-        Craft::$app->getProjectConfig()->set($configPath, $layout->getConfig(), "Saving layout “{$layout->name}”");
+        $projectConfig = Craft::$app->getProjectConfig();
+        $config = $layout->getConfig();
 
         if ($isNewLayout) {
+            // New layouts have no customization subtree yet.
+            $projectConfig->set($configPath, $config, "Saving layout “{$layout->name}”");
             $layout->id = Db::idByUid('{{%cpnav_layout}}', $layout->uid);
+        } else {
+            // Metadata only — replacing the whole layout path would wipe nested customizations.
+            foreach ($config as $key => $value) {
+                $projectConfig->set(
+                    "{$configPath}.{$key}",
+                    $value,
+                    "Saving layout “{$layout->name}” {$key}",
+                );
+            }
         }
 
         return true;

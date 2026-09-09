@@ -6,10 +6,8 @@ use verbb\cpnav\helpers\CustomIcon;
 
 use Craft;
 use craft\base\Model;
-use craft\elements\Asset;
 use craft\helpers\App;
 use craft\helpers\ArrayHelper;
-use craft\helpers\Json;
 use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
 
@@ -191,23 +189,9 @@ class LayoutNavItem extends Model
         return UrlHelper::url($url);
     }
 
-    public function getCustomIcon(): ?Asset
-    {
-        if ($this->customIcon) {
-            $customIcon = Json::decode($this->customIcon)[0] ?? null;
-
-            if ($customIcon) {
-                if ($asset = Craft::$app->getAssets()->getAssetById($customIcon)) {
-                    if ($asset->extension === 'svg') {
-                        return $asset;
-                    }
-                }
-            }
-        }
-
-        return null;
-    }
-
+    /**
+     * Absolute filesystem path for Craft `iconSvg()`, or empty when unset / missing.
+     */
     public function getCustomIconPath(): bool|string|null
     {
         try {

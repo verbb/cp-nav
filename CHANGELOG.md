@@ -2,8 +2,33 @@
 
 ## Unreleased
 
+### Added
+- Plugin setting **Icons Path** for portable custom SVG icons (relative paths in project config; ImageBrowser picker in the builder).
+- Manual URL scheme allowlist: relative paths plus `http`/`https`/`mailto`/`tel`.
+
+### Changed
+- Normalize CP General Settings to the shared `verbb-base` settings layout (`pageTabs` / `pageTitle` / `pageAction` helpers; Settings → Plugins → Control Panel Nav crumbs).
+- Raised the Craft CMS requirement to **5.9+** (matches nav sources/`ElementSources::getPages()`).
+- `cp-nav/migrate-customizations` skips nonempty v6 layouts by default; use `--force` to replace. Layouts with no legacy rows are never cleared.
+- Nav sources cache uses a generation key for shared eviction and includes CP language in the fingerprint.
+- Project-config node path segments use collision-free base64url encoding (legacy underscore paths still read; saves rewrite to the new form).
+- Builder reorder/indent payloads use canonical `key` / `parentKey` (CRC32 `builderId` is display-only).
+- Custom icons no longer use Craft assets — configure a filesystem Icons Path instead.
+- Frontend Plugin Kit deps back on npm (`@verbb/plugin-kit-*` ^2.0.16); dropped local `file:` checkouts.
+
 ### Fixed
 - CP sidebar divider styles now key off the server-rendered `nav-divider-*` id so labels no longer flash as normal nav items before sidebar JS runs.
+- Renaming or editing layout metadata no longer wipes nested navigation customizations.
+- Editing a manual link URL now persists the new URL (previously reported success while keeping the old value).
+- First toggle/reorder of a Craft/plugin item no longer snapshots resolved URL/icon into the overlay.
+- Outdenting a native Craft/plugin child to the root now survives project-config round-trips (`parent: ""` sentinel vs inherit).
+- v5 → v6 upgrade keeps manual/divider labels when `currLabel === prevLabel`, maps craft subnav with parent context (e.g. GraphiQL), and does not undo intentional root outdents via `prevParentId`.
+- Nav source capture now runs after other `EVENT_REGISTER_CP_NAV_ITEMS` handlers so project/plugin additions are included.
+- Refresh sources forces a rebuild after cache invalidation.
+- Non-admin CP users can no longer select another layout via the `layoutId` query param.
+- Plugin visibility respects `getCpNavItem() === null`; Settings remains visible to admins when `allowAdminChanges` is false.
+- Subnav handles prefer registry provider handles; manual siblings with the same URL basename no longer overwrite each other.
+- Builder reorder indexes the layout once per operation; Show toggles ignore stale out-of-order responses.
 
 ## 6.0.0-beta.2 - 2026-08-07
 

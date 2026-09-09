@@ -7,7 +7,6 @@ use verbb\cpnav\models\LayoutNavItem;
 use verbb\cpnav\nav\sources\NodeKey;
 
 use Craft;
-use craft\helpers\Json;
 use craft\base\Component;
 
 /**
@@ -50,6 +49,7 @@ class NavBuilderApi extends Component
             $flatNodes[] = [
                 'builderId' => (int)$navigation->id,
                 'key' => (string)$navigation->nodeKey,
+                'parentKey' => null,
                 'parentId' => null,
                 'level' => 1,
             ];
@@ -58,6 +58,7 @@ class NavBuilderApi extends Component
                 $flatNodes[] = [
                     'builderId' => (int)$child->id,
                     'key' => (string)$child->nodeKey,
+                    'parentKey' => (string)$navigation->nodeKey,
                     'parentId' => (int)$navigation->id,
                     'level' => 2,
                 ];
@@ -90,7 +91,7 @@ class NavBuilderApi extends Component
             'meta' => [
                 'newItemCount' => count($newItemKeys),
                 'maxDepth' => NavTreeReparent::MAX_DEPTH,
-                'assetSources' => $this->_assetSources(),
+                'iconsPath' => CpNav::$plugin->getSettings()->iconsPath,
             ],
         ];
     }
@@ -198,7 +199,9 @@ class NavBuilderApi extends Component
 
     public function refreshSources(): void
     {
+        // Bump generation (evict shared cache) and rebuild immediately so Refresh is observable.
         CpNav::$plugin->getNavSources()->invalidate();
+        CpNav::$plugin->getNavSources()->getTree(true);
     }
 
     public function acknowledgeNewItems(int $layoutId): void
@@ -240,8 +243,8 @@ class NavBuilderApi extends Component
             'sort' => (int)$navigation->sortOrder,
             'newWindow' => (bool)$navigation->newWindow,
             'icon' => $navigation->icon,
-            'customIcon' => $this->_customIconId($navigation->customIcon),
-            'customIconAsset' => $this->_customIconAsset($navigation->customIcon),
+            'customIcon' => CustomIcon::normalizeStored($navigation->customIcon),
+            'customIconPreview' => $this->_serializeCustomIcon($navigation->customIcon),
             'isCustomized' => $key && isset($overlay[$key]),
             'isNew' => $key && in_array($key, $newItemKeys, true),
             'isOrphan' => (bool)$navigation->isOrphan,
@@ -290,50 +293,20 @@ class NavBuilderApi extends Component
     }
 
     /**
-     * Accept asset id, id list, or JSON string; store as `[id]` JSON or null when cleared.
+     * Accept a relative SVG path under the plugin icons folder (or null to clear).
+     * Legacy `[assetId]` JSON / numeric ids are dropped — not portable in project config.
      */
     private function _normalizeCustomIcon(mixed $customIcon): ?string
     {
-        if ($customIcon === null || $customIcon === '' || $customIcon === []) {
-            return null;
-        }
-
-        if (is_string($customIcon) && str_starts_with(trim($customIcon), '[')) {
-            $decoded = Json::decode($customIcon);
-            $ids = is_array($decoded) ? $decoded : [];
-        } elseif (is_array($customIcon)) {
-            $ids = $customIcon;
-        } else {
-            $ids = [$customIcon];
-        }
-
-        $ids = array_values(array_filter(array_map('intval', $ids)));
-
-        return $ids === [] ? null : Json::encode($ids);
-    }
-
-    private function _customIconId(?string $customIcon): ?int
-    {
-        return CustomIcon::assetIdFromStored($customIcon);
-    }
-
-    private function _customIconAsset(?string $customIcon): ?array
-    {
-        return CustomIcon::serializeForBuilder($customIcon);
+        return CustomIcon::normalizeStored($customIcon);
     }
 
     /**
-     * @return string[]
+     * @return array{path: string, url: ?string, label: string}|null
      */
-    private function _assetSources(): array
+    private function _serializeCustomIcon(mixed $customIcon): ?array
     {
-        $sources = [];
-
-        foreach (Craft::$app->getVolumes()->getAllVolumes() as $volume) {
-            $sources[] = 'volume:' . $volume->uid;
-        }
-
-        return $sources;
+        return CustomIcon::serializeForBuilder(is_string($customIcon) ? $customIcon : null);
     }
 
     private function _navigationByKey(int $layoutId, string $nodeKey): ?LayoutNavItem

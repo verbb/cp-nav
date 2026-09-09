@@ -28,9 +28,16 @@ final class CustomizationUpgrader
         $resolved = [];
 
         foreach ($navigations as $navigation) {
-            $parent = $navigation->parentId ? ($byId[$navigation->parentId] ?? null) : null;
-            if (!$parent && $navigation->prevParentId) {
-                $parent = $byId[$navigation->prevParentId] ?? null;
+            // Current parentId is authoritative. Only fall back to prevParentId when the
+            // referenced parent row is missing (orphan recovery) — never when parentId is
+            // explicitly null/0 (intentional v5 outdent to root).
+            $parent = null;
+            if ($navigation->parentId) {
+                $parent = $byId[$navigation->parentId] ?? null;
+
+                if (!$parent && $navigation->prevParentId) {
+                    $parent = $byId[$navigation->prevParentId] ?? null;
+                }
             }
 
             $parentKey = $parent ? V5KeyMap::resolveParentKey($parent) : null;
@@ -86,29 +93,36 @@ final class CustomizationUpgrader
         int $sort,
     ): CustomizationNode {
         $key = V5KeyMap::resolveKey($navigation, $parent);
+        $isCustomizationOnly = $navigation->isManual() || $navigation->isDivider();
 
+        // Manuals/dividers always keep their label (v5 often sets currLabel === prevLabel on create).
+        // Canonical nodes only store a delta when the label was renamed.
         $label = null;
-        if ($navigation->currLabel !== $navigation->prevLabel) {
+        if ($isCustomizationOnly) {
+            $label = $navigation->currLabel;
+        } elseif ($navigation->currLabel !== $navigation->prevLabel) {
             $label = $navigation->currLabel;
         }
 
         $url = null;
-        if ($navigation->isManual() || $navigation->isDivider()) {
+        if ($isCustomizationOnly) {
             $url = $navigation->url;
         } elseif (($navigation->url ?? null) !== ($navigation->prevUrl ?? null)) {
             $url = $navigation->url;
         }
 
-        $type = null;
-        if ($navigation->isManual() || $navigation->isDivider()) {
-            $type = $navigation->type;
-        }
+        $type = $isCustomizationOnly ? $navigation->type : null;
+
+        // Explicit root vs nested — never leave null (inherit) for migrated placement.
+        $storedParent = $parentKey === null
+            ? CustomizationNode::PARENT_ROOT
+            : $parentKey;
 
         return new CustomizationNode(
             key: $key,
             enabled: (bool)$navigation->enabled,
             sort: $sort,
-            parent: $parentKey,
+            parent: $storedParent,
             label: $label,
             type: $type,
             url: $url,

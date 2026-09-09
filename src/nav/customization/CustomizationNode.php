@@ -5,9 +5,21 @@ use verbb\cpnav\nav\sources\NodeKey;
 
 /**
  * Per-layout nav customization entry (persisted in project config).
+ *
+ * Parent contract:
+ * - `null` — inherit the registry default parent (canonical) or root (manual/divider with no registry).
+ * - `''` (`PARENT_ROOT`) — explicit top-level placement.
+ * - non-empty string — nest under that canonical key.
  */
 final class CustomizationNode
 {
+    // Constants
+    // =========================================================================
+
+    /** Project-config sentinel for an explicit root parent (distinct from inherit/`null`). */
+    public const PARENT_ROOT = '';
+
+
     // Properties
     // =========================================================================
 
@@ -30,11 +42,18 @@ final class CustomizationNode
     {
         $canonicalKey = (string)($config['key'] ?? NodeKey::decodePathKey($encodedOrCanonicalKey));
 
+        // Absent parent key → inherit. Present null/'' → explicit root (legacy PC used null).
+        $parent = null;
+        if (array_key_exists('parent', $config)) {
+            $raw = $config['parent'];
+            $parent = ($raw === null || $raw === '') ? self::PARENT_ROOT : (string)$raw;
+        }
+
         return new self(
             key: $canonicalKey,
             enabled: (bool)($config['enabled'] ?? true),
             sort: (int)($config['sort'] ?? 0),
-            parent: $config['parent'] ?? null,
+            parent: $parent,
             label: $config['label'] ?? null,
             type: $config['type'] ?? null,
             url: $config['url'] ?? null,
@@ -72,12 +91,24 @@ final class CustomizationNode
         $this->newWindow = $newWindow;
     }
 
+    /**
+     * Resolve stored parent against a registry default.
+     * `null` inherits; `PARENT_ROOT` becomes resolved `null` (top-level).
+     */
+    public function resolvedParent(?string $registryDefaultParent): ?string
+    {
+        if ($this->parent === null) {
+            return $registryDefaultParent;
+        }
+
+        return $this->parent === self::PARENT_ROOT ? null : $this->parent;
+    }
+
     public function toConfig(): array
     {
         $config = array_filter([
             'key' => $this->key,
             'sort' => $this->sort,
-            'parent' => $this->parent,
             'label' => $this->label,
             'type' => $this->type,
             'url' => $this->url,
@@ -85,6 +116,11 @@ final class CustomizationNode
             'customIcon' => $this->customIcon,
             'newWindow' => $this->newWindow ?: null,
         ], fn($value) => $value !== null && $value !== false);
+
+        // Persist parent when explicitly set (including '' for root). Omit when inheriting.
+        if ($this->parent !== null) {
+            $config['parent'] = $this->parent;
+        }
 
         // Always persist enabled — `false` must survive project config round-trips.
         $config['enabled'] = $this->enabled;

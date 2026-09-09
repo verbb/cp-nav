@@ -25,6 +25,7 @@ export default defineConfig(({ mode }) => {
     base: '',
     plugins: [react(), tailwindcss(), tailwindShadowDom()],
     resolve: {
+      // Dedupe React/Lit/kit so icon registry + CE classes stay single-instance.
       dedupe: [
         'react',
         'react-dom',
@@ -35,6 +36,8 @@ export default defineConfig(({ mode }) => {
         'lit-html',
         // One registry module so registerIcon() is visible to <pk-icon>/getIcon().
         '@verbb/plugin-kit-icons',
+        '@verbb/plugin-kit-web',
+        '@verbb/plugin-kit-react',
       ],
     },
     // Optional plugin-local HMR — Craft must set CPNAV_USE_VITE_DEV_SERVER=true.

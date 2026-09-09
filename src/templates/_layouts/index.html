@@ -1,13 +1,9 @@
-{% extends '_layouts/cp' %}
+{% extends parentLayout ?? '_layouts/cp' %}
 
-{% set title = 'Control Panel Nav' | t('cp-nav') %}
+{% do view.registerAssetBundle('verbb\\base\\assetbundles\\CpAsset') -%}
 
-{% set tabs = {
-    navigation: { label: 'Navigation' | t('cp-nav'), url: url('cp-nav') },
-} %}
-
-{% if craft.app.getEditionName() != 'Solo' %}
-    {% set tabs = tabs | merge({ layouts: { label: 'Layouts' | t('cp-nav'), url: url('cp-nav/layouts') } }) %}
+{% if title is not defined %}
+    {% set title = 'Control Panel Nav' | t('cp-nav') %}
 {% endif %}
 
 {% block content %}

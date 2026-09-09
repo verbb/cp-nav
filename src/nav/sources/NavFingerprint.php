@@ -18,6 +18,8 @@ final class NavFingerprint
         $payload = [
             'craft' => Craft::$app->getVersion(),
             'edition' => (string)Craft::$app->edition->value,
+            // Cached labels are already translated — partition by CP language.
+            'language' => Craft::$app->language,
             'enableGql' => (bool)$general->enableGql,
             'allowAdminChanges' => (bool)$general->allowAdminChanges,
             'disabledPlugins' => $general->disabledPlugins ?? [],

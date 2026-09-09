@@ -81,6 +81,9 @@ final class NavSourceBuilder
     {
         $captured = [];
 
+        // Append so we run *after* ordinary RegisterCpNavItems handlers. Prepending
+        // would snapshot Craft’s base array and discard project/plugin additions.
+        // NavRenderer skips while isCapturing(), so it won’t replace this capture.
         $handler = function(RegisterCpNavItemsEvent $event) use (&$captured) {
             $captured = $event->navItems;
         };
@@ -90,7 +93,7 @@ final class NavSourceBuilder
             Cp::EVENT_REGISTER_CP_NAV_ITEMS,
             $handler,
             null,
-            false,
+            true,
         );
 
         try {

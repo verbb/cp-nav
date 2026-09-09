@@ -10,9 +10,9 @@ use verbb\cpnav\nav\builder\NavTreeReparent;
 describe('NavTreeReparent', function() {
     it('indents a root under the previous root sibling', function() {
         $nodes = [
-            ['builderId' => 1, 'key' => 'craft:dashboard', 'parentId' => null, 'level' => 1],
-            ['builderId' => 2, 'key' => 'craft:users', 'parentId' => null, 'level' => 1],
-            ['builderId' => 3, 'key' => 'craft:settings', 'parentId' => null, 'level' => 1],
+            ['builderId' => 1, 'key' => 'craft:dashboard', 'parentKey' => null, 'level' => 1],
+            ['builderId' => 2, 'key' => 'craft:users', 'parentKey' => null, 'level' => 1],
+            ['builderId' => 3, 'key' => 'craft:settings', 'parentKey' => null, 'level' => 1],
         ];
 
         $next = NavTreeReparent::indent($nodes, 'craft:users');
@@ -20,16 +20,16 @@ describe('NavTreeReparent', function() {
         expect($next)->not->toBeNull();
         expect($next[0]['key'])->toBe('craft:dashboard');
         expect($next[1]['key'])->toBe('craft:users');
-        expect($next[1]['parentId'])->toBe(1);
+        expect($next[1]['parentKey'])->toBe('craft:dashboard');
         expect($next[1]['level'])->toBe(2);
         expect($next[2]['key'])->toBe('craft:settings');
     });
 
     it('rejects indent when the previous root already has the node nested or node has children', function() {
         $withChildren = [
-            ['builderId' => 1, 'key' => 'craft:graphql', 'parentId' => null, 'level' => 1],
-            ['builderId' => 2, 'key' => 'craft:graphql/schemas', 'parentId' => 1, 'level' => 2],
-            ['builderId' => 3, 'key' => 'craft:settings', 'parentId' => null, 'level' => 1],
+            ['builderId' => 1, 'key' => 'craft:graphql', 'parentKey' => null, 'level' => 1],
+            ['builderId' => 2, 'key' => 'craft:graphql/schemas', 'parentKey' => 'craft:graphql', 'level' => 2],
+            ['builderId' => 3, 'key' => 'craft:settings', 'parentKey' => null, 'level' => 1],
         ];
 
         expect(NavTreeReparent::indent($withChildren, 'craft:graphql'))->toBeNull();
@@ -40,40 +40,40 @@ describe('NavTreeReparent', function() {
 
     it('outdents a child after its parent block', function() {
         $nodes = [
-            ['builderId' => 1, 'key' => 'craft:dashboard', 'parentId' => null, 'level' => 1],
-            ['builderId' => 2, 'key' => 'craft:users', 'parentId' => 1, 'level' => 2],
-            ['builderId' => 3, 'key' => 'craft:settings', 'parentId' => null, 'level' => 1],
+            ['builderId' => 1, 'key' => 'craft:dashboard', 'parentKey' => null, 'level' => 1],
+            ['builderId' => 2, 'key' => 'craft:users', 'parentKey' => 'craft:dashboard', 'level' => 2],
+            ['builderId' => 3, 'key' => 'craft:settings', 'parentKey' => null, 'level' => 1],
         ];
 
         $next = NavTreeReparent::outdent($nodes, 'craft:users');
 
         expect($next)->not->toBeNull();
         expect(array_column($next, 'key'))->toBe(['craft:dashboard', 'craft:users', 'craft:settings']);
-        expect($next[1]['parentId'])->toBeNull();
+        expect($next[1]['parentKey'])->toBeNull();
         expect($next[1]['level'])->toBe(1);
     });
 
     it('rejects reorder payloads that exceed max depth', function() {
-        $nodesById = [
-            1 => ['builderId' => 1],
-            2 => ['builderId' => 2],
-            3 => ['builderId' => 3],
+        $nodesByKey = [
+            'craft:a' => ['key' => 'craft:a'],
+            'craft:b' => ['key' => 'craft:b'],
+            'craft:c' => ['key' => 'craft:c'],
         ];
 
         $errors = NavTreeReparent::validateReorderItems([
-            ['id' => 1, 'parentId' => null],
-            ['id' => 2, 'parentId' => 1],
-            ['id' => 3, 'parentId' => 2],
-        ], $nodesById);
+            ['key' => 'craft:a', 'parentKey' => null],
+            ['key' => 'craft:b', 'parentKey' => 'craft:a'],
+            ['key' => 'craft:c', 'parentKey' => 'craft:b'],
+        ], $nodesByKey);
 
         expect($errors)->not->toBeEmpty();
     });
 
     it('rejects nesting dividers or nesting under dividers', function() {
         $nodes = [
-            ['builderId' => 1, 'key' => 'craft:dashboard', 'parentId' => null, 'level' => 1],
-            ['builderId' => 2, 'key' => 'divider:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee', 'parentId' => null, 'level' => 1],
-            ['builderId' => 3, 'key' => 'craft:settings', 'parentId' => null, 'level' => 1],
+            ['builderId' => 1, 'key' => 'craft:dashboard', 'parentKey' => null, 'level' => 1],
+            ['builderId' => 2, 'key' => 'divider:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee', 'parentKey' => null, 'level' => 1],
+            ['builderId' => 3, 'key' => 'craft:settings', 'parentKey' => null, 'level' => 1],
         ];
 
         expect(NavTreeReparent::indent($nodes, 'divider:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee'))->toBeNull();
@@ -81,13 +81,13 @@ describe('NavTreeReparent', function() {
         expect(NavTreeReparent::canIndent($nodes, 'craft:settings'))->toBeFalse();
 
         $errors = NavTreeReparent::validateReorderItems([
-            ['id' => 1, 'parentId' => null],
-            ['id' => 2, 'parentId' => 1],
-            ['id' => 3, 'parentId' => null],
+            ['key' => 'craft:dashboard', 'parentKey' => null],
+            ['key' => 'divider:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee', 'parentKey' => 'craft:dashboard'],
+            ['key' => 'craft:settings', 'parentKey' => null],
         ], [
-            1 => ['builderId' => 1, 'key' => 'craft:dashboard'],
-            2 => ['builderId' => 2, 'key' => 'divider:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee'],
-            3 => ['builderId' => 3, 'key' => 'craft:settings'],
+            'craft:dashboard' => ['key' => 'craft:dashboard'],
+            'divider:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee' => ['key' => 'divider:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee'],
+            'craft:settings' => ['key' => 'craft:settings'],
         ]);
 
         expect($errors)->not->toBeEmpty();
@@ -105,7 +105,7 @@ describe('NavBuilder indent/outdent', function() {
         }
 
         $tree = CpNav::$plugin->getNavBuilderApi()->getLayoutTree($layout->id);
-        $roots = array_values(array_filter($tree['nodes'], fn(array $n) => empty($n['parentId'])));
+        $roots = array_values(array_filter($tree['nodes'], fn(array $n) => empty($n['parentKey'])));
 
         if (count($roots) < 2) {
             $this->markTestSkipped('Need at least two root nav items.');
@@ -141,7 +141,7 @@ describe('NavBuilder indent/outdent', function() {
             ))[0] ?? null;
 
             expect($indented)->not->toBeNull();
-            expect($indented['parentId'])->not->toBeNull();
+            expect($indented['parentKey'])->not->toBeNull();
             expect($indented['canOutdent'])->toBeTrue();
 
             expect(CpNav::$plugin->getNavBuilderApi()->outdentNode($layout->id, $candidate['key']))->toBeTrue();
@@ -152,7 +152,7 @@ describe('NavBuilder indent/outdent', function() {
                 fn(array $n) => ($n['key'] ?? null) === $candidate['key'],
             ))[0] ?? null;
 
-            expect($restored['parentId'])->toBeNull();
+            expect($restored['parentKey'])->toBeNull();
         } finally {
             CpNav::$plugin->getNavBuilderApi()->resetLayout($layout->id);
             $projectConfig->readOnly = $readOnly;

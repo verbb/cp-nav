@@ -43,7 +43,7 @@ const ROOT_NODE: BuilderNode = {
   newWindow: false,
   icon: null,
   customIcon: null,
-  customIconAsset: null,
+  customIconPreview: null,
   isCustomized: false,
   isNew: false,
   isOrphan: false,

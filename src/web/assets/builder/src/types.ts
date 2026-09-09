@@ -1,16 +1,9 @@
 export type NodeType = 'craft' | 'plugin' | 'manual' | 'divider';
 
-export type CustomIconAsset = {
-  id: number;
-  title: string;
-  url: string | null;
-  thumbUrl: string | null;
-};
-
 /**
  * A single CP Nav builder row. Nodes are identified by their string `key`
  * (`craft:…`, `plugin:…`, `manual:…`, `divider:…`) — that is the id used by
- * @headless-tree. `builderId` is the synthetic numeric id the reorder API expects.
+ * @headless-tree and the reorder API. `builderId` is a synthetic display id only.
  */
 export type BuilderNode = {
   builderId: number;
@@ -32,9 +25,10 @@ export type BuilderNode = {
   newWindow: boolean;
   /** Stored Craft/system icon (`fontIcon:…`, `@appicons/…`, path, `title`, or null) — not editable in the builder. */
   icon: string | null;
-  /** User-uploaded SVG asset id override, when set. */
-  customIcon: number | null;
-  customIconAsset: CustomIconAsset | null;
+  /** Relative SVG path under the plugin icons folder (project-config portable). */
+  customIcon: string | null;
+  /** Preview for the static icon path, when resolvable. */
+  customIconPreview: CustomIconPreview | null;
   isCustomized: boolean;
   isNew: boolean;
   isOrphan: boolean;
@@ -44,6 +38,12 @@ export type BuilderNode = {
   canOutdent: boolean;
   deletable: boolean;
   hasDescendants: boolean;
+};
+
+export type CustomIconPreview = {
+  path: string;
+  url: string | null;
+  label: string;
 };
 
 export type LayoutOption = {
@@ -65,14 +65,15 @@ export type LayoutTreeResponse = {
     newItemCount: number;
     /** Max nesting depth — currently 2. */
     maxDepth: number;
-    assetSources?: string[];
+    /** Configured static icons folder (parsed), for empty-state copy. */
+    iconsPath?: string;
   };
 };
 
 /** Payload shape sent to `cp-nav/api/reorder-nodes`. */
 export type ReorderItem = {
-  id: number;
-  parentId: number | null;
+  key: string;
+  parentKey: string | null;
 };
 
 declare global {

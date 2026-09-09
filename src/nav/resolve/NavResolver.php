@@ -44,7 +44,8 @@ class NavResolver extends Component
                 continue;
             }
 
-            $parentKey = $overlay->parent ?? $registry['defaultParent'] ?? null;
+            // null parent = inherit registry; '' = explicit root; key = nest under that node.
+            $parentKey = $overlay->resolvedParent($registry['defaultParent'] ?? null);
 
             // Manual/divider: overlay only. Registry nodes inherit Craft `external` (e.g. GraphiQL)
             // unless the overlay explicitly sets newWindow true.
@@ -128,13 +129,15 @@ class NavResolver extends Component
                     $parentKey,
                     $siblings,
                     $workingOverlay,
+                    $registryIndex,
                 );
 
+                // Inherit registry parent — do not snapshot it into the working overlay.
                 $workingOverlay[$key] = new CustomizationNode(
                     key: $key,
                     enabled: true,
                     sort: $sort,
-                    parent: $indexed['defaultParent'],
+                    parent: null,
                 );
             }
         }
@@ -152,6 +155,7 @@ class NavResolver extends Component
         ?string $parentKey,
         array $registrySiblings,
         array &$workingOverlay,
+        array $registryIndex = [],
     ): int {
         $prevSort = null;
         $nextSort = null;
@@ -164,7 +168,7 @@ class NavResolver extends Component
             }
 
             // Skip anchors the admin reparented away from this default parent.
-            $effectiveParent = $workingOverlay[$siblingKey]->parent ?? $sibling['defaultParent'];
+            $effectiveParent = $workingOverlay[$siblingKey]->resolvedParent($sibling['defaultParent']);
             if ($effectiveParent !== $parentKey) {
                 continue;
             }
@@ -189,7 +193,7 @@ class NavResolver extends Component
 
             // No integer gap (e.g. 20 then 21) — open a slot after prev at resolve time only.
             $sort = $prevSort + 1;
-            $this->_shiftSiblingSortsFrom($workingOverlay, $parentKey, $sort, $key);
+            $this->_shiftSiblingSortsFrom($workingOverlay, $parentKey, $sort, $key, $registryIndex);
 
             return $sort;
         }
@@ -208,7 +212,7 @@ class NavResolver extends Component
             // next was already at 0…9 — make room rather than collide / go negative.
             if ($sort >= $nextSort) {
                 $sort = $nextSort;
-                $this->_shiftSiblingSortsFrom($workingOverlay, $parentKey, $sort, $key);
+                $this->_shiftSiblingSortsFrom($workingOverlay, $parentKey, $sort, $key, $registryIndex);
             }
 
             return $sort;
@@ -226,13 +230,15 @@ class NavResolver extends Component
         ?string $parentKey,
         int $fromSort,
         string $exceptKey,
+        array $registryIndex = [],
     ): void {
         foreach ($workingOverlay as $key => $node) {
             if ($key === $exceptKey || $node->sort < $fromSort) {
                 continue;
             }
 
-            if (($node->parent ?? null) !== $parentKey) {
+            $defaultParent = $registryIndex[$key]['defaultParent'] ?? null;
+            if ($node->resolvedParent($defaultParent) !== $parentKey) {
                 continue;
             }
 
