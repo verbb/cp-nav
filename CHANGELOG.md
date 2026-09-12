@@ -1,5 +1,10 @@
 # Changelog
 
+## 5.0.8 - 2026-09-13
+
+### Changed
+- Update Permission Map to allow settings key for Craft 5.6+.
+
 ## 5.0.7 - 2026-03-15
 
 ### Fixed
