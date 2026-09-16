@@ -66,6 +66,7 @@ class NavCustomization extends Component
             $node->toConfig(),
             "Save CP Nav customization for {$node->key}",
         );
+        $this->_markProviderKeysCurrent($layoutUid);
 
         if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_NODE)) {
             $this->trigger(self::EVENT_AFTER_SAVE_NODE, new CustomizationEvent([
@@ -116,6 +117,7 @@ class NavCustomization extends Component
             $payload,
             'Save CP Nav customization nodes',
         );
+        $this->_markProviderKeysCurrent($layoutUid);
 
         if ($this->hasEventHandlers(self::EVENT_AFTER_SET_NODES)) {
             $this->trigger(self::EVENT_AFTER_SET_NODES, new CustomizationEvent([
@@ -168,6 +170,7 @@ class NavCustomization extends Component
             array_values(array_unique($keys)),
             'Acknowledge CP Nav registry keys for layout',
         );
+        $this->_markProviderKeysCurrent($layoutUid);
     }
 
     /** Snapshot current nav registry keys so reset/dismiss does not show a false "new items" banner. */
@@ -215,6 +218,17 @@ class NavCustomization extends Component
 
     // Private Methods
     // =========================================================================
+
+    private function _markProviderKeysCurrent(string $layoutUid): void
+    {
+        // Current identities must not be reinterpreted as legacy keys when this
+        // configuration is deployed before the target runs its pending migration.
+        Craft::$app->getProjectConfig()->set(
+            Layouts::CONFIG_LAYOUT_KEY . ".{$layoutUid}.customizations.providerKeyVersion",
+            2,
+            'Save CP Nav provider key version',
+        );
+    }
 
     private function _removeLegacyNode(string $layoutUid, string $canonicalKey): void
     {
