@@ -1,23 +1,11 @@
 <?php
 namespace verbb\cpnav\nav\sources;
 
-use craft\helpers\StringHelper;
-
 /**
  * Stable node identity for nav sources + customization merge.
  */
 final class NodeKey
 {
-    // Constants
-    // =========================================================================
-
-    public const NS_CRAFT = 'craft';
-    public const NS_PLUGIN = 'plugin';
-    public const NS_EVENT = 'event';
-    public const NS_MANUAL = 'manual';
-    public const NS_DIVIDER = 'divider';
-
-
     // Static Methods
     // =========================================================================
 
@@ -34,15 +22,18 @@ final class NodeKey
         return self::NS_CRAFT . ':' . $childPath;
     }
 
-    public static function plugin(string $pluginHandle, ?string $subHandle = null): string
+    public static function plugin(string $pluginHandle, ?string $subHandle = null, ?string $relativeUrl = null): string
     {
-        $handle = StringHelper::toKebabCase($pluginHandle);
+        // Keep provider routes and literal handles distinct. Query parameters are
+        // request metadata, not the identity of a plugin's root navigation item.
+        $path = self::_normalizePath(explode('?', explode('#', $relativeUrl ?? $pluginHandle, 2)[0], 2)[0]);
+        $key = self::NS_PLUGIN . ':' . str_replace('%2F', '/', rawurlencode($path));
 
-        if ($subHandle) {
-            return self::NS_PLUGIN . ':' . $handle . ':' . StringHelper::toKebabCase($subHandle);
+        if ($subHandle !== null && $subHandle !== '') {
+            return $key . ':' . rawurlencode($subHandle);
         }
 
-        return self::NS_PLUGIN . ':' . $handle;
+        return $key;
     }
 
     public static function manual(string $uuid): string
@@ -63,10 +54,7 @@ final class NodeKey
         if ($subHandle !== null && $parentKey) {
             $parentUrl = self::_parentRelativeUrlFromKey($parentKey);
             if (str_starts_with($parentKey, self::NS_PLUGIN . ':')) {
-                $parts = explode(':', $parentKey, 3);
-                $pluginHandle = $parts[1] ?? '';
-
-                return self::plugin($pluginHandle, $subHandle);
+                return $parentKey . ':' . rawurlencode($subHandle);
             }
 
             return self::craftSubnav($parentUrl, $subHandle);
@@ -77,7 +65,7 @@ final class NodeKey
         // Plugin top-level items typically use their handle as the first URL segment.
         $pluginHandle = self::_guessPluginHandle($relativeUrl);
         if ($pluginHandle) {
-            return self::plugin($pluginHandle);
+            return self::plugin($pluginHandle, null, $relativeUrl);
         }
 
         return self::craft($relativeUrl);
@@ -174,9 +162,6 @@ final class NodeKey
     }
 
 
-    // Private Methods
-    // =========================================================================
-
     private static function _normalizePath(string $path): string
     {
         $path = trim($path);
@@ -195,7 +180,7 @@ final class NodeKey
     private static function _guessPluginHandle(string $relativeUrl): ?string
     {
         $relativeUrl = self::_normalizePath($relativeUrl);
-        $segment = explode('/', $relativeUrl)[0] ?? null;
+        $segment = preg_split('/[\/?#]/', $relativeUrl)[0] ?? null;
         if (!$segment) {
             return null;
         }
@@ -204,4 +189,14 @@ final class NodeKey
 
         return $plugin?->handle;
     }
+
+
+    // Constants
+    // =========================================================================
+
+    public const NS_CRAFT = 'craft';
+    public const NS_PLUGIN = 'plugin';
+    public const NS_EVENT = 'event';
+    public const NS_MANUAL = 'manual';
+    public const NS_DIVIDER = 'divider';
 }

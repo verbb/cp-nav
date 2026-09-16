@@ -13,9 +13,7 @@ use verbb\cpnav\nav\customization\CustomizationNode;
 describe('NavCustomization', function() {
     it('round-trips customization nodes through project config with encoded path keys', function() {
         $layout = CpNav::$plugin->getLayouts()->getDefaultLayout();
-        if (!$layout) {
-            $this->markTestSkipped('No default layout in test install.');
-        }
+        expect($layout)->not->toBeNull();
 
         $overlay = CpNav::$plugin->getNavCustomization();
         $layoutUid = $layout->uid;

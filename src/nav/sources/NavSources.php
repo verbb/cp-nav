@@ -17,8 +17,8 @@ final class NavSources extends Component
     // =========================================================================
 
     private const CACHE_GENERATION_KEY = 'cpnav:sources:generation';
-    /** v3 — generation eviction + language in fingerprint. */
-    private const CACHE_KEY_PREFIX = 'cpnav:sources:v3:';
+    /** v6 — distinct plugin routes and literal submenu handles. */
+    private const CACHE_KEY_PREFIX = 'cpnav:sources:v6:';
 
 
     // Properties

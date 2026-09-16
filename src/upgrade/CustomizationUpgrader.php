@@ -1,8 +1,8 @@
 <?php
 namespace verbb\cpnav\upgrade;
 
-use verbb\cpnav\nav\customization\CustomizationNode;
 use verbb\cpnav\models\LayoutNavItem;
+use verbb\cpnav\nav\customization\CustomizationNode;
 
 /**
  * Transforms v5 Navigation rows into customization nodes.
@@ -25,9 +25,23 @@ final class CustomizationUpgrader
             }
         }
 
+        // Identity follows the provider's original tree, even after an item was moved or outdented.
+        $keysById = [];
+        $keys = [];
+        foreach ($navigations as $index => $navigation) {
+            $originalParent = $byId[$navigation->prevParentId] ?? null;
+            if ($navigation->prevLevel === null && $navigation->prevParentId === null) {
+                $originalParent = $byId[$navigation->parentId] ?? null;
+            }
+            $keys[$index] = V5KeyMap::resolveKey($navigation, $originalParent);
+            if ($navigation->id) {
+                $keysById[$navigation->id] = $keys[$index];
+            }
+        }
+
         $resolved = [];
 
-        foreach ($navigations as $navigation) {
+        foreach ($navigations as $index => $navigation) {
             // Current parentId is authoritative. Only fall back to prevParentId when the
             // referenced parent row is missing (orphan recovery) — never when parentId is
             // explicitly null/0 (intentional v5 outdent to root).
@@ -40,8 +54,8 @@ final class CustomizationUpgrader
                 }
             }
 
-            $parentKey = $parent ? V5KeyMap::resolveParentKey($parent) : null;
-            $key = V5KeyMap::resolveKey($navigation, $parent);
+            $parentKey = $parent ? $keysById[$parent->id] : null;
+            $key = $keys[$index];
 
             // Sync bugs can duplicate rows — keep the lowest sortOrder per key.
             if (isset($resolved[$key]) && ($resolved[$key]['sortOrder'] ?? PHP_INT_MAX) <= ($navigation->sortOrder ?? PHP_INT_MAX)) {
@@ -50,7 +64,6 @@ final class CustomizationUpgrader
 
             $resolved[$key] = [
                 'navigation' => $navigation,
-                'parent' => $parent,
                 'parentKey' => $parentKey,
                 'sortOrder' => $navigation->sortOrder ?? 0,
             ];
@@ -72,7 +85,7 @@ final class CustomizationUpgrader
                 $sort += 10;
                 $customizations[$key] = $this->_buildCustomizationNode(
                     $row['navigation'],
-                    $row['parent'],
+                    $key,
                     $parentKey === '' ? null : $parentKey,
                     $sort,
                 );
@@ -88,11 +101,10 @@ final class CustomizationUpgrader
 
     private function _buildCustomizationNode(
         LayoutNavItem $navigation,
-        ?LayoutNavItem $parent,
+        string $key,
         ?string $parentKey,
         int $sort,
     ): CustomizationNode {
-        $key = V5KeyMap::resolveKey($navigation, $parent);
         $isCustomizationOnly = $navigation->isManual() || $navigation->isDivider();
 
         // Manuals/dividers always keep their label (v5 often sets currLabel === prevLabel on create).

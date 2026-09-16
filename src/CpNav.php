@@ -30,7 +30,7 @@ class CpNav extends Plugin
     // =========================================================================
 
     public bool $hasCpSettings = true;
-    public string $schemaVersion = '6.0.0';
+    public string $schemaVersion = '6.0.1';
     public string $minVersionRequired = '5.0.0';
 
 

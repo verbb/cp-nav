@@ -70,9 +70,7 @@ describe('Astra Wave 1 — manual URL persistence', function() {
         CpRequestContext::activate();
 
         $layout = CpNav::$plugin->getLayouts()->getDefaultLayout();
-        if (!$layout) {
-            $this->markTestSkipped('No default layout in test install.');
-        }
+        expect($layout)->not->toBeNull();
 
         $projectConfig = Craft::$app->getProjectConfig();
         $readOnly = $projectConfig->readOnly;
@@ -108,9 +106,7 @@ describe('Astra Wave 1 — manual URL persistence', function() {
         CpRequestContext::activate();
 
         $layout = CpNav::$plugin->getLayouts()->getDefaultLayout();
-        if (!$layout) {
-            $this->markTestSkipped('No default layout in test install.');
-        }
+        expect($layout)->not->toBeNull();
 
         $projectConfig = Craft::$app->getProjectConfig();
         $readOnly = $projectConfig->readOnly;

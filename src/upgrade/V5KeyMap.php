@@ -9,15 +9,6 @@ use verbb\cpnav\nav\sources\NodeKey;
  */
 final class V5KeyMap
 {
-    // Constants
-    // =========================================================================
-
-    // Known Craft core URL changes between v5 CP Nav snapshots and Craft 5.9+.
-    public const CRAFT_URL_REMAPS = [
-        'entries' => 'content/entries',
-    ];
-
-
     // Static Methods
     // =========================================================================
 
@@ -32,6 +23,7 @@ final class V5KeyMap
         return self::CRAFT_URL_REMAPS[$url] ?? $url;
     }
 
+    /** The parent is the original provider parent, not the item's customized placement. */
     public static function resolveKey(LayoutNavItem $navigation, ?LayoutNavItem $parent = null): string
     {
         if ($navigation->isManual()) {
@@ -42,18 +34,24 @@ final class V5KeyMap
             return NodeKey::divider((string)$navigation->uid);
         }
 
-        if ($navigation->isPlugin()) {
-            if ($navigation->isSubnav() && $parent) {
-                $pluginHandle = self::_resolvePluginHandle($parent);
+        $wasSubnav = ($navigation->prevLevel ?? $navigation->level) === 2;
 
-                return NodeKey::plugin($pluginHandle, (string)$navigation->handle);
+        if ($navigation->isPlugin()) {
+            if ($wasSubnav) {
+                // Older snapshots can lack the parent row; the original URL still identifies the provider.
+                $provider = $parent ?? new LayoutNavItem(['handle' => $navigation->prevUrl ?? $navigation->url]);
+                $pluginHandle = self::_resolvePluginHandle($provider);
+
+                return NodeKey::plugin($pluginHandle, (string)$navigation->handle, self::_pluginRootUrl($parent, $pluginHandle));
             }
 
-            return NodeKey::plugin(self::_resolvePluginHandle($navigation));
+            $pluginHandle = self::_resolvePluginHandle($navigation);
+
+            return NodeKey::plugin($pluginHandle, null, self::_pluginRootUrl($navigation, $pluginHandle));
         }
 
         // Craft subnav identity is parent path + handle (e.g. craft:graphql/graphiql), not the child URL alone.
-        if ($navigation->isSubnav() && $parent) {
+        if ($wasSubnav && $parent) {
             $parentUrl = self::remapCraftUrl($parent->prevUrl ?? $parent->url);
             $subHandle = trim((string)($navigation->handle ?: ''), '/');
 
@@ -80,8 +78,15 @@ final class V5KeyMap
     }
 
 
-    // Private Methods
-    // =========================================================================
+    private static function _pluginRootUrl(?LayoutNavItem $navigation, string $pluginHandle): string
+    {
+        $url = trim((string)($navigation?->prevUrl ?: $navigation?->url), '/');
+        $path = explode('?', explode('#', $url, 2)[0], 2)[0];
+
+        // Incomplete legacy snapshots may retain only a customized external URL.
+        // It cannot identify the provider's original root route.
+        return $path === $pluginHandle || str_starts_with($path, $pluginHandle . '/') ? $url : $pluginHandle;
+    }
 
     private static function _resolvePluginHandle(LayoutNavItem $navigation): string
     {
@@ -106,4 +111,13 @@ final class V5KeyMap
 
         return $fallback !== '' ? $fallback : 'unknown-plugin';
     }
+
+
+    // Constants
+    // =========================================================================
+
+    // Known Craft core URL changes between v5 CP Nav snapshots and Craft 5.9+.
+    public const CRAFT_URL_REMAPS = [
+        'entries' => 'content/entries',
+    ];
 }

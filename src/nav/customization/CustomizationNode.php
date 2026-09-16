@@ -13,28 +13,6 @@ use verbb\cpnav\nav\sources\NodeKey;
  */
 final class CustomizationNode
 {
-    // Constants
-    // =========================================================================
-
-    /** Project-config sentinel for an explicit root parent (distinct from inherit/`null`). */
-    public const PARENT_ROOT = '';
-
-
-    // Properties
-    // =========================================================================
-
-    public readonly string $key;
-    public readonly bool $enabled;
-    public readonly int $sort;
-    public readonly ?string $parent;
-    public readonly ?string $label;
-    public readonly ?string $type;
-    public readonly ?string $url;
-    public readonly ?string $icon;
-    public readonly ?string $customIcon;
-    public readonly bool $newWindow;
-
-
     // Static Methods
     // =========================================================================
 
@@ -62,6 +40,28 @@ final class CustomizationNode
             newWindow: (bool)($config['newWindow'] ?? false),
         );
     }
+
+
+    // Constants
+    // =========================================================================
+
+    /** Project-config sentinel for an explicit root parent (distinct from inherit/`null`). */
+    public const PARENT_ROOT = '';
+
+
+    // Properties
+    // =========================================================================
+
+    public readonly string $key;
+    public readonly bool $enabled;
+    public readonly int $sort;
+    public readonly ?string $parent;
+    public readonly ?string $label;
+    public readonly ?string $type;
+    public readonly ?string $url;
+    public readonly ?string $icon;
+    public readonly ?string $customIcon;
+    public readonly bool $newWindow;
 
 
     // Public Methods

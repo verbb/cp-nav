@@ -5,6 +5,8 @@ use verbb\cpnav\CpNav;
 use verbb\cpnav\models\Layout;
 use verbb\cpnav\nav\sources\NodeKey;
 
+use Craft;
+
 /**
  * v5 navigation rows → customization project config.
  */
@@ -26,8 +28,7 @@ final class CustomizationUpgradeService
     }
 
     /**
-     * @param bool $force Replace nonempty v6 customizations. Default skips them.
-     * @return array<int, array{layoutUid: string, layoutName: string, nodeCount: int, status: string}>
+     * Reimport legacy rows only when the destination is untouched, unless forced.
      */
     public function upgradeLayouts(?string $layoutUid = null, bool $dryRun = false, bool $force = false): array
     {
@@ -35,6 +36,15 @@ final class CustomizationUpgradeService
 
         foreach ($this->_layouts($layoutUid) as $layout) {
             $existing = CpNav::$plugin->getNavCustomization()->getCustomizationForLayout($layout->uid);
+            if (!$force && Craft::$app->getProjectConfig()->get("cp-nav.layouts.{$layout->uid}.customizations.migrationVersion")) {
+                $results[] = [
+                    'layoutUid' => $layout->uid,
+                    'layoutName' => (string)$layout->name,
+                    'nodeCount' => count($existing),
+                    'status' => 'skipped_completed',
+                ];
+                continue;
+            }
             $navigations = (new LegacyNavigationReader())->getLayoutNavItemsForLayout((int)$layout->id);
 
             // Protect existing v6 curation unless --force.
@@ -62,7 +72,7 @@ final class CustomizationUpgradeService
             $customizations = $this->migrator->upgradeNavigations($navigations);
 
             if (!$dryRun) {
-                CpNav::$plugin->getNavCustomization()->setCustomizationNodes($layout->uid, $customizations);
+                CpNav::$plugin->getNavCustomization()->setCustomizationNodes($layout->uid, $customizations, true);
             }
 
             $results[] = [
@@ -109,10 +119,7 @@ final class CustomizationUpgradeService
         return $results;
     }
 
-    /**
-     * @param string[] $staleKeys
-     * @return string[]
-     */
+    /** Purge the requested stale customization keys and report those removed. */
     public function purgeStaleKeys(string $layoutUid, array $staleKeys): array
     {
         return CpNav::$plugin->getNavCustomization()->removeStaleNodes($layoutUid, $staleKeys);

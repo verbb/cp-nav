@@ -30,3 +30,10 @@ describe('NodeKey', function() {
         expect(NodeKey::encodePathKey($a))->not->toBe(NodeKey::encodePathKey($b));
     });
 });
+
+it('maps provider identities to literal native and installed-plugin child keys', function() {
+    expect(NodeKey::fromNavItem(['url' => 'dashboard']))->toBe('craft:dashboard');
+    expect(NodeKey::fromNavItem(['url' => 'graphiql'], 'craft:graphql', 'graphiql'))->toBe('craft:graphql/graphiql');
+    expect(NodeKey::fromNavItem(['url' => 'cp-nav']))->toBe('plugin:cp-nav');
+    expect(NodeKey::fromNavItem(['url' => 'cp-nav/settings'], 'plugin:cp-nav', 'customSettings'))->toBe('plugin:cp-nav:customSettings');
+});

@@ -5,6 +5,8 @@ use verbb\cpnav\CpNav;
 use verbb\cpnav\nav\customization\CustomizationSchema;
 use verbb\cpnav\nav\sources\NodeKey;
 
+use Craft;
+
 class ProjectConfigData
 {
     // Static Methods
@@ -19,9 +21,6 @@ class ProjectConfigData
     }
 
 
-    // Private Methods
-    // =========================================================================
-
     private static function _getLayoutsData(): array
     {
         $data = [];
@@ -32,6 +31,11 @@ class ProjectConfigData
             $overlayNodes = $navCustomization->getCustomizationForLayout($layout->uid);
             $acknowledged = $navCustomization->getAcknowledgedRegistryKeys($layout->uid);
             $customizations = [];
+            // Keep intentional empty layouts completed through a project-config rebuild.
+            $migrationVersion = Craft::$app->getProjectConfig()->get("cp-nav.layouts.{$layout->uid}.customizations.migrationVersion");
+            if ($migrationVersion !== null) {
+                $customizations['migrationVersion'] = $migrationVersion;
+            }
 
             if ($overlayNodes !== []) {
                 $nodes = [];

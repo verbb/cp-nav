@@ -3,8 +3,8 @@ namespace verbb\cpnav\nav\customization;
 
 use verbb\cpnav\CpNav;
 use verbb\cpnav\events\CustomizationEvent;
-use verbb\cpnav\services\Layouts;
 use verbb\cpnav\nav\sources\NodeKey;
+use verbb\cpnav\services\Layouts;
 
 use Craft;
 use craft\base\Component;
@@ -59,15 +59,7 @@ class NavCustomization extends Component
     public function saveNode(string $layoutUid, CustomizationNode $node): void
     {
         $path = $this->nodePath($layoutUid, $node->key);
-        $legacyPath = $this->nodesPath($layoutUid) . '.' . NodeKey::encodePathKeyLegacy($node->key);
-
-        // Drop legacy underscore-encoded segment when the new encoding differs.
-        if ($legacyPath !== $path && Craft::$app->getProjectConfig()->get($legacyPath) !== null) {
-            Craft::$app->getProjectConfig()->remove(
-                $legacyPath,
-                "Remove legacy CP Nav path for {$node->key}",
-            );
-        }
+        $this->_removeLegacyNode($layoutUid, $node->key);
 
         Craft::$app->getProjectConfig()->set(
             $path,
@@ -86,6 +78,7 @@ class NavCustomization extends Component
 
     public function removeNode(string $layoutUid, string $canonicalKey): void
     {
+        $this->_removeLegacyNode($layoutUid, $canonicalKey);
         Craft::$app->getProjectConfig()->remove(
             $this->nodePath($layoutUid, $canonicalKey),
             "Remove CP Nav customization for {$canonicalKey}",
@@ -99,7 +92,7 @@ class NavCustomization extends Component
         }
     }
 
-    public function setCustomizationNodes(string $layoutUid, array $nodes): void
+    public function setCustomizationNodes(string $layoutUid, array $nodes, bool $migrationComplete = false): void
     {
         $payload = [];
 
@@ -107,8 +100,19 @@ class NavCustomization extends Component
             $payload[NodeKey::encodePathKey($node->key)] = $node->toConfig();
         }
 
+        $path = $this->nodesPath($layoutUid);
+        if ($migrationComplete) {
+            // Commit conversion and its completion marker as one PC change. A reset
+            // is also intentional v6 state, not permission to resurrect archived rows.
+            $path = Layouts::CONFIG_LAYOUT_KEY . ".{$layoutUid}.customizations";
+            $payload = array_merge(Craft::$app->getProjectConfig()->get($path) ?? [], [
+                'nodes' => $payload,
+                'migrationVersion' => 1,
+                'providerKeyVersion' => 2,
+            ]);
+        }
         Craft::$app->getProjectConfig()->set(
-            $this->nodesPath($layoutUid),
+            $path,
             $payload,
             'Save CP Nav customization nodes',
         );
@@ -122,17 +126,10 @@ class NavCustomization extends Component
 
     public function clearCustomization(string $layoutUid): void
     {
-        Craft::$app->getProjectConfig()->remove(
-            $this->nodesPath($layoutUid),
-            'Clear CP Nav customization nodes',
-        );
+        $this->setCustomizationNodes($layoutUid, [], true);
     }
 
-    /**
-     * Remove stale canonical customization keys that are no longer in nav sources.
-     *
-     * @return string[] removed keys
-     */
+    /** Remove stale canonical customization keys that are no longer in nav sources. */
     public function removeStaleNodes(string $layoutUid, array $staleKeys): array
     {
         $removed = [];
@@ -150,9 +147,8 @@ class NavCustomization extends Component
     }
 
     /**
-     * Keys the admin has seen in the registry for this layout (used for "new item" notices only).
-     *
-     * @return string[]|null `null` when never tracked — treat as "nothing new to announce".
+     * Keys the admin has seen for this layout, or null when tracking has never started.
+     * This state is used only for "new item" notices.
      */
     public function getAcknowledgedRegistryKeys(string $layoutUid): ?array
     {
@@ -214,5 +210,21 @@ class NavCustomization extends Component
             . CustomizationSchema::CUSTOMIZATIONS_KEY
             . '.'
             . CustomizationSchema::ACKNOWLEDGED_REGISTRY_KEYS_KEY;
+    }
+
+
+    // Private Methods
+    // =========================================================================
+
+    private function _removeLegacyNode(string $layoutUid, string $canonicalKey): void
+    {
+        $encoded = NodeKey::encodePathKeyLegacy($canonicalKey);
+        $path = $this->nodesPath($layoutUid) . '.' . $encoded;
+        $config = Craft::$app->getProjectConfig()->get($path);
+
+        // Legacy paths can collide. Only remove a row that reads back as this identity.
+        if (is_array($config) && CustomizationNode::fromConfig($encoded, $config)->key === $canonicalKey) {
+            Craft::$app->getProjectConfig()->remove($path, "Remove legacy CP Nav path for {$canonicalKey}");
+        }
     }
 }
