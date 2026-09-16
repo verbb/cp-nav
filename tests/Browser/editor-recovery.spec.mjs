@@ -49,3 +49,31 @@ for (const dismissal of ['Escape', 'outside click']) {
     }
   });
 }
+
+// Hold the real exit animation at its asynchronous boundary to make rapid reopening repeatable.
+test('keeps a newly opened editor after the previous editor finishes closing', async ({ page }) => {
+  await login(page);
+  await page.goto('/admin/cp-nav');
+  await expect(page.locator('[data-key="craft:dashboard"]')).toBeVisible();
+  await page.getByRole('button', { name: 'New menu item', exact: true }).click();
+  const label = page.locator('pk-input[name="currLabel"] input');
+  await label.fill('First draft');
+  await page.evaluate(() => {
+    const popover = document.querySelector('#cpnav-builder-app').shadowRoot.querySelector('pk-popover');
+    const original = popover.waitForExitAnimation.bind(popover);
+    popover.waitForExitAnimation = async () => {
+      await original();
+      await new Promise(resolve => { window.releaseEditorExit = resolve; });
+    };
+  });
+  await page.getByRole('button', { name: 'Cancel', exact: true }).click();
+  await page.waitForFunction(() => typeof window.releaseEditorExit === 'function');
+  await page.getByRole('button', { name: 'New menu item', exact: true }).click();
+  await label.fill('Second draft');
+  await page.evaluate(() => window.releaseEditorExit());
+  await expect(label).toBeVisible();
+  await expect(label).toHaveValue('Second draft');
+  await page.locator('pk-input[name="url"] input').fill('https://example.test/second');
+  await page.getByRole('button', { name: 'Cancel', exact: true }).click();
+  await expect(label).toHaveCount(0);
+});

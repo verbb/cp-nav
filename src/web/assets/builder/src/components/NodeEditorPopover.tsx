@@ -143,11 +143,7 @@ export function NodeEditorPopover() {
       });
       setFieldMountKey((key) => key + 1);
     }
-  }, [
-    session?.kind,
-    session && 'type' in session ? session.type : null,
-    session && 'nodeKey' in session ? session.nodeKey : null,
-  ]);
+  }, [session]);
 
   // Re-resolve anchor after layout paints (actions host / row may mount a tick later).
   useEffect(() => {
@@ -248,6 +244,9 @@ export function NodeEditorPopover() {
   const showUrlFields = isManual;
 
   const handleOpenChange = (event: Event) => {
+    if (event.target !== popoverRef.current || !popoverRef.current?.isConnected) {
+      return;
+    }
     const nextOpen = (event as PkOpenChangeEvent).detail?.open;
 
     // Ignore dismiss while the icon browser panel is open (clicks land “outside”).
@@ -258,6 +257,9 @@ export function NodeEditorPopover() {
 
   /** Keep the draft mounted while a save or the external icon browser is active. */
   const handleHide = (event: Event) => {
+    if (event.target !== popoverRef.current || !popoverRef.current?.isConnected) {
+      return;
+    }
     const savingCurrentSession = useBuilderStore.getState().editorSession === visibleSession
       && (saving || activeSaveRef.current === visibleSession);
     if (savingCurrentSession || iconBrowserOpenRef.current) {
@@ -265,7 +267,10 @@ export function NodeEditorPopover() {
     }
   };
 
-  const handleAfterHide = () => {
+  const handleAfterHide = (event: Event) => {
+    if (event.target !== popoverRef.current || !popoverRef.current?.isConnected) {
+      return;
+    }
     setVisibleSession(null);
     setAnchor(null);
     setErrors({});
@@ -360,6 +365,8 @@ export function NodeEditorPopover() {
     // modals/shades (z-index 100). pk-popup defaults to --pk-popup-z-index: 1000.
     <div className="pointer-events-none fixed top-0 left-0 z-[90] h-0 w-0 overflow-visible">
       <Popover
+        // Each draft owns its overlay lifecycle; a previous exit must not dismiss the new draft.
+        key={fieldMountKey}
         ref={popoverRef as never}
         open={open}
         anchor={anchor}
