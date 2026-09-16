@@ -88,12 +88,29 @@ export default defineConfig({
     cleanUrls: true,
     appearance: false,
     lastUpdated: true,
+    // Keep the preview entry point useful without publishing an index content page.
+    buildEnd(siteConfig) {
+        fs.writeFileSync(path.join(siteConfig.outDir, 'index.html'), '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta http-equiv="refresh" content="0;url=./feature-tour/overview"><title>Control Panel Nav</title></head><body><a href="./feature-tour/overview">Open Overview</a></body></html>');
+    },
     vite: {
         ssr: {
-            noExternal: ['@verbb/vitepress-theme'],
+            noExternal: ['@verbb/vitepress-theme', 'mark.js'],
         },
         plugins: [
             tailwindcss(),
+            {
+                name: 'cp-nav-docs-entry',
+                configureServer(server) {
+                    server.middlewares.use((req, res, next) => {
+                        if (req.url?.split('?')[0] !== '/') {
+                            return next();
+                        }
+
+                        res.writeHead(302, { Location: '/feature-tour/overview' });
+                        res.end();
+                    });
+                },
+            },
         ],
         server: {
             port: 5490,

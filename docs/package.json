@@ -9,7 +9,7 @@
     "docs:screenshots": "verbb-docs-screenshots"
   },
   "devDependencies": {
-    "@verbb/docs-screenshots": "1.0.0",
+    "@verbb/docs-screenshots": "file:.screenshots/engine.tgz",
     "@tailwindcss/typography": "^0.5.19",
     "@tailwindcss/vite": "^4.2.4",
     "@verbb/vitepress-theme": "1.0.0",

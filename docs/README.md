@@ -9,9 +9,9 @@ npm install
 npm run dev:plugin-docs
 ```
 
-Preview: [http://localhost:5490](http://localhost:5490)
+Open `http://localhost:5490/feature-tour/overview` to preview the docs. The preview root redirects to Overview; the documentation has no separate index page.
 
-## Screenshot automation
+## Screenshot Automation
 
 Uses **`@verbb/docs-screenshots`**. From plugin root:
 

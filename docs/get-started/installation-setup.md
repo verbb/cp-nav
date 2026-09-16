@@ -16,3 +16,9 @@ cd /path/to/project
 ```shell
 composer require verbb/cp-nav && php craft plugin/install cp-nav
 ```
+
+## Arrange the Sidebar
+
+Open **Control Panel Nav → Navigation** and select the layout you want to edit. Rename Entries to Articles, save the label and drag the row to its intended position. Reload the control panel and check that Articles still opens the Entries screen.
+
+Test with an editor account assigned to that layout too. Hiding or showing a menu item does not change the user's permissions. [Navigation](docs:feature-tour/navigation) explains visibility and ordering, while [Layouts](docs:feature-tour/layouts) covers different menus for user groups.

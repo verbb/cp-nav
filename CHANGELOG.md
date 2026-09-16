@@ -7,13 +7,14 @@
 - Manual URL scheme allowlist: relative paths plus `http`/`https`/`mailto`/`tel`.
 
 ### Changed
+- Expanded documentation for navigation setup, permissions, custom icons, and upgrading custom integrations; standardised developer events around focused listener examples.
 - General Settings now shares Control Panel Nav's page title, horizontal tabs, and breadcrumbs without a separate sidebar.
 - Raised the Craft CMS requirement to **5.9+** (matches nav sources/`ElementSources::getPages()`).
 - `cp-nav/migrate-customizations` skips nonempty v6 layouts by default; use `--force` to replace. Layouts with no legacy rows are never cleared.
 - Nav sources cache uses a generation key for shared eviction and includes CP language in the fingerprint.
 - Project-config node path segments use collision-free base64url encoding (legacy underscore paths still read; saves rewrite to the new form).
 - Builder reorder/indent payloads use canonical `key` / `parentKey` (CRC32 `builderId` is display-only).
-- Custom icons no longer use Craft assets — configure a filesystem Icons Path instead.
+- Custom icons no longer use Craft assets — configure a filesystem Icons Path and manually reselect existing custom icons after upgrading.
 - Frontend Plugin Kit deps back on npm (`@verbb/plugin-kit-*` ^2.0.16); dropped local `file:` checkouts.
 
 ### Fixed

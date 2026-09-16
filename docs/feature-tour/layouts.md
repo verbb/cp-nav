@@ -1,23 +1,35 @@
 # Layouts
 
-:::tip
-Layouts that assign navigations to user groups require Craft Pro.
-:::
+Layouts let you give different user groups different control panel menus. For example, your content editors might need a short menu focused on writing, while your administrators need a broader set of tools.
 
-Layouts let you run different control panel navigations for different user groups — for example a streamlined client menu while admins keep a fuller sidebar.
+Assigning layouts to user groups requires Craft Pro. You need an administrator account to create or edit layouts. Open **Control Panel Nav → Layouts** to manage them.
 
-## Managing layouts
+<span id="managing-layouts"></span>
 
-Open the **Layouts** tab from Control Panel Nav. The **default** layout cannot be deleted; it’s what users see when no other layout matches.
+## Creating and Assigning a Layout
 
-On Craft Pro, create additional layouts and assign them to one or more user groups. Reorder layouts to control priority — the top of the list wins when a user matches more than one layout.
+Suppose you already have an Editors user group in Craft. Click **New layout**, enter `Editorial` in **Name**, and select your Editors group under **Permissions**. Save the layout.
 
-Use **Duplicate** to copy a layout’s name suffix (`… copy`), user-group assignments, and navigation customizations into a new layout. After duplicating, adjust permissions and/or reorder so the right layout wins for multi-group users.
+Here, **Permissions** chooses which groups receive the layout; it does not change what those groups can access. Configure access in Craft's user-group settings separately. A manual link in the layout can be visible even when its destination is unavailable to the editor, so check those links with an editor account too.
 
-## Which layout wins?
+<span id="editing-a-layout-s-nav"></span>
 
-If a user belongs to multiple groups that each have a layout, CP Nav picks the **first matching layout by ascending sort order** (Layouts table order), not Craft’s user-group order.
+Switch to the **Navigation** tab and select Editorial from the header layout picker. Rename, reorder, or hide items for that layout, and add any links your editors need. All builder changes, including **Reset navigation**, apply only to the selected layout.
 
-## Editing a layout’s nav
+Sign in as an editor to check the result. They should receive Editorial, with Craft and plugin items filtered according to their access. Check that the links they need open successfully.
 
-In the **Navigation** tab, use the header layout picker to select which layout you’re editing. All builder changes (including Reset) apply to that layout only.
+<span id="which-layout-wins"></span>
+
+## Layout Priority
+
+If someone belongs to several groups with assigned layouts, the first matching layout in the Layouts list is used. Drag layouts to reorder their priority. For example, put Editorial above a general Staff layout if editors who belong to both groups should receive Editorial.
+
+The default layout is used when no group assignment matches. It cannot be deleted. An administrator can select another layout in the navigation builder to edit it, but checking that view does not replace testing with the intended editor account.
+
+## Duplicating a Layout
+
+Click **Duplicate** beside a layout to copy its navigation and group assignments. The copy's name ends in `copy`. Open the copy to give it a useful name and adjust its group assignments, then save. Reorder the list if necessary so the intended layout takes priority for people in multiple groups.
+
+## Deleting a Layout
+
+Delete a layout only when its menu is no longer needed. People assigned to it will receive their next matching layout, or the default layout if none matches. Check their sidebar after deletion, particularly when they belong to multiple groups.

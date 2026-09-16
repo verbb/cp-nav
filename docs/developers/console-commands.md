@@ -1,34 +1,40 @@
 # Console Commands
 
-## Migrate Customizations
+Use the audit command to review saved navigation customisations after changing the Craft or plugin menu items available to your project. A customisation can remain stored after its original item is removed; the sidebar ignores it, but you may want to remove that unused configuration.
 
-Convert archived or live v5 navigation rows into v6 project config customizations.
+<span id="audit-customizations"></span>
 
-```shell
-php craft cp-nav/migrate-customizations [--dry-run] [--force] [--layoutUid=UID]
-```
+## Audit Customisations
 
-| Option | Description |
-| --- | --- |
-| `--dry-run` | Report what would be written without saving |
-| `--force` | Replace layouts that already have v6 customizations (destructive) |
-| `--layoutUid` | Limit to a single layout UID |
-
-On plugin upgrade this runs automatically for layouts that do not already have v6 customizations.
-
-Safe by default: layouts with existing customizations are **skipped** unless `--force` is passed. Layouts with no legacy v5 rows are skipped (never cleared). Status per layout is printed as `migrated`, `replaced`, `skipped_nonempty`, or `skipped_no_legacy`.
-
-## Audit Customizations
-
-Compare stored customization keys against the live nav sources.
+Open a terminal in your Craft project directory and run:
 
 ```shell
-php craft cp-nav/audit-customizations [--layoutUid=UID] [--fix]
+php craft cp-nav/audit-customizations
 ```
 
-| Option | Description |
-| --- | --- |
-| `--layoutUid` | Limit to a single layout UID |
-| `--fix` | Remove stale Craft/plugin keys that are no longer in sources (`manual:*` / `divider:*` are kept) |
+The command reports each layout's name and UID, any stale customisation keys, and the number of available menu items without customisations. A UID is the identifier for a layout across environments. Items without customisations use their defaults; that count does not by itself indicate a problem.
 
-Prefer running audit (and optional `--fix`) on staging, then deploying project config — not as a surprise write on production page views.
+To inspect one layout, replace `YOUR_LAYOUT_UID` with the UID from the output:
+
+```shell
+php craft cp-nav/audit-customizations --layoutUid=YOUR_LAYOUT_UID
+```
+
+### Removing Stale Customisations
+
+Run the audit in an environment with the project's intended plugins and content configuration available, such as staging. Review why each listed item is absent before removing its customisation; an item may be temporarily unavailable because a plugin is disabled.
+
+Keep a Project Config backup before applying changes. To remove the stale keys for the layout you reviewed, run:
+
+```shell
+php craft cp-nav/audit-customizations --layoutUid=YOUR_LAYOUT_UID --fix=1
+```
+
+The command reports the keys it removed. Manual links and dividers are kept. Run the audit again, check the affected sidebar, and review the Project Config changes before deploying them through your usual process.
+
+### Options
+
+| Option | Default | Effect |
+| --- | --- | --- |
+| `--layoutUid` | All layouts | Limits the audit to one layout UID. |
+| `--fix` | `0` | Removes stale Craft and plugin customisation keys when set to `1`. |
