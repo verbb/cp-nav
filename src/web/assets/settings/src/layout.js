@@ -54,7 +54,8 @@ function reorderLayoutRows(previousRows) {
             Craft.cp.displaySuccess(Craft.t('app', LayoutAdminTable.settings.reorderSuccessMessage));
         })
         .catch(() => {
-            previousRows.filter((row) => row.isConnected).forEach((row) => LayoutAdminTable.$tbody.append(row));
+            // New layouts append while this request is pending; retain their saved priority.
+            LayoutAdminTable.$tbody.prepend(previousRows.filter((row) => row.isConnected));
             Craft.cp.displayError(Craft.t('app', LayoutAdminTable.settings.reorderFailMessage));
         })
         .finally(() => {
