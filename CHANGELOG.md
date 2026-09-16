@@ -60,7 +60,7 @@
 - CP sidebar divider styles now key off the server-rendered `nav-divider-*` id so labels no longer flash as normal nav items before sidebar JS runs.
 - Renaming or editing layout metadata no longer wipes nested navigation customizations.
 - Editing a manual link URL now persists the new URL (previously reported success while keeping the old value).
-- First toggle/reorder of a Craft/plugin item no longer snapshots resolved URL/icon into the overlay.
+- Editing or reordering a Craft/plugin item no longer freezes its live URL, icon, or new-window behavior into the layout's customizations.
 - Outdenting a native Craft/plugin child to the root now survives project-config round-trips (`parent: ""` sentinel vs inherit).
 - v5 → v6 upgrade keeps manual/divider labels when `currLabel === prevLabel`, maps craft subnav with parent context (e.g. GraphiQL), and does not undo intentional root outdents via `prevParentId`.
 - Nav source capture now runs after other `EVENT_REGISTER_CP_NAV_ITEMS` handlers so project/plugin additions are included.

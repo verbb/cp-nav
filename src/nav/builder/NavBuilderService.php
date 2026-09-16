@@ -356,7 +356,7 @@ class NavBuilderService extends Component
                 url: $url,
                 icon: $isCustomizationOnly ? ($navigation->icon ?: null) : $existing->icon,
                 customIcon: $navigation->customIcon ?: null,
-                newWindow: (bool)$navigation->newWindow,
+                newWindow: $isCustomizationOnly ? (bool)$navigation->newWindow : $existing->newWindow,
             ),
         );
 
@@ -578,7 +578,7 @@ class NavBuilderService extends Component
 
     private function _defaultCustomizationNode(string $key, LayoutNavItem $navigation): CustomizationNode
     {
-        // Sparse seed for first persist of a canonical key — never snapshot resolved URL/icon/type.
+        // Canonical defaults stay live, including the provider's per-user window behavior.
         // Manual/divider are full definitions.
         $isCustomizationOnly = NodeKey::isCustomizationOnly($key);
 
@@ -594,7 +594,7 @@ class NavBuilderService extends Component
             url: $isCustomizationOnly ? $navigation->url : null,
             icon: null,
             customIcon: $navigation->customIcon ?: null,
-            newWindow: (bool)$navigation->newWindow,
+            newWindow: $isCustomizationOnly && (bool)$navigation->newWindow,
         );
     }
 
