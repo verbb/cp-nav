@@ -7,7 +7,7 @@ Control Panel Nav is a Craft CMS plugin to help manage your Control Panel naviga
 - **Stable node keys** — `craft:`, `plugin:`, `manual:`, and `divider:` keys keep customizations aligned as Craft and plugins change.
 - **No sync-on-read** — Control panel page views never write project config.
 - **New items notice** — When Craft or a plugin adds a nav item, the builder can surface it for review.
-- **Custom SVG icons** — Upload an SVG asset to replace a Craft/plugin icon.
+- **Custom SVG icons** — Choose an SVG from the folder configured in **Icons Path** to replace a menu item’s icon.
 - **Site tokens** — Manual URLs support `{site}` / `{siteHandle}` at render.
 - **Console tools** — Migrate and audit customizations from the CLI.
 
