@@ -171,23 +171,13 @@ export function NodeTree() {
         }
       }
 
-      if ('dragLineLevel' in target) {
-        const targetLevel = target.dragLineLevel + 1;
-        const draggedRoot = items[0];
-        const draggedNode = draggedRoot?.getItemData();
+      const targetLevel = 'dragLineLevel' in target
+        ? target.dragLineLevel + 1
+        : target.item.getItemMeta().level + 2;
 
-        if (!draggedNode) {
-          return true;
-        }
-
-        const subtreeDepth = getSubtreeDepthFromMap(childrenMap, draggedRoot.getId());
-
-        if (targetLevel + subtreeDepth - 1 > maxLevels) {
-          return false;
-        }
-      }
-
-      return true;
+      return items.every((item) =>
+        targetLevel + getSubtreeDepthFromMap(childrenMap, item.getId()) - 1 <= maxLevels,
+      );
     },
     createForeignDragObject: (items) => ({
       format: 'application/x-cpnav-node',
