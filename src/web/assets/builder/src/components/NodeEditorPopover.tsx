@@ -418,6 +418,7 @@ export function NodeEditorPopover() {
               <Input
                 key={`currLabel-${fieldMountKey}`}
                 name="currLabel"
+                disabled={saving}
                 defaultValue={fields.currLabel}
                 onChange={(event: Event) => {
                   const currLabel = readPkChangeValue(event);
@@ -440,6 +441,7 @@ export function NodeEditorPopover() {
                 <Input
                   key={`url-${fieldMountKey}`}
                   name="url"
+                  disabled={saving}
                   defaultValue={fields.url}
                   onChange={(event: Event) => {
                     const url = readPkChangeValue(event);
@@ -459,6 +461,7 @@ export function NodeEditorPopover() {
                 instructions={t('Whether to open this page in a new window.')}
               >
                 <Lightswitch
+                  disabled={saving}
                   checked={fields.newWindow}
                   onCheckedChange={(checked) => {
                     setFields((prev) => ({ ...prev, newWindow: checked }));
@@ -474,6 +477,7 @@ export function NodeEditorPopover() {
                 instructions={t('Specify an SVG asset for this menu item icon.')}
               >
                 <CustomIconInput
+                  disabled={saving}
                   value={fields.customIcon}
                   preview={fields.customIconPreview}
                   onChange={(customIcon, customIconPreview) => {

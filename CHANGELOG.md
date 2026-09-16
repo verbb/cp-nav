@@ -27,13 +27,13 @@
 - Provider link attributes and accessible labels are preserved using the current user’s metadata.
 - Leaving the builder through tabs or other page links waits for queued saves; closing or reloading warns while saves are pending.
 - Creating, deleting, or resetting navigation temporarily disables competing changes that could submit stale node IDs.
-- Layout drafts survive Escape and outside clicks during a pending save and remain available to retry after errors.
+- Layout drafts survive Escape and outside clicks during a pending save, lock their fields until it completes, and remain available to retry after errors.
 - Layout creation, editing, duplication, deletion, and reordering now support keyboard controls.
 - Opening Control Panel Nav from Craft's Settings now shows the navigation builder, and the General Settings breadcrumb returns to it.
 - Restored the Settings tab across the navigation builder, Layouts, and General Settings pages.
 - Layout actions now use consistently sized and spaced icons with hover colours, and duplication uses the latest saved layout name.
 - Layout forms now recover from loading failures and prevent repeated submissions while saving or duplicating a layout.
-- Navigation editor drafts are preserved when Escape or outside clicks occur during a pending save, and opening another draft before the previous editor finishes closing no longer discards it.
+- Navigation editor drafts are preserved when Escape or outside clicks occur during a pending save, fields are locked until it completes, and opening another draft before the previous editor finishes closing no longer discards it.
 - Default layouts can no longer be deleted or lose their default status when their metadata is edited.
 - Invalid navigation and layout payloads, duplicate reorder keys, unsupported item types and unknown layout IDs now return a validation error.
 - SVG preview responses now prevent active document content from executing.

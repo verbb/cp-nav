@@ -20,13 +20,14 @@ type CustomIconInputProps = {
   onChange: (path: string | null, preview: CustomIconPreview | null) => void;
   /** So the parent editor can suppress light-dismiss while the browser panel is open. */
   onOpenChange?: (open: boolean) => void;
+  disabled?: boolean;
 };
 
 /**
  * Static SVG path picker via Plugin Kit ImageBrowser — portable project-config
  * values (not Craft assets). Catalog comes from `cp-nav/static-icons`.
  */
-export function CustomIconInput({ value, preview, onChange, onOpenChange }: CustomIconInputProps) {
+export function CustomIconInput({ value, preview, onChange, onOpenChange, disabled }: CustomIconInputProps) {
   const [items, setItems] = useState<PkImageBrowserItem[]>([]);
 
   useEffect(() => {
@@ -63,6 +64,7 @@ export function CustomIconInput({ value, preview, onChange, onOpenChange }: Cust
 
   return (
     <ImageBrowser
+      disabled={disabled}
       value={value ?? ''}
       mode="icon"
       width="full"

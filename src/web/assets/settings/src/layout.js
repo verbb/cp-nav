@@ -245,6 +245,9 @@ Craft.CpNav.EditLayoutItem = Garnish.Base.extend({
         this.$cancelBtn.prop('disabled', true);
 
         var data = this.hud.$body.serialize();
+        // Capture the submitted values before disabling successful form controls.
+        const $editableFields = this.$form.find('.fields :input:enabled');
+        $editableFields.prop('disabled', true);
 
         Craft.sendActionRequest('POST', 'cp-nav/layout/save', { data })
             .then((response) => {
@@ -269,6 +272,7 @@ Craft.CpNav.EditLayoutItem = Garnish.Base.extend({
                 this.saving = false;
                 this.$saveBtn.prop('disabled', false).removeClass('loading');
                 this.$cancelBtn.prop('disabled', false);
+                $editableFields.prop('disabled', false);
             });
     },
 
@@ -382,6 +386,9 @@ Craft.CpNav.CreateLayoutItem = Garnish.Base.extend({
         this.$cancelBtn.prop('disabled', true);
 
         var data = this.hud.$body.serialize();
+        // Capture the submitted values before disabling successful form controls.
+        const $editableFields = this.$form.find('.fields :input:enabled');
+        $editableFields.prop('disabled', true);
 
         Craft.sendActionRequest('POST', 'cp-nav/layout/new', { data })
             .then((response) => {
@@ -419,6 +426,7 @@ Craft.CpNav.CreateLayoutItem = Garnish.Base.extend({
                 this.saving = false;
                 this.$saveBtn.prop('disabled', false).removeClass('loading');
                 this.$cancelBtn.prop('disabled', false);
+                $editableFields.prop('disabled', false);
             });
     },
 
