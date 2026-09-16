@@ -30,6 +30,7 @@ export function NodeRow({
   isDropNestTarget = false,
 }: Props) {
   const openEditEditor = useBuilderStore((s) => s.openEditEditor);
+  const changingNodeSet = useBuilderStore((s) => s.changingNodeSet);
   const toggleEnabled = useBuilderStore((s) => s.toggleEnabled);
   const collapsedNodeKeys = useBuilderStore((s) => s.collapsedNodeKeys);
   const toggleNodeCollapsed = useBuilderStore((s) => s.toggleNodeCollapsed);
@@ -93,6 +94,7 @@ export function NodeRow({
           data-no-row-select
           aria-label={t('Show {title}', { title })}
           checked={node.enabled}
+          disabled={changingNodeSet}
           onCheckedChange={(checked) => void toggleEnabled(node.key, checked)}
           onClick={(event: MouseEvent) => event.stopPropagation()}
         />

@@ -20,12 +20,15 @@
 - Plugin items with different routes or case-sensitive submenu handles no longer overwrite each other; existing beta customizations migrate to the distinct keys.
 - Moved sidebar items now retain their active state and expand their new parent on the current page.
 - Provider link attributes and accessible labels are preserved using the current user’s metadata.
+- Leaving the builder through tabs or other page links waits for queued saves; closing or reloading warns while saves are pending.
+- Creating, deleting, or resetting navigation temporarily disables competing changes that could submit stale node IDs.
 - Layout drafts survive Escape and outside clicks during a pending save and remain available to retry after errors.
 - Layout creation, editing, duplication, deletion, and reordering now support keyboard controls.
 - Opening Control Panel Nav from Craft's Settings now shows the navigation builder, and the General Settings breadcrumb returns to it.
 - Restored the Settings tab across the navigation builder, Layouts, and General Settings pages.
 - Layout actions now use consistently sized and spaced icons with hover colours, and duplication uses the latest saved layout name.
 - Layout forms now recover from loading failures and prevent repeated submissions while saving or duplicating a layout.
+- Navigation editor drafts are preserved when Escape or outside clicks occur during a pending save.
 - Default layouts can no longer be deleted or lose their default status when their metadata is edited.
 - Invalid navigation and layout payloads, duplicate reorder keys, unsupported item types and unknown layout IDs now return a validation error.
 - SVG preview responses now prevent active document content from executing.
@@ -34,15 +37,20 @@
 - Reduced resolver processing for layouts without saved customizations and layouts with sparse overrides.
 - Navigation source caches no longer reuse stale items after cache eviction or simultaneous refreshes.
 - Reduced repeated tree scans when calculating builder move controls for large layouts.
+- Row action menus now load on demand to reduce large-tree rendering work.
 - External provider links now retain protocol-relative URLs and trailing slashes.
 - Navigation now retains provider items available only to the current user, in their native order.
 - Provider submenu handles, font and child icons, and HTML IDs are now preserved.
 - Deleted layouts are removed from cached lookups immediately.
+- Completing an older editor save or deletion no longer closes a newer draft.
+- Switching layouts now waits for queued saves and stays on the current layout if a save fails.
 - Children of items with a zero-valued numeric display ID now appear only once in the builder.
 - Menu deletion and parent attachment now use canonical keys, preventing numeric ID collisions from affecting another item.
 - Preserve item identity, placement, and visibility when upgrading customized v5 navigation trees.
 - Fixed an information disclosure vulnerability.
 - Fixed a cross-site scripting vulnerability.
+- Builder saves now persist in order, and failed reorders no longer leave navigation actions disabled.
+- Failed builder actions now reconcile earlier successful changes instead of leaving stale menu items visible.
 - Reorder validation now preserves the two-level limit for partial updates and accepts parents promoted in the same update.
 - Removing older customization data now clears legacy paths without deleting another item's settings.
 - Preserve completed navigation imports and intentional layout resets across migration reruns and project-config rebuilds.
@@ -57,7 +65,7 @@
 - Non-admin CP users can no longer select another layout via the `layoutId` query param.
 - Plugin visibility respects `getCpNavItem() === null`; Settings remains visible to admins when `allowAdminChanges` is false.
 - Subnav handles prefer registry provider handles; manual siblings with the same URL basename no longer overwrite each other.
-- Builder reorder indexes the layout once per operation; Show toggles ignore stale out-of-order responses.
+- Builder reorder indexes the layout once per operation.
 
 ## 6.0.0-beta.2 - 2026-08-07
 

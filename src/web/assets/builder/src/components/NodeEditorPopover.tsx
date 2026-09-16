@@ -99,6 +99,7 @@ export function NodeEditorPopover() {
   });
   const [errors, setErrors] = useState<NodeEditorFieldErrors>({});
   const [saving, setSaving] = useState(false);
+  const activeSaveRef = useRef<EditorSession | null>(null);
   // ImageBrowser panel lives outside the editor popover — suppress light-dismiss while open.
   const [iconBrowserOpen, setIconBrowserOpen] = useState(false);
   const formRef = useRef<HTMLFormElement | null>(null);
@@ -255,9 +256,11 @@ export function NodeEditorPopover() {
     }
   };
 
-  /** Cancelable `pk-hide` — abort light-dismiss / Esc while the icon browser is up. */
+  /** Keep the draft mounted while a save or the external icon browser is active. */
   const handleHide = (event: Event) => {
-    if (iconBrowserOpenRef.current) {
+    const savingCurrentSession = useBuilderStore.getState().editorSession === visibleSession
+      && (saving || activeSaveRef.current === visibleSession);
+    if (savingCurrentSession || iconBrowserOpenRef.current) {
       event.preventDefault();
     }
   };
@@ -282,7 +285,8 @@ export function NodeEditorPopover() {
   };
 
   const save = async () => {
-    if (saving) {
+    const savingSession = useBuilderStore.getState().editorSession;
+    if (!savingSession || savingSession !== visibleSession || saving || activeSaveRef.current === savingSession) {
       return;
     }
 
@@ -297,6 +301,7 @@ export function NodeEditorPopover() {
       return;
     }
 
+    activeSaveRef.current = savingSession;
     setSaving(true);
 
     try {
@@ -326,10 +331,16 @@ export function NodeEditorPopover() {
       }
 
       if (ok) {
-        closeEditor();
+        closeEditor(savingSession);
       }
     } finally {
-      setSaving(false);
+      // A save from a previous HUD must not close or unlock the current editor.
+      if (activeSaveRef.current === savingSession) {
+        activeSaveRef.current = null;
+        if (useBuilderStore.getState().editorSession === savingSession) {
+          setSaving(false);
+        }
+      }
     }
   };
 

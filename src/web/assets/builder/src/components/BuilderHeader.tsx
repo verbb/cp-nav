@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Button, DropdownItem, DropdownMenu } from '@verbb/plugin-kit-react/components';
 import { useBuilderStore } from '../store';
-import { getCraft } from '../utils/cp';
+import { navigateToLayout } from '../api';
 import { type PkOpenChangeEvent } from '../utils/pluginKitEvents';
 
 type Props = {
@@ -15,6 +15,8 @@ export function BuilderHeader({ showToolbar = true }: Props) {
   const layoutId = useBuilderStore((s) => s.layoutId);
   const layouts = useBuilderStore((s) => s.layouts);
   const [layoutMenuOpen, setLayoutMenuOpen] = useState(false);
+  const [switchingLayout, setSwitchingLayout] = useState(false);
+  const switchingRef = useRef(false);
 
   if (!showToolbar || layouts.length <= 1) {
     return null;
@@ -26,17 +28,24 @@ export function BuilderHeader({ showToolbar = true }: Props) {
     return null;
   }
 
-  const handleLayoutSelect = (event: Event) => {
+  const handleLayoutSelect = async (event: Event) => {
     const value = (event as CustomEvent<PkSelectDetail>).detail?.value;
     const nextId = value ? Number(value) : NaN;
 
-    if (!Number.isFinite(nextId) || nextId === layoutId) {
+    if (!Number.isFinite(nextId) || nextId === layoutId || switchingRef.current) {
       setLayoutMenuOpen(false);
       return;
     }
 
-    const craft = getCraft();
-    window.location.href = craft.getUrl(`cp-nav?layoutId=${nextId}`);
+    switchingRef.current = true;
+    setSwitchingLayout(true);
+    setLayoutMenuOpen(false);
+    try {
+      await navigateToLayout(layoutId, nextId);
+    } finally {
+      switchingRef.current = false;
+      setSwitchingLayout(false);
+    }
   };
 
   return (
@@ -47,7 +56,7 @@ export function BuilderHeader({ showToolbar = true }: Props) {
         onPkSelect={handleLayoutSelect}
         onPkOpenChange={(event) => setLayoutMenuOpen((event as PkOpenChangeEvent).detail.open)}
       >
-        <Button slot="trigger" type="button" variant="default" withCaret>
+        <Button slot="trigger" type="button" variant="default" withCaret disabled={switchingLayout} loading={switchingLayout}>
           <span>{activeLayout.name}</span>
         </Button>
 

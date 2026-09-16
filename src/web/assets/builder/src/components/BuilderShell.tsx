@@ -5,6 +5,7 @@ import { BuilderHeader } from './BuilderHeader';
 import { BuilderActions } from './BuilderActions';
 import { useBuilderStore } from '../store';
 import type { LayoutOption } from '../types';
+import { guardBuilderNavigation } from '../utils/navigation';
 
 const BUILDER_READY_CLASS = 'cpnav-builder-ready';
 
@@ -47,6 +48,8 @@ export function BuilderShell({
   headerMountNode,
   actionsMountNode,
 }: Props) {
+  useEffect(() => guardBuilderNavigation(layoutId), [layoutId]);
+
   return (
     <>
       <BuilderReadyMarker />

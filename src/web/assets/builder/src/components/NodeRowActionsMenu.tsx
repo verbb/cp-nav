@@ -5,7 +5,8 @@ import {
   DropdownSeparator,
   Icon,
 } from '@verbb/plugin-kit-react/components';
-import type { CSSProperties } from 'react';
+import { useState, type CSSProperties } from 'react';
+import { flushSync } from 'react-dom';
 import { cn } from '../utils/cn';
 import type { BuilderNode } from '../types';
 import { useBuilderStore } from '../store';
@@ -22,6 +23,8 @@ type Props = {
 type PkSelectDetail = { value?: string };
 
 export function NodeRowActionsMenu({ node, isDragSession = false, className }: Props) {
+  const [open, setOpen] = useState(false);
+  const changingNodeSet = useBuilderStore((s) => s.changingNodeSet);
   const nodes = useBuilderStore((s) => s.nodes);
   const maxLevels = useBuilderStore((s) => s.maxLevels);
   const openEditEditor = useBuilderStore((s) => s.openEditEditor);
@@ -31,13 +34,13 @@ export function NodeRowActionsMenu({ node, isDragSession = false, className }: P
   const outdent = useBuilderStore((s) => s.outdent);
   const deleteNode = useBuilderStore((s) => s.deleteNode);
 
-  const capabilities = getNodeMoveCapabilities(nodes, node.key, maxLevels);
+  const capabilities = open ? getNodeMoveCapabilities(nodes, node.key, maxLevels) : null;
   const nodeTitle = node.title || t('Untitled');
 
   const handleMenuSelect = (event: Event) => {
     const value = (event as CustomEvent<PkSelectDetail>).detail?.value;
 
-    if (!value) {
+    if (!value || useBuilderStore.getState().changingNodeSet) {
       return;
     }
 
@@ -71,8 +74,16 @@ export function NodeRowActionsMenu({ node, isDragSession = false, className }: P
 
   return (
     <div className={cn(isDragSession && 'opacity-0', className)}>
-      <DropdownMenu size="sm" placement="bottom-end" onPkSelect={handleMenuSelect}>
+      <DropdownMenu
+        size="sm"
+        placement="bottom-end"
+        onPkSelect={handleMenuSelect}
+        // Mount only the active menu; synchronise before the component moves keyboard focus.
+        onPkShow={() => flushSync(() => setOpen(true))}
+        onPkAfterHide={() => setOpen(false)}
+      >
         <Button
+          disabled={changingNodeSet}
           slot="trigger"
           type="button"
           variant="transparent"
@@ -85,37 +96,41 @@ export function NodeRowActionsMenu({ node, isDragSession = false, className }: P
           <Icon slot="start" icon="ellipsis" />
         </Button>
 
-        <DropdownItem value="edit">
-          <Icon slot="start" icon="pen" />
-          {t('Edit')}
-        </DropdownItem>
-
-        <DropdownSeparator />
-
-        <DropdownItem value="move-up" disabled={!capabilities.canMoveUp}>
-          <Icon slot="start" icon="arrow-up" />
-          {t('Move up')}
-        </DropdownItem>
-        <DropdownItem value="move-down" disabled={!capabilities.canMoveDown}>
-          <Icon slot="start" icon="arrow-down" />
-          {t('Move down')}
-        </DropdownItem>
-        <DropdownItem value="move-left" disabled={!capabilities.canOutdent}>
-          <Icon slot="start" icon="arrow-left" />
-          {t('Move left')}
-        </DropdownItem>
-        <DropdownItem value="move-right" disabled={!capabilities.canIndent}>
-          <Icon slot="start" icon="arrow-right" />
-          {t('Move right')}
-        </DropdownItem>
-
-        {node.deletable && (
+        {capabilities && (
           <>
-            <DropdownSeparator />
-            <DropdownItem value="delete" destructive>
-              <Icon slot="start" icon="xmark" />
-              {t('Delete')}
+            <DropdownItem value="edit">
+              <Icon slot="start" icon="pen" />
+              {t('Edit')}
             </DropdownItem>
+
+            <DropdownSeparator />
+
+            <DropdownItem value="move-up" disabled={!capabilities.canMoveUp}>
+              <Icon slot="start" icon="arrow-up" />
+              {t('Move up')}
+            </DropdownItem>
+            <DropdownItem value="move-down" disabled={!capabilities.canMoveDown}>
+              <Icon slot="start" icon="arrow-down" />
+              {t('Move down')}
+            </DropdownItem>
+            <DropdownItem value="move-left" disabled={!capabilities.canOutdent}>
+              <Icon slot="start" icon="arrow-left" />
+              {t('Move left')}
+            </DropdownItem>
+            <DropdownItem value="move-right" disabled={!capabilities.canIndent}>
+              <Icon slot="start" icon="arrow-right" />
+              {t('Move right')}
+            </DropdownItem>
+
+            {node.deletable && (
+              <>
+                <DropdownSeparator />
+                <DropdownItem value="delete" destructive>
+                  <Icon slot="start" icon="xmark" />
+                  {t('Delete')}
+                </DropdownItem>
+              </>
+            )}
           </>
         )}
       </DropdownMenu>

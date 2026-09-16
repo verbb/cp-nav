@@ -144,7 +144,9 @@ export function NodeTree() {
     // Top/bottom edge bands for insert-line; middle band is drop-as-child.
     reorderAreaPercentage: 0.2,
     openOnDropDelay: 500,
+    canDrag: () => !useBuilderStore.getState().changingNodeSet,
     canDrop: (items, target) => {
+      if (useBuilderStore.getState().changingNodeSet) return false;
       const targetParentId = target.item.getId();
       const targetParent =
         targetParentId === CPNAV_TREE_ROOT_ID ? null : (nodeMap.get(targetParentId) ?? null);

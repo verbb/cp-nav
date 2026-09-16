@@ -16,6 +16,7 @@ export function BuilderActions() {
   const loading = useBuilderStore((s) => s.loading);
   const error = useBuilderStore((s) => s.error);
   const resettingLayout = useBuilderStore((s) => s.resettingLayout);
+  const changingNodeSet = useBuilderStore((s) => s.changingNodeSet);
   const reordering = useBuilderStore((s) => s.reordering);
   const resetLayout = useBuilderStore((s) => s.resetLayout);
   const openCreateEditor = useBuilderStore((s) => s.openCreateEditor);
@@ -24,7 +25,7 @@ export function BuilderActions() {
     return null;
   }
 
-  const busy = reordering || resettingLayout;
+  const busy = reordering || resettingLayout || changingNodeSet;
 
   const handleMenuSelect = (event: Event) => {
     const value = (event as CustomEvent<PkSelectDetail>).detail?.value;
