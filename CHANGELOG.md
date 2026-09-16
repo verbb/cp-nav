@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 6.0.0-beta.3 - 2026-09-17
 
 ### Added
 - Plugin setting **Icons Path** for portable custom SVG icons (relative paths in project config; ImageBrowser picker in the builder).
