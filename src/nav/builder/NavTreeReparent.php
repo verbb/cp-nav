@@ -8,14 +8,39 @@ namespace verbb\cpnav\nav\builder;
  */
 final class NavTreeReparent
 {
-    // Constants
-    // =========================================================================
-
-    public const MAX_DEPTH = 2;
-
-
     // Static Methods
     // =========================================================================
+
+    /** Compute all row capabilities without constructing a moved tree for every row. */
+    public static function getCapabilities(array $nodes): array
+    {
+        $keys = [];
+        $parents = [];
+        foreach ($nodes as $node) {
+            $keys[$node['key']] = true;
+            if (!empty($node['parentKey'])) {
+                $parents[$node['parentKey']] = true;
+            }
+        }
+
+        $result = [];
+        $previousRoot = null;
+        foreach ($nodes as $node) {
+            $key = $node['key'];
+            $parent = $node['parentKey'] ?? null;
+            $result[$key] = [
+                'canIndent' => !$parent && !isset($parents[$key])
+                    && !str_starts_with($key, 'divider:') && $previousRoot !== null
+                    && !str_starts_with($previousRoot, 'divider:'),
+                'canOutdent' => $parent && isset($keys[$parent]),
+            ];
+            if (!$parent) {
+                $previousRoot = $key;
+            }
+        }
+
+        return $result;
+    }
 
     public static function canIndent(array $nodes, string $key): bool
     {
@@ -27,11 +52,7 @@ final class NavTreeReparent
         return self::outdent($nodes, $key) !== null;
     }
 
-    /**
-     * Make `$key` a child of the previous root sibling.
-     *
-     * @return array|null New flat node list, or null if the move is illegal.
-     */
+    /** Make `$key` a child of the previous root sibling, or return null for an illegal move. */
     public static function indent(array $nodes, string $key): ?array
     {
         $index = self::_indexOfKey($nodes, $key);
@@ -99,11 +120,7 @@ final class NavTreeReparent
         return array_values($without);
     }
 
-    /**
-     * Promote `$key` to a root, placed after its former parent's block.
-     *
-     * @return array|null New flat node list, or null if the move is illegal.
-     */
+    /** Promote `$key` to a root after its former parent's block, or return null for an illegal move. */
     public static function outdent(array $nodes, string $key): ?array
     {
         $index = self::_indexOfKey($nodes, $key);
@@ -156,26 +173,40 @@ final class NavTreeReparent
         return array_values($without);
     }
 
-    /**
-     * Validate a reorder payload against depth / parent rules.
-     *
-     * @param array $items [{key, parentKey}, ...]
-     * @param array<string, array> $nodesByKey keyed by canonical key
-     * @return string[] error messages (empty = ok)
-     */
+    /** Validate a reorder payload against depth and parent rules. */
     public static function validateReorderItems(array $items, array $nodesByKey): array
     {
         $errors = [];
         $parentByKey = [];
 
+        // Omitted nodes keep their saved parent; they still count toward depth and cycles.
+        foreach ($nodesByKey as $key => $node) {
+            $parent = $node['parentKey'] ?? null;
+            $parentByKey[$key] = $parent === '' ? null : $parent;
+        }
+
+        $submitted = [];
+        if (!array_is_list($items)) {
+            return ['Reorder items must be a list.'];
+        }
+
         foreach ($items as $item) {
-            $key = (string)($item['key'] ?? '');
-            if ($key === '') {
-                $errors[] = 'Reorder item missing key.';
+            if (!is_array($item) || !is_string($item['key'] ?? null) || $item['key'] === '') {
+                $errors[] = 'Reorder item missing a valid key.';
                 continue;
             }
+            $key = $item['key'];
+            if (isset($submitted[$key]) || !isset($nodesByKey[$key])) {
+                $errors[] = 'Reorder item has a duplicate or unknown key.';
+                continue;
+            }
+            $submitted[$key] = true;
 
             $parentKey = $item['parentKey'] ?? null;
+            if ($parentKey !== null && !is_string($parentKey)) {
+                $errors[] = 'Reorder item has an invalid parent key.';
+                continue;
+            }
             $parentKey = $parentKey === '' || $parentKey === null ? null : (string)$parentKey;
             $parentByKey[$key] = $parentKey;
         }
@@ -205,7 +236,7 @@ final class NavTreeReparent
                 continue;
             }
 
-            // Parent must itself be a root in this payload (max depth 2).
+            // Parent must itself be a root in the resulting tree (max depth 2).
             $grandParent = $parentByKey[$parentKey] ?? null;
             if ($grandParent !== null) {
                 $errors[] = "Node {$key} would nest deeper than " . self::MAX_DEPTH . " levels.";
@@ -226,11 +257,7 @@ final class NavTreeReparent
         return $errors;
     }
 
-    /**
-     * Convert flat tree nodes into the reorder API payload.
-     *
-     * @return array<int, array{key: string, parentKey: string|null}>
-     */
+    /** Convert flat tree nodes into the reorder API payload. */
     public static function toReorderPayload(array $nodes): array
     {
         return array_map(static fn(array $node) => [
@@ -239,9 +266,6 @@ final class NavTreeReparent
         ], $nodes);
     }
 
-
-    // Private Methods
-    // =========================================================================
 
     private static function _indexOfKey(array $nodes, string $key): ?int
     {
@@ -275,4 +299,10 @@ final class NavTreeReparent
 
         return false;
     }
+
+
+    // Constants
+    // =========================================================================
+
+    public const MAX_DEPTH = 2;
 }

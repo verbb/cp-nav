@@ -6,13 +6,6 @@ namespace verbb\cpnav\helpers;
  */
 final class ManualUrl
 {
-    // Constants
-    // =========================================================================
-
-    /** Absolute schemes allowed after env/alias expansion. */
-    public const ALLOWED_SCHEMES = ['http', 'https', 'mailto', 'tel'];
-
-
     // Static Methods
     // =========================================================================
 
@@ -23,6 +16,11 @@ final class ManualUrl
     public static function isAllowed(mixed $url): bool
     {
         if (!is_string($url)) {
+            return false;
+        }
+
+        // Browsers discard some control characters while parsing schemes.
+        if (preg_match('/[\x00-\x1f\x7f]/', $url)) {
             return false;
         }
 
@@ -44,4 +42,11 @@ final class ManualUrl
 
         return in_array(strtolower($matches[1]), self::ALLOWED_SCHEMES, true);
     }
+
+
+    // Constants
+    // =========================================================================
+
+    /** Absolute schemes allowed after env/alias expansion. */
+    public const ALLOWED_SCHEMES = ['http', 'https', 'mailto', 'tel'];
 }

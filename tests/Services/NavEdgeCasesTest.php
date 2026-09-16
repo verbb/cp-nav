@@ -150,6 +150,7 @@ describe('NavRenderer site tokens', function() {
         AdminUser::login();
         CpRequestContext::activate();
 
+        Craft::$app->getConfig()->getGeneral()->enableGql = true;
         $tree = CpNav::$plugin->getNavSources()->getTree(true);
         $graphiql = null;
 
@@ -162,11 +163,7 @@ describe('NavRenderer site tokens', function() {
             }
         }
 
-        if ($graphiql === null) {
-            // GraphQL nav is gated on enableGql + admin — skip when absent in this install.
-            expect(true)->toBeTrue();
-            return;
-        }
+        expect($graphiql)->not->toBeNull();
 
         expect($graphiql->defaultExternal)->toBeTrue();
 

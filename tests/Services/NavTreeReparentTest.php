@@ -8,6 +8,31 @@ use verbb\cpnav\CpNav;
 use verbb\cpnav\nav\builder\NavTreeReparent;
 
 describe('NavTreeReparent', function() {
+    it('bulk capabilities agree with allowed tree operations', function() {
+        $nodes = [
+            ['key' => 'craft:first', 'parentKey' => null],
+            ['key' => 'craft:parent', 'parentKey' => null],
+            ['key' => 'craft:child', 'parentKey' => 'craft:parent'],
+            ['key' => 'craft:next', 'parentKey' => null],
+            ['key' => 'divider:section', 'parentKey' => null],
+            ['key' => 'manual:after-divider', 'parentKey' => null],
+            ['key' => 'manual:last', 'parentKey' => null],
+        ];
+        $capabilities = NavTreeReparent::getCapabilities($nodes);
+        expect($capabilities)->toBe([
+            'craft:first' => ['canIndent' => false, 'canOutdent' => false],
+            'craft:parent' => ['canIndent' => false, 'canOutdent' => false],
+            'craft:child' => ['canIndent' => false, 'canOutdent' => true],
+            'craft:next' => ['canIndent' => true, 'canOutdent' => false],
+            'divider:section' => ['canIndent' => false, 'canOutdent' => false],
+            'manual:after-divider' => ['canIndent' => false, 'canOutdent' => false],
+            'manual:last' => ['canIndent' => true, 'canOutdent' => false],
+        ]);
+        foreach ($nodes as $node) {
+            expect($capabilities[$node['key']]['canIndent'])->toBe(NavTreeReparent::indent($nodes, $node['key']) !== null);
+            expect($capabilities[$node['key']]['canOutdent'])->toBe(NavTreeReparent::outdent($nodes, $node['key']) !== null);
+        }
+    });
     it('indents a root under the previous root sibling', function() {
         $nodes = [
             ['builderId' => 1, 'key' => 'craft:dashboard', 'parentKey' => null, 'level' => 1],
@@ -100,16 +125,12 @@ describe('NavBuilder indent/outdent', function() {
         CpRequestContext::activate();
 
         $layout = CpNav::$plugin->getLayouts()->getDefaultLayout();
-        if (!$layout) {
-            $this->markTestSkipped('No default layout in test install.');
-        }
+        expect($layout)->not->toBeNull();
 
         $tree = CpNav::$plugin->getNavBuilderApi()->getLayoutTree($layout->id);
         $roots = array_values(array_filter($tree['nodes'], fn(array $n) => empty($n['parentKey'])));
 
-        if (count($roots) < 2) {
-            $this->markTestSkipped('Need at least two root nav items.');
-        }
+        expect(count($roots))->toBeGreaterThanOrEqual(2);
 
         // Prefer indenting a root that has no children and canIndent.
         $candidate = null;
@@ -123,9 +144,7 @@ describe('NavBuilder indent/outdent', function() {
             }
         }
 
-        if (!$candidate) {
-            $this->markTestSkipped('No indentable root item in test install.');
-        }
+        expect($candidate)->not->toBeNull();
 
         $projectConfig = Craft::$app->getProjectConfig();
         $readOnly = $projectConfig->readOnly;

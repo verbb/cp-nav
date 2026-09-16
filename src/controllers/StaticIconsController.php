@@ -36,14 +36,22 @@ class StaticIconsController extends Controller
 
     public function actionView(): Response
     {
-        $file = (string)$this->request->getRequiredQueryParam('file');
+        $file = $this->request->getRequiredQueryParam('file');
+        if (!is_string($file)) {
+            throw new NotFoundHttpException('Icon not found.');
+        }
         $path = CpNav::$plugin->getStaticIcons()->resolveAbsolutePath($file);
 
         if ($path === null) {
             throw new NotFoundHttpException('Icon not found.');
         }
 
-        return Craft::$app->getResponse()->sendFile($path, null, [
+        $response = Craft::$app->getResponse();
+        // SVGs are images, even when opened directly as a same-origin document.
+        $response->getHeaders()->set('Content-Security-Policy', "sandbox; default-src 'none'; style-src 'unsafe-inline'");
+        $response->getHeaders()->set('X-Content-Type-Options', 'nosniff');
+
+        return $response->sendFile($path, null, [
             'inline' => true,
         ]);
     }

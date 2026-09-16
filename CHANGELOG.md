@@ -17,6 +17,13 @@
 - Frontend Plugin Kit deps back on npm (`@verbb/plugin-kit-*` ^2.0.16); dropped local `file:` checkouts.
 
 ### Fixed
+- SVG preview responses now prevent active document content from executing.
+- Manual URL and boolean validation now behaves consistently when creating and editing items.
+- Reduced resolver processing for layouts without saved customizations and layouts with sparse overrides.
+- Reduced repeated tree scans when calculating builder move controls for large layouts.
+- Children of items with a zero-valued numeric display ID now appear only once in the builder.
+- Menu deletion and parent attachment now use canonical keys, preventing numeric ID collisions from affecting another item.
+- Reorder validation now preserves the two-level limit for partial updates and accepts parents promoted in the same update.
 - CP sidebar divider styles now key off the server-rendered `nav-divider-*` id so labels no longer flash as normal nav items before sidebar JS runs.
 - Renaming or editing layout metadata no longer wipes nested navigation customizations.
 - Editing a manual link URL now persists the new URL (previously reported success while keeping the old value).

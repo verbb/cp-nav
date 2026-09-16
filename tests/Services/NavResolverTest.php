@@ -30,9 +30,7 @@ describe('NavResolver', function() {
 
         $registry = CpNav::$plugin->getNavSourceBuilder()->build();
         $topLevel = array_slice($registry, 0, 2);
-        if (count($topLevel) < 2) {
-            $this->markTestSkipped('Need at least two top-level nav items.');
-        }
+        expect(count($topLevel))->toBe(2);
 
         [$second, $first] = [$topLevel[1], $topLevel[0]];
 
@@ -168,4 +166,41 @@ describe('NavResolver', function() {
         expect($byKey['craft:entries'])->toBeGreaterThan($byKey['craft:dashboard']);
         expect($byKey['craft:entries'])->toBeLessThan($byKey['craft:assets']);
     });
+});
+
+it('preserves native sibling spacing and nesting when resolving an empty overlay', function() {
+    $registry = [
+        new NavNode('craft:b', 'craft', 'B', 'b', null, 7, null),
+        new NavNode('craft:c', 'craft', 'C', 'c', null, 7, null),
+        new NavNode('craft:a', 'craft', 'A', 'a', null, 3, null, [
+            new NavNode('craft:a/two', 'craft', 'Two', 'a/two', null, 8, 'craft:a'),
+            new NavNode('craft:a/one', 'craft', 'One', 'a/one', null, 2, 'craft:a'),
+        ]),
+    ];
+    $resolved = (new NavResolver())->resolve($registry);
+    expect(array_map(fn($n) => [$n->key, $n->sort, $n->parentKey, $n->label, $n->url], $resolved))->toBe([
+        ['craft:a', 30, null, 'A', 'a'], ['craft:b', 40, null, 'B', 'b'], ['craft:c', 40, null, 'C', 'c'],
+        ['craft:a/one', 20, 'craft:a', 'One', 'a/one'], ['craft:a/two', 30, 'craft:a', 'Two', 'a/two'],
+    ]);
+});
+
+it('keeps equal-order peers separate from insertion anchors and follows shifted future sorts', function() {
+    $registry = [];
+    foreach (['a' => 1, 'b' => 2, 'c' => 2, 'd' => 3, 'e' => 4] as $key => $order) {
+        $registry[] = new NavNode('craft:' . $key, 'craft', strtoupper($key), $key, null, $order, null);
+    }
+    $overlay = [
+        'craft:a' => new CustomizationNode('craft:a', true, 10),
+        'craft:c' => new CustomizationNode('craft:c', true, 20),
+        'craft:e' => new CustomizationNode('craft:e', true, 21),
+    ];
+    $resolver = new NavResolver();
+    expect(array_map(fn($node) => [$node->key, $node->sort], $resolver->resolve($registry, $overlay)))->toBe([
+        ['craft:a', 10], ['craft:b', 15], ['craft:c', 20], ['craft:d', 21], ['craft:e', 22],
+    ]);
+    $overlay['craft:c'] = new CustomizationNode('craft:c', true, 20, 'craft:e');
+    $roots = array_values(array_filter($resolver->resolve($registry, $overlay), fn($node) => $node->parentKey === null));
+    expect(array_map(fn($node) => [$node->key, $node->sort], $roots))->toBe([
+        ['craft:a', 10], ['craft:b', 15], ['craft:d', 18], ['craft:e', 21],
+    ]);
 });

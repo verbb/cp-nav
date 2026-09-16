@@ -42,7 +42,7 @@ class NavBuilderApi extends Component
         // Build flat list first so canIndent / canOutdent see the full sibling context.
         $flatNodes = [];
         foreach ($navigations as $navigation) {
-            if ($navigation->parentId) {
+            if ($navigation->getParent() !== null) {
                 continue;
             }
 
@@ -66,17 +66,18 @@ class NavBuilderApi extends Component
         }
 
         $nodes = [];
+        $capabilities = NavTreeReparent::getCapabilities($flatNodes);
 
         foreach ($navigations as $navigation) {
             // Resolved list is flat; children are nested on parents — skip duplicates.
-            if ($navigation->parentId) {
+            if ($navigation->getParent() !== null) {
                 continue;
             }
 
-            $nodes[] = $this->_serializeNode($navigation, $overlay, $newItemKeys, $flatNodes);
+            $nodes[] = $this->_serializeNode($navigation, $overlay, $newItemKeys, $capabilities);
 
             foreach ($navigation->getChildren() as $child) {
-                $nodes[] = $this->_serializeNode($child, $overlay, $newItemKeys, $flatNodes);
+                $nodes[] = $this->_serializeNode($child, $overlay, $newItemKeys, $capabilities);
             }
         }
 
@@ -98,6 +99,10 @@ class NavBuilderApi extends Component
 
     public function updateNode(int $layoutId, string $nodeKey, array $data): bool
     {
+        if (!$this->_validNodeData($data)) {
+            return false;
+        }
+
         $navigation = $this->_navigationByKey($layoutId, $nodeKey);
 
         // Disabled items were previously omitted from the resolved builder tree; fall back to
@@ -123,7 +128,7 @@ class NavBuilderApi extends Component
         }
 
         if (array_key_exists('newWindow', $data)) {
-            $navigation->newWindow = (bool)$data['newWindow'];
+            $navigation->newWindow = filter_var($data['newWindow'], FILTER_VALIDATE_BOOLEAN);
         }
 
         if (array_key_exists('icon', $data)) {
@@ -139,6 +144,10 @@ class NavBuilderApi extends Component
 
     public function createNode(int $layoutId, array $data): ?array
     {
+        if (!$this->_validNodeData($data)) {
+            return null;
+        }
+
         $navigation = new LayoutNavItem();
         $navigation->layoutId = $layoutId;
         $navigation->type = (string)($data['type'] ?? LayoutNavItem::TYPE_MANUAL);
@@ -148,8 +157,9 @@ class NavBuilderApi extends Component
         $navigation->prevUrl = $navigation->url;
         $navigation->enabled = true;
         $navigation->level = 1;
-        $navigation->newWindow = (bool)($data['newWindow'] ?? false);
-        $navigation->icon = $data['icon'] ?? null;
+        $navigation->newWindow = filter_var($data['newWindow'] ?? false, FILTER_VALIDATE_BOOLEAN);
+        $navigation->icon = $this->_normalizeIcon($data['icon'] ?? null);
+        $navigation->customIcon = $this->_normalizeCustomIcon($data['customIcon'] ?? null);
 
         if (!CpNav::$plugin->getNavBuilder()->createLayoutNavItem($navigation)) {
             return null;
@@ -166,7 +176,7 @@ class NavBuilderApi extends Component
             return false;
         }
 
-        return CpNav::$plugin->getNavBuilder()->deleteLayoutNavItem($layoutId, (int)$navigation->id);
+        return CpNav::$plugin->getNavBuilder()->deleteLayoutNavItemByKey($layoutId, $nodeKey);
     }
 
     public function reorderNodes(int $layoutId, array $items): bool
@@ -184,9 +194,7 @@ class NavBuilderApi extends Component
         return CpNav::$plugin->getNavBuilder()->outdentNode($layoutId, $nodeKey);
     }
 
-    /**
-     * @param string|null $parentKey Canonical parent key, or null for top-level.
-     */
+    /** Reparent a node by canonical key, using null for top-level placement. */
     public function reparentNode(int $layoutId, string $nodeKey, ?string $parentKey): bool
     {
         return CpNav::$plugin->getNavBuilder()->reparentNode($layoutId, $nodeKey, $parentKey);
@@ -219,7 +227,27 @@ class NavBuilderApi extends Component
     // Private Methods
     // =========================================================================
 
-    private function _serializeNode(LayoutNavItem $navigation, array $overlay, array $newItemKeys, array $flatNodes = []): array
+    /** Reject nested values before PHP coercion can corrupt a persisted node. */
+    private function _validNodeData(array $data): bool
+    {
+        foreach (['type', 'currLabel', 'url', 'icon', 'customIcon'] as $field) {
+            if (isset($data[$field]) && !is_string($data[$field])) {
+                return false;
+            }
+        }
+
+        foreach (['enabled', 'newWindow'] as $field) {
+            if (array_key_exists($field, $data)
+                && (is_array($data[$field]) || is_object($data[$field])
+                    || filter_var($data[$field], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) === null)) {
+                return false;
+            }
+        }
+
+        return $data === [] || !array_is_list($data);
+    }
+
+    private function _serializeNode(LayoutNavItem $navigation, array $overlay, array $newItemKeys, array $capabilities = []): array
     {
         $key = $navigation->nodeKey;
         [$typeLabel, $typeClass, $typeColorRgb, $typeTextColorRgb] = $this->_typeMeta((string)$navigation->type);
@@ -249,8 +277,8 @@ class NavBuilderApi extends Component
             'isNew' => $key && in_array($key, $newItemKeys, true),
             'isOrphan' => (bool)$navigation->isOrphan,
             'hasDescendants' => count($navigation->getChildren()) > 0,
-            'canIndent' => $key ? NavTreeReparent::canIndent($flatNodes, $key) : false,
-            'canOutdent' => $key ? NavTreeReparent::canOutdent($flatNodes, $key) : false,
+            'canIndent' => $capabilities[$key]['canIndent'] ?? false,
+            'canOutdent' => $capabilities[$key]['canOutdent'] ?? false,
             'deletable' => $navigation->isManual() || $navigation->isDivider(),
         ];
     }
@@ -301,9 +329,7 @@ class NavBuilderApi extends Component
         return CustomIcon::normalizeStored($customIcon);
     }
 
-    /**
-     * @return array{path: string, url: ?string, label: string}|null
-     */
+    /** Serialize custom icon metadata when the stored value resolves. */
     private function _serializeCustomIcon(mixed $customIcon): ?array
     {
         return CustomIcon::serializeForBuilder(is_string($customIcon) ? $customIcon : null);

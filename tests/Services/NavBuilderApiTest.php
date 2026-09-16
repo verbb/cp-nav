@@ -13,9 +13,7 @@ describe('NavBuilderApi', function() {
         CpRequestContext::activate();
 
         $layout = CpNav::$plugin->getLayouts()->getDefaultLayout();
-        if (!$layout) {
-            $this->markTestSkipped('No default layout in test install.');
-        }
+        expect($layout)->not->toBeNull();
 
         $tree = CpNav::$plugin->getNavBuilderApi()->getLayoutTree($layout->id);
 
@@ -31,9 +29,7 @@ describe('NavBuilderApi', function() {
         CpRequestContext::activate();
 
         $layout = CpNav::$plugin->getLayouts()->getDefaultLayout();
-        if (!$layout) {
-            $this->markTestSkipped('No default layout in test install.');
-        }
+        expect($layout)->not->toBeNull();
 
         $projectConfig = Craft::$app->getProjectConfig();
         $readOnly = $projectConfig->readOnly;
@@ -56,9 +52,7 @@ describe('NavBuilderApi', function() {
         CpRequestContext::activate();
 
         $layout = CpNav::$plugin->getLayouts()->getDefaultLayout();
-        if (!$layout) {
-            $this->markTestSkipped('No default layout in test install.');
-        }
+        expect($layout)->not->toBeNull();
 
         $projectConfig = Craft::$app->getProjectConfig();
         $readOnly = $projectConfig->readOnly;
@@ -104,26 +98,22 @@ describe('NavBuilderApi', function() {
         CpRequestContext::activate();
 
         $layout = CpNav::$plugin->getLayouts()->getDefaultLayout();
-        if (!$layout) {
-            $this->markTestSkipped('No default layout in test install.');
-        }
+        expect($layout)->not->toBeNull();
 
         $tree = CpNav::$plugin->getNavBuilderApi()->getLayoutTree($layout->id);
         $categories = array_values(array_filter(
             $tree['nodes'],
-            fn(array $node) => ($node['key'] ?? '') === 'craft:categories',
+            fn(array $node) => ($node['key'] ?? '') === 'craft:dashboard',
         ));
 
-        if ($categories === []) {
-            $this->markTestSkipped('Categories nav item not available in test install.');
-        }
+        expect($categories)->toHaveCount(1);
 
         $projectConfig = Craft::$app->getProjectConfig();
         $readOnly = $projectConfig->readOnly;
         $projectConfig->readOnly = false;
 
         try {
-            expect(CpNav::$plugin->getNavBuilderApi()->updateNode($layout->id, 'craft:categories', [
+            expect(CpNav::$plugin->getNavBuilderApi()->updateNode($layout->id, 'craft:dashboard', [
                 // Simulate jQuery.param() string booleans from legacy clients.
                 'enabled' => 'false',
             ]))->toBeTrue();
@@ -131,12 +121,12 @@ describe('NavBuilderApi', function() {
             $after = CpNav::$plugin->getNavBuilderApi()->getLayoutTree($layout->id);
             $afterCategories = array_values(array_filter(
                 $after['nodes'],
-                fn(array $node) => ($node['key'] ?? '') === 'craft:categories',
+                fn(array $node) => ($node['key'] ?? '') === 'craft:dashboard',
             ));
 
             expect($afterCategories[0]['enabled'])->toBeFalse();
 
-            CpNav::$plugin->getNavBuilderApi()->updateNode($layout->id, 'craft:categories', [
+            CpNav::$plugin->getNavBuilderApi()->updateNode($layout->id, 'craft:dashboard', [
                 'enabled' => true,
             ]);
         } finally {
@@ -149,16 +139,12 @@ describe('NavBuilderApi', function() {
         CpRequestContext::activate();
 
         $layout = CpNav::$plugin->getLayouts()->getDefaultLayout();
-        if (!$layout) {
-            $this->markTestSkipped('No default layout in test install.');
-        }
+        expect($layout)->not->toBeNull();
 
         $tree = CpNav::$plugin->getNavBuilderApi()->getLayoutTree($layout->id);
         $roots = array_values(array_filter($tree['nodes'], fn(array $node) => empty($node['parentKey'])));
 
-        if (count($roots) < 2) {
-            $this->markTestSkipped('Need at least two root nav items to test reorder.');
-        }
+        expect(count($roots))->toBeGreaterThanOrEqual(2);
 
         $projectConfig = Craft::$app->getProjectConfig();
         $readOnly = $projectConfig->readOnly;
@@ -191,4 +177,27 @@ describe('NavBuilderApi', function() {
             $projectConfig->readOnly = $readOnly;
         }
     });
+});
+
+it('tracks exact newly added roots and children independently for each layout', function() {
+    $first = $this->fixtureLayout();
+    $second = $this->fixtureLayout();
+    $api = CpNav::$plugin->getNavBuilderApi();
+    $api->acknowledgeNewItems($first->id);
+    $api->acknowledgeNewItems($second->id);
+    $this->fixtureProvider(function(\craft\events\RegisterCpNavItemsEvent $event) {
+        $event->navItems[] = ['label' => 'New provider', 'url' => 'new-provider', 'subnav' => ['reports' => ['label' => 'Reports', 'url' => 'new-provider/reports']]];
+    });
+    $tree = $api->getLayoutTree($first->id);
+    expect($tree['meta']['newItemCount'])->toBe(2);
+    expect(array_column(array_values(array_filter($tree['nodes'], fn($node) => $node['isNew'])), 'key'))
+        ->toBe(['craft:new-provider', 'craft:new-provider/reports']);
+    $api->acknowledgeNewItems($first->id);
+    expect($api->getLayoutTree($first->id)['meta']['newItemCount'])->toBe(0);
+    expect($api->getLayoutTree($second->id)['meta']['newItemCount'])->toBe(2);
+    $manual = $api->createNode($first->id, ['type' => 'manual', 'currLabel' => 'Manual', 'url' => 'dashboard']);
+    expect($api->getLayoutTree($first->id)['meta']['newItemCount'])->toBe(0);
+    $api->resetLayout($second->id);
+    expect($api->getLayoutTree($second->id)['meta']['newItemCount'])->toBe(0);
+    expect(array_column($api->getLayoutTree($first->id)['nodes'], 'key'))->toContain($manual['key']);
 });

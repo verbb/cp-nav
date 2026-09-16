@@ -23,11 +23,7 @@ final class CustomIcon
         return CpNav::$plugin->getStaticIcons()->resolveAbsolutePath($customIcon);
     }
 
-    /**
-     * Builder preview: relative path + stream URL when resolvable.
-     *
-     * @return array{path: string, url: ?string, label: string}|null
-     */
+    /** Builder preview metadata when the icon path is resolvable. */
     public static function serializeForBuilder(?string $customIcon): ?array
     {
         $path = CpNav::$plugin->getStaticIcons()->normalizeValue($customIcon);

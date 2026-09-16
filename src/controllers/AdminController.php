@@ -6,6 +6,7 @@ use verbb\cpnav\helpers\Plugin as CpNavPluginHelper;
 
 use craft\web\Controller;
 
+use yii\web\BadRequestHttpException;
 use yii\web\Response;
 
 class AdminController extends Controller
@@ -23,6 +24,12 @@ class AdminController extends Controller
     public function actionIndex(): Response
     {
         $layoutId = $this->request->getParam('layoutId');
+        if ($layoutId !== null) {
+            $layoutId = filter_var($layoutId, FILTER_VALIDATE_INT);
+            if (!$layoutId || $layoutId < 1) {
+                throw new BadRequestHttpException('Invalid navigation layout.');
+            }
+        }
 
         $layouts = CpNav::$plugin->getLayouts()->getAllLayouts();
         $layout = CpNav::$plugin->getLayouts()->getLayoutById($layoutId, true);

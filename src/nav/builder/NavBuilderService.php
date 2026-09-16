@@ -3,12 +3,12 @@ namespace verbb\cpnav\nav\builder;
 
 use verbb\cpnav\CpNav;
 use verbb\cpnav\helpers\ManualUrl;
-use verbb\cpnav\nav\customization\CustomizationNode;
 use verbb\cpnav\models\Layout;
 use verbb\cpnav\models\LayoutNavItem;
+use verbb\cpnav\nav\customization\CustomizationNode;
+use verbb\cpnav\nav\resolve\ResolvedNavNode;
 use verbb\cpnav\nav\sources\NavNode;
 use verbb\cpnav\nav\sources\NodeKey;
-use verbb\cpnav\nav\resolve\ResolvedNavNode;
 
 use craft\base\Component;
 use craft\helpers\StringHelper;
@@ -34,19 +34,18 @@ class NavBuilderService extends Component
 
     public function getLayoutNavItemByBuilderId(int $layoutId, int $builderId): ?LayoutNavItem
     {
+        $match = null;
         foreach ($this->getLayoutNavItemsForLayout($layoutId) as $navigation) {
             if ($navigation->id === $builderId) {
-                return $navigation;
-            }
-
-            foreach ($navigation->getChildren() as $child) {
-                if ($child->id === $builderId) {
-                    return $child;
+                // Numeric IDs are only a legacy projection; refuse an ambiguous lookup.
+                if ($match !== null) {
+                    return null;
                 }
+                $match = $navigation;
             }
         }
 
-        return null;
+        return $match;
     }
 
     public function getLayoutNavItemByKey(int $layoutId, string $nodeKey): ?LayoutNavItem
@@ -147,7 +146,10 @@ class NavBuilderService extends Component
 
         $validationIndex = [];
         foreach ($nodesByKey as $key => $navigation) {
-            $validationIndex[$key] = ['key' => $key];
+            $validationIndex[$key] = [
+                'key' => $key,
+                'parentKey' => $navigation->getParent()?->nodeKey,
+            ];
         }
 
         if (NavTreeReparent::validateReorderItems($items, $validationIndex) !== []) {
@@ -171,8 +173,8 @@ class NavBuilderService extends Component
             if ($rawParent !== null && $rawParent !== '') {
                 $parent = $nodesByKey[(string)$rawParent] ?? null;
 
-                // Parent must exist and be a root.
-                if (!$parent || !$parent->nodeKey || $parent->parentId) {
+                // Depth was checked against the resulting tree, including parents promoted in this batch.
+                if (!$parent || !$parent->nodeKey) {
                     return false;
                 }
 
@@ -330,7 +332,7 @@ class NavBuilderService extends Component
             ? $navigation->url
             : $existing->url;
 
-        if ($isCustomizationOnly && $url !== null && $url !== '' && !ManualUrl::isAllowed($url)) {
+        if ($navigation->isManual() && !ManualUrl::isAllowed($url)) {
             return false;
         }
 
@@ -369,6 +371,11 @@ class NavBuilderService extends Component
 
         $layout = $navigation->getLayout();
         $type = $navigation->type ?? LayoutNavItem::TYPE_MANUAL;
+
+        // Provider types are discovered, never created through the manual-item API.
+        if (!in_array($type, [LayoutNavItem::TYPE_MANUAL, LayoutNavItem::TYPE_DIVIDER], true)) {
+            return false;
+        }
 
         if ($type === LayoutNavItem::TYPE_MANUAL) {
             $url = (string)($navigation->url ?? '');
@@ -415,6 +422,15 @@ class NavBuilderService extends Component
     {
         $navigation = $this->getLayoutNavItemByBuilderId($layoutId, $builderId);
 
+        return $navigation?->nodeKey
+            ? $this->deleteLayoutNavItemByKey($layoutId, $navigation->nodeKey)
+            : false;
+    }
+
+    public function deleteLayoutNavItemByKey(int $layoutId, string $nodeKey): bool
+    {
+        $navigation = $this->getLayoutNavItemByKey($layoutId, $nodeKey);
+
         if (!$navigation || !$navigation->nodeKey) {
             return false;
         }
@@ -448,15 +464,13 @@ class NavBuilderService extends Component
     /**
      * Flat builder nodes in display order — same shape as NavBuilderApi tree nodes
      * (subset of fields needed for reparent transforms).
-     *
-     * @return array<int, array{builderId: int, key: string, parentKey: string|null, parentId: int|null, level: int}>
      */
     private function _flatBuilderNodes(int $layoutId): array
     {
         $nodes = [];
 
         foreach ($this->getLayoutNavItemsForLayout($layoutId) as $navigation) {
-            if ($navigation->parentId) {
+            if ($navigation->getParent() !== null) {
                 continue;
             }
 
@@ -497,17 +511,13 @@ class NavBuilderService extends Component
             $navigations[] = $navigation;
         }
 
-        foreach ($navigations as $navigation) {
-            if (!$navigation->parentId) {
-                continue;
-            }
-
-            foreach ($byKey as $parent) {
-                if ($parent->id === $navigation->parentId) {
-                    $parent->addChild($navigation);
-                    $navigation->assignParent($parent);
-                    break;
-                }
+        foreach ($resolved as $node) {
+            // Attach by canonical identity, never by the potentially colliding display hash.
+            $parent = $node->parentKey !== null ? ($byKey[$node->parentKey] ?? null) : null;
+            if ($parent) {
+                $navigation = $byKey[$node->key];
+                $parent->addChild($navigation);
+                $navigation->assignParent($parent);
             }
         }
 
@@ -517,8 +527,6 @@ class NavBuilderService extends Component
     /**
      * Highest sibling sort among top-level resolved nodes (registry defaults + overlay).
      * Used so admin-created manuals/dividers append at the end of the builder tree.
-     *
-     * @param array<string, CustomizationNode> $overlay
      */
     private function _maxTopLevelResolvedSort(Layout $layout, array $overlay): int
     {
