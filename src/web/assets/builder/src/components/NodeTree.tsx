@@ -202,6 +202,8 @@ export function NodeTree() {
       element.style.position = 'fixed';
       element.style.top = '-9999px';
       document.body.appendChild(element);
+      // Release the preview after browser capture, including cancelled drags.
+      window.setTimeout(() => element.remove(), 0);
 
       return {
         imgElement: element,

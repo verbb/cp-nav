@@ -18,6 +18,7 @@
 - Frontend Plugin Kit deps back on npm (`@verbb/plugin-kit-*` ^2.0.16); dropped local `file:` checkouts.
 
 ### Fixed
+- Temporary drag previews no longer accumulate while rearranging navigation.
 - Navigation expand and collapse controls now announce their action and item label to screen readers.
 - Plugin items with different routes or case-sensitive submenu handles no longer overwrite each other; existing beta customizations migrate to the distinct keys, and new edits, copied layouts, and Project Config rebuilds preserve their migration state.
 - Moved sidebar items now retain their active state and expand their new parent on the current page.
