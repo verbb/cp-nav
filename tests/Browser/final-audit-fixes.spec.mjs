@@ -63,6 +63,7 @@ for (const mode of ['create', 'edit']) {
       let release;
       const gate = new Promise(resolve => { release = resolve; });
       let received = false;
+      let reject = true;
       const pageErrors = [];
       page.on('pageerror', error => pageErrors.push(error.message));
       try {
@@ -77,6 +78,10 @@ for (const mode of ['create', 'edit']) {
         await hud.locator('label').filter({ hasText: /^\s*Browser editors\s*$/ }).click();
         const action = mode === 'edit' ? 'save' : 'new';
         await page.route(url => decodeURIComponent(url.href).includes(`cp-nav/layout/${action}`), async route => {
+          if (!reject) {
+            await route.continue();
+            return;
+          }
           received = true;
           await gate;
           await route.fulfill({ status: 400, contentType: 'application/json', body: JSON.stringify({ message: 'Audit layout save rejected' }) });
@@ -91,13 +96,13 @@ for (const mode of ['create', 'edit']) {
         }
         await expect(hud).toBeVisible();
         release();
-        await page.unrouteAll({ behavior: 'wait' });
         expect((await rejected).status()).toBe(400);
         await expect(hud.locator('input[name="name"]')).toHaveValue('Recoverable audit draft');
         await expect(hud.getByRole('checkbox', { name: 'Browser editors', exact: true })).toBeChecked();
         await expect(hud.getByRole('button', { name: 'Save', exact: true })).toBeEnabled();
         expect(pageErrors).toEqual([]);
         // Retry the same retained draft successfully, then clean up its saved layout.
+        reject = false;
         const saved = page.waitForResponse(response => decodeURIComponent(response.url()).includes(`cp-nav/layout/${action}`) && response.request().method() === 'POST');
         await hud.getByRole('button', { name: 'Save', exact: true }).click();
         const result = await (await saved).json();
@@ -157,7 +162,6 @@ test('reorder controls wait for deletion and then persist the remaining nodes', 
     const moveButton = rowFor(page, 'Audit C').getByRole('button', { name: 'Actions for Audit C', exact: true });
     await expect(moveButton).toBeDisabled();
     release();
-    await page.unrouteAll({ behavior: 'wait' });
     await expect(rowFor(page, 'Audit A')).toHaveCount(0);
     await expect(moveButton).toBeEnabled();
     await moveButton.click();

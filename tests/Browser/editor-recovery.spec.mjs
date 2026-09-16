@@ -14,7 +14,12 @@ for (const dismissal of ['Escape', 'outside click']) {
     let release;
     const gate = new Promise(resolve => { release = resolve; });
     let received = false;
+    let reject = true;
     await page.route(url => decodeURIComponent(url.href).includes('cp-nav/api/create-node'), async route => {
+      if (!reject) {
+        await route.continue();
+        return;
+      }
       received = true;
       await gate;
       await route.fulfill({ status: 400, contentType: 'application/json', body: JSON.stringify({ message: 'Draft save rejected' }) });
@@ -27,25 +32,28 @@ for (const dismissal of ['Escape', 'outside click']) {
       } else {
         await page.locator('#page-heading').click();
       }
+      release();
+      // Keep interception active while Craft fetches the error icon and recovers.
+      await expect(page.locator('#notifications')).toContainText('Draft save rejected');
+      await expect(label).toBeVisible();
+      await expect(label).toHaveValue('Recoverable draft');
+      await expect(url).toHaveValue('https://example.test/draft');
+      await expect(page.getByRole('button', { name: 'Save', exact: true })).toBeEnabled();
+      reject = false;
+      const created = page.waitForResponse(response => decodeURIComponent(response.url()).includes('cp-nav/api/create-node') && response.request().method() === 'POST');
+      await page.getByRole('button', { name: 'Save', exact: true }).click();
+      const response = await created;
+      expect(response.status()).toBe(200);
+      const data = await response.json();
+      try {
+        await expect(page.locator('[data-tree-row]').filter({ has: page.getByRole('link', { name: 'Recoverable draft', exact: true }) })).toBeVisible();
+        await expect(label).toHaveCount(0);
+      } finally {
+        await page.evaluate(({ layoutId, key }) => Craft.sendActionRequest('POST', 'cp-nav/api/delete-node', { data: { layoutId, key } }), { layoutId: data.tree.layout.id, key: data.node.key });
+      }
     } finally {
       release();
       await page.unrouteAll({ behavior: 'wait' });
-    }
-    await expect(page.locator('#notifications')).toContainText('Draft save rejected');
-    await expect(label).toBeVisible();
-    await expect(label).toHaveValue('Recoverable draft');
-    await expect(url).toHaveValue('https://example.test/draft');
-    await expect(page.getByRole('button', { name: 'Save', exact: true })).toBeEnabled();
-    const created = page.waitForResponse(response => decodeURIComponent(response.url()).includes('cp-nav/api/create-node') && response.request().method() === 'POST');
-    await page.getByRole('button', { name: 'Save', exact: true }).click();
-    const response = await created;
-    expect(response.status()).toBe(200);
-    const data = await response.json();
-    try {
-      await expect(page.locator('[data-tree-row]').filter({ has: page.getByRole('link', { name: 'Recoverable draft', exact: true }) })).toBeVisible();
-      await expect(label).toHaveCount(0);
-    } finally {
-      await page.evaluate(({ layoutId, key }) => Craft.sendActionRequest('POST', 'cp-nav/api/delete-node', { data: { layoutId, key } }), { layoutId: data.tree.layout.id, key: data.node.key });
     }
   });
 }

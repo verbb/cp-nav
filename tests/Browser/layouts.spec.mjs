@@ -32,8 +32,13 @@ test('submits a layout only once while saving and allows retry after failure', a
   let release;
   const gate = new Promise(resolve => { release = resolve; });
   let requests = 0;
+  let reject = true;
   const matcher = url => decodeURIComponent(url.href).includes('cp-nav/layout/new');
   await page.route(matcher, async route => {
+    if (!reject) {
+      await route.continue();
+      return;
+    }
     requests++;
     await gate;
     await route.fulfill({ status: 400, contentType: 'application/json', body: JSON.stringify({ message: 'Layout save rejected' }) });
@@ -44,22 +49,24 @@ test('submits a layout only once while saving and allows retry after failure', a
     await expect.poll(() => requests).toBeGreaterThan(0);
     expect(requests).toBe(1);
     await expect(hud.locator('button[type="submit"]')).toBeDisabled();
+    release();
+    await expect(save).toBeEnabled();
+    await expect(page.locator('#notifications')).toContainText('Layout save rejected');
+    reject = false;
+    const created = waitAction(page, 'layout/new');
+    await save.click();
+    const response = await created;
+    expect(response.status()).toBe(200);
+    const id = (await response.json()).layout.id;
+    try {
+      await page.reload();
+      await expect(page.locator('tr.layout-item').filter({ hasText: 'Browser retry layout' })).toHaveCount(1);
+    } finally {
+      await page.evaluate(id => Craft.sendActionRequest('POST', 'cp-nav/layout/delete', { data: { id } }), id);
+    }
   } finally {
     release();
     await page.unrouteAll({ behavior: 'wait' });
-  }
-  await expect(save).toBeEnabled();
-  await expect(page.locator('#notifications')).toContainText('Layout save rejected');
-  const created = waitAction(page, 'layout/new');
-  await save.click();
-  const response = await created;
-  expect(response.status()).toBe(200);
-  const id = (await response.json()).layout.id;
-  try {
-    await page.reload();
-    await expect(page.locator('tr.layout-item').filter({ hasText: 'Browser retry layout' })).toHaveCount(1);
-  } finally {
-    await page.evaluate(id => Craft.sendActionRequest('POST', 'cp-nav/layout/delete', { data: { id } }), id);
   }
 });
 
