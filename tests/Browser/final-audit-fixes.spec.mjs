@@ -278,7 +278,8 @@ test('reload warns while writes are queued and a rejected save cancels tab navig
     const rejected = page.waitForResponse(response => requestIs(response, 'api/update-node'));
     release();
     expect((await rejected).status()).toBe(400);
-    await page.unrouteAll({ behavior: 'wait' });
+    // Keep routing stable while Craft fetches the error icon and renders the notices.
+    // Teardown here can strand that in-flight request; the finally block owns cleanup.
     await expect(page.locator('#notifications')).toContainText('Couldn’t leave this page');
     expect(cpPath(new URL(page.url()))).toBe('admin/cp-nav');
     await expect(toggle).toBeChecked();
