@@ -191,6 +191,7 @@ class StaticIcons extends Component
         try {
             return FileHelper::findFiles($dir, [
                 'only' => self::EXTENSIONS,
+                'caseSensitive' => false,
                 'recursive' => false,
             ]);
         } catch (\Throwable) {
