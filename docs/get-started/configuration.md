@@ -28,7 +28,7 @@ The filesystem folder containing your custom SVG icons. The default is `@webroot
 
 ## Control Panel
 
-Open **Settings → Plugins → Control Panel Nav** as an administrator. On **General Settings**, enter your folder in **Icons Path** and save. A value defined in `config/cp-nav.php` takes precedence over the control-panel setting.
+Open **Settings → Plugins → Control Panel Nav** as an administrator, then select the **Settings** tab. Under **General Settings**, enter your folder in **Icons Path** and save. A value defined in `config/cp-nav.php` takes precedence over the control-panel setting.
 
 ## Setting Up Custom Icons
 
