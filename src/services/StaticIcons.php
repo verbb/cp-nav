@@ -62,6 +62,8 @@ class StaticIcons extends Component
             }
         }
 
+        // Only offer values that can be saved and resolved for preview.
+        $items = array_filter($items, fn(array $item): bool => $this->resolveAbsolutePath($item['value']) !== null);
         usort($items, static fn(array $a, array $b): int => strcmp($a['value'], $b['value']));
 
         return $this->_catalog = $items;
