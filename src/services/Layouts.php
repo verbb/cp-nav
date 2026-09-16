@@ -102,8 +102,6 @@ class Layouts extends Component
     /**
      * First layout by ascending sortOrder that lists any of the given permission IDs
      * (user group UIDs, or `solo`). Layout table order = priority.
-     *
-     * @param string[] $permissionIds
      */
     public function getLayoutMatchingPermissions(array $permissionIds): ?Layout
     {
@@ -129,6 +127,11 @@ class Layouts extends Component
     public function saveLayout(Layout $layout, bool $runValidation = true): bool
     {
         $isNewLayout = !$layout->id;
+
+        // The default is an install invariant, not editable layout metadata.
+        if (!$isNewLayout && LayoutRecord::find()->where(['id' => $layout->id, 'isDefault' => true])->exists()) {
+            $layout->isDefault = true;
+        }
 
         if ($this->hasEventHandlers(self::EVENT_BEFORE_SAVE_LAYOUT)) {
             $this->trigger(self::EVENT_BEFORE_SAVE_LAYOUT, new LayoutEvent([
@@ -256,6 +259,11 @@ class Layouts extends Component
 
     public function deleteLayout(Layout $layout): bool
     {
+        // Consult stored state too: callers can supply a stale or modified model.
+        if ($layout->isDefault || LayoutRecord::find()->where(['id' => $layout->id, 'isDefault' => true])->exists()) {
+            return false;
+        }
+
         if ($this->hasEventHandlers(self::EVENT_BEFORE_DELETE_LAYOUT)) {
             $this->trigger(self::EVENT_BEFORE_DELETE_LAYOUT, new LayoutEvent([
                 'layout' => $layout,
@@ -314,6 +322,9 @@ class Layouts extends Component
         Db::delete('{{%cpnav_layout}}', [
             'uid' => $layoutUid,
         ]);
+
+        // Subsequent lookups and deletion listeners must not see the removed layout.
+        $this->_layouts = null;
 
         if ($this->hasEventHandlers(self::EVENT_AFTER_DELETE_LAYOUT)) {
             $this->trigger(self::EVENT_AFTER_DELETE_LAYOUT, new LayoutEvent([

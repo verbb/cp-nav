@@ -28,11 +28,62 @@ if ($('#layoutItems').length) {
 
 
 
+
+// Guard every HUD dismissal path, including Garnish's Escape and shade handlers.
+Craft.CpNav.LayoutHUD = Garnish.HUD.extend({
+    hide: function() {
+        if (!this.settings.isSaving()) {
+            this.base();
+        }
+    },
+});
+
+// Keep the same compact move control accessible without a pointer.
+$(document).on('keydown', '#layoutItems .move', function(event) {
+    if (!['ArrowUp', 'ArrowDown'].includes(event.key)) {
+        return;
+    }
+    event.preventDefault();
+    const $row = $(this).closest('tr');
+    const $sibling = event.key === 'ArrowUp' ? $row.prev('tr') : $row.next('tr');
+    if (!$sibling.length || LayoutAdminTable.keyboardReordering) {
+        return;
+    }
+    const previousRows = LayoutAdminTable.$tbody.children('tr').toArray();
+    LayoutAdminTable.keyboardReordering = true;
+    LayoutAdminTable.sorter?.disable();
+    if (event.key === 'ArrowUp') {
+        $row.insertBefore($sibling);
+    } else {
+        $row.insertAfter($sibling);
+    }
+    this.focus();
+    const ids = LayoutAdminTable.getRowOrder();
+    Craft.sendActionRequest('POST', 'cp-nav/layout/reorder', {data: {ids: JSON.stringify(ids)}})
+        .then(() => {
+            LayoutAdminTable.onReorderItems(ids);
+            Craft.cp.displaySuccess(Craft.t('app', LayoutAdminTable.settings.reorderSuccessMessage));
+        })
+        .catch(() => {
+            previousRows.filter((row) => row.isConnected).forEach((row) => LayoutAdminTable.$tbody.append(row));
+            this.focus();
+            Craft.cp.displayError(Craft.t('app', LayoutAdminTable.settings.reorderFailMessage));
+        })
+        .finally(() => {
+            LayoutAdminTable.keyboardReordering = false;
+            LayoutAdminTable.sorter?.enable();
+        });
+});
+
 // ----------------------------------------
 // WHEN CLICKING ON A LAYOUT ITEM, ALLOW HUD TO EDIT
 // ----------------------------------------
 
-$(document).on('click', 'tr.layout-item a.edit-layout', function(e) {
+$(document).on('click', 'tr.layout-item button.edit-layout', function(e) {
+    e.preventDefault();
+    if ($(this).hasClass('loading')) {
+        return;
+    }
     new Craft.CpNav.EditLayoutItem($(this), $(this).parents('tr.layout-item'));
 });
 
@@ -40,8 +91,14 @@ $(document).on('click', 'tr.layout-item a.edit-layout', function(e) {
 // DUPLICATE LAYOUT
 // ----------------------------------------
 
-$(document).on('click', 'tr.layout-item a.duplicate', function(e) {
+$(document).on('click', 'tr.layout-item .duplicate', function(e) {
     e.preventDefault();
+
+    const $button = $(this);
+    if ($button.prop('disabled')) {
+        return;
+    }
+    $button.prop('disabled', true).addClass('loading');
 
     var $row = $(this).closest('tr.layout-item');
     var id = $row.data('id');
@@ -60,19 +117,20 @@ $(document).on('click', 'tr.layout-item a.duplicate', function(e) {
             var moveCell = '';
 
             if ($('#layoutItems .move').length) {
-                moveCell = '<td class="thin">' +
-                    '<a class="move icon" title="' + Craft.t('app', 'Reorder') + '" role="button"></a>' +
+                moveCell = '<td class="thin layout-sort-cell">' +
+                    '<button type="button" class="move icon layout-control" aria-label="' + Craft.t('app', 'Reorder') + '" title="' + Craft.t('cp-nav', 'Reorder (Up/Down arrow keys)') + '"></button>' +
                     '</td>';
             }
 
             LayoutAdminTable.addRow('<tr class="layout-item" data-id="' + layout.id + '" data-name="' + Craft.escapeHtml(layout.name) + '">' +
                 '<td>' +
-                    '<a class="edit-layout"><strong>' + Craft.escapeHtml(layout.name) + '</strong></a>' +
+                    '<button type="button" class="edit-layout"><strong>' + Craft.escapeHtml(layout.name) + '</strong></button>' +
                 '</td>' +
                 moveCell +
-                '<td class="thin">' +
-                    '<a class="duplicate icon" title="' + Craft.t('app', 'Duplicate') + '" role="button"></a>' +
-                    '<a class="delete icon" title="' + Craft.t('app', 'Delete') + '" role="button"></a>' +
+                '<td class="thin layout-actions-cell"><div class="layout-actions">' +
+                    '<button type="button" class="duplicate icon layout-control" data-icon="files" title="' + Craft.escapeHtml(Craft.t('app', 'Duplicate')) + '" aria-label="' + Craft.escapeHtml(Craft.t('app', 'Duplicate')) + '"></button>' +
+                    '<button type="button" class="delete icon layout-control" title="' + Craft.t('app', 'Delete') + '" aria-label="' + Craft.t('app', 'Delete') + '"></button>' +
+                '</div>' +
                 '</td>' +
             '</tr>');
         })
@@ -82,6 +140,9 @@ $(document).on('click', 'tr.layout-item a.duplicate', function(e) {
             } else {
                 Craft.cp.displayError();
             }
+        })
+        .finally(() => {
+            $button.prop('disabled', false).removeClass('loading');
         });
 });
 
@@ -97,6 +158,7 @@ Craft.CpNav.EditLayoutItem = Garnish.Base.extend({
     $form: null,
 
     hud: null,
+    saving: false,
 
     init: function($element, $data) {
         this.$element = $element;
@@ -113,6 +175,13 @@ Craft.CpNav.EditLayoutItem = Garnish.Base.extend({
         Craft.sendActionRequest('POST', 'cp-nav/layout/get-hud-html', { data: this.data })
             .then((response) => {
                 this.showHud(response);
+            })
+            .catch((error) => {
+                Craft.cp.displayError(error.response?.data?.message);
+            })
+            .finally(() => {
+                this.$element.removeClass('loading');
+                this.$spinner.remove();
             });
     },
 
@@ -145,12 +214,16 @@ Craft.CpNav.EditLayoutItem = Garnish.Base.extend({
 
         $hudContents = $hudContents.add(this.$form);
 
-        this.hud = new Garnish.HUD(this.$element, $hudContents, {
+        this.hud = new Craft.CpNav.LayoutHUD(this.$element, $hudContents, {
             bodyClass: 'body',
-            closeOtherHUDs: false
+            closeOtherHUDs: false,
+            isSaving: () => this.saving
         });
 
-        this.hud.on('hide', $.proxy(this, 'closeHud'));
+        this.hud.on('hide', () => {
+            this.hud.destroy();
+            this.destroy();
+        });
 
         Garnish.$bod.append(response.data.footerJs);
 
@@ -163,14 +236,23 @@ Craft.CpNav.EditLayoutItem = Garnish.Base.extend({
     save: function(ev) {
         ev.preventDefault();
 
-        this.$saveBtn.addClass('loading');
+        // A second click must not submit a competing save while the first is pending.
+        if (this.saving) {
+            return;
+        }
+        this.saving = true;
+        this.$saveBtn.prop('disabled', true).addClass('loading');
+        this.$cancelBtn.prop('disabled', true);
 
         var data = this.hud.$body.serialize();
 
         Craft.sendActionRequest('POST', 'cp-nav/layout/save', { data })
             .then((response) => {
-                this.$element.html('<strong>' + response.data.layout.name + '</strong>');
+                var name = response.data.layout.name;
+                this.$element.empty().append($('<strong/>').text(name));
+                this.$element.closest('tr.layout-item').attr('data-name', name).data('name', name);
 
+                this.saving = false;
                 this.closeHud();
                 Craft.cp.displayNotice(response.data.message);
             })
@@ -184,13 +266,14 @@ Craft.CpNav.EditLayoutItem = Garnish.Base.extend({
                 }
             })
             .finally(() => {
-                this.$saveBtn.removeClass('loading');
+                this.saving = false;
+                this.$saveBtn.prop('disabled', false).removeClass('loading');
+                this.$cancelBtn.prop('disabled', false);
             });
     },
 
     closeHud: function() {
-        this.hud.$shade.remove();
-        this.hud.$hud.remove();
+        this.hud.hide();
     }
 });
 
@@ -204,6 +287,9 @@ Craft.CpNav.EditLayoutItem = Garnish.Base.extend({
 
 $(document).on('click', '.add-new-layout', function(e) {
     e.preventDefault();
+    if ($(this).hasClass('loading')) {
+        return;
+    }
     new Craft.CpNav.CreateLayoutItem($(this));
 });
 
@@ -219,6 +305,7 @@ Craft.CpNav.CreateLayoutItem = Garnish.Base.extend({
     $form: null,
 
     hud: null,
+    saving: false,
 
     init: function($element) {
         this.$element = $element;
@@ -228,6 +315,12 @@ Craft.CpNav.CreateLayoutItem = Garnish.Base.extend({
         Craft.sendActionRequest('POST', 'cp-nav/layout/get-hud-html', { })
             .then((response) => {
                 this.showHud(response);
+            })
+            .catch((error) => {
+                Craft.cp.displayError(error.response?.data?.message);
+            })
+            .finally(() => {
+                this.$element.removeClass('loading');
             });
     },
 
@@ -258,12 +351,16 @@ Craft.CpNav.CreateLayoutItem = Garnish.Base.extend({
 
         $hudContents = $hudContents.add(this.$form);
 
-        this.hud = new Garnish.HUD(this.$element, $hudContents, {
+        this.hud = new Craft.CpNav.LayoutHUD(this.$element, $hudContents, {
             bodyClass: 'body',
-            closeOtherHUDs: false
+            closeOtherHUDs: false,
+            isSaving: () => this.saving
         });
 
-        this.hud.on('hide', $.proxy(this, 'closeHud'));
+        this.hud.on('hide', () => {
+            this.hud.destroy();
+            this.destroy();
+        });
 
         Garnish.$bod.append(response.data.footerJs);
 
@@ -276,7 +373,13 @@ Craft.CpNav.CreateLayoutItem = Garnish.Base.extend({
     save: function(ev) {
         ev.preventDefault();
 
-        this.$saveBtn.addClass('loading');
+        // Creation has no saved ID to deduplicate repeated requests on the server.
+        if (this.saving) {
+            return;
+        }
+        this.saving = true;
+        this.$saveBtn.prop('disabled', true).addClass('loading');
+        this.$cancelBtn.prop('disabled', true);
 
         var data = this.hud.$body.serialize();
 
@@ -288,17 +391,19 @@ Craft.CpNav.CreateLayoutItem = Garnish.Base.extend({
 
                 LayoutAdminTable.addRow('<tr class="layout-item" data-id="' + newLayout.id + '" data-name="' + Craft.escapeHtml(newLayout.name) + '">' +
                     '<td>' +
-                        '<a class="edit-layout"><strong>' + Craft.escapeHtml(newLayout.name) + '</strong></a>' +
+                        '<button type="button" class="edit-layout"><strong>' + Craft.escapeHtml(newLayout.name) + '</strong></button>' +
                     '</td>' +
-                    '<td class="thin">' +
-                        '<a class="move icon" title="' + Craft.t('app', 'Reorder') + '" role="button"></a>' +
+                    '<td class="thin layout-sort-cell">' +
+                        '<button type="button" class="move icon layout-control" aria-label="' + Craft.t('app', 'Reorder') + '" title="' + Craft.t('cp-nav', 'Reorder (Up/Down arrow keys)') + '"></button>' +
                     '</td>' +
-                    '<td class="thin">' +
-                        '<a class="duplicate icon" title="' + Craft.t('app', 'Duplicate') + '" role="button"></a>' +
-                        '<a class="delete icon" title="' + Craft.t('app', 'Delete') + '" role="button"></a>' +
+                    '<td class="thin layout-actions-cell"><div class="layout-actions">' +
+                        '<button type="button" class="duplicate icon layout-control" data-icon="files" title="' + Craft.escapeHtml(Craft.t('app', 'Duplicate')) + '" aria-label="' + Craft.escapeHtml(Craft.t('app', 'Duplicate')) + '"></button>' +
+                        '<button type="button" class="delete icon layout-control" title="' + Craft.t('app', 'Delete') + '" aria-label="' + Craft.t('app', 'Delete') + '"></button>' +
+                    '</div>' +
                     '</td>' +
                 '</tr>');
 
+                this.saving = false;
                 this.closeHud();
             })
             .catch(({response}) => {
@@ -311,13 +416,14 @@ Craft.CpNav.CreateLayoutItem = Garnish.Base.extend({
                 }
             })
             .finally(() => {
-                this.$saveBtn.removeClass('loading');
+                this.saving = false;
+                this.$saveBtn.prop('disabled', false).removeClass('loading');
+                this.$cancelBtn.prop('disabled', false);
             });
     },
 
     closeHud: function() {
-        this.hud.$shade.remove();
-        this.hud.$hud.remove();
+        this.hud.hide();
     }
 });
 

@@ -43,4 +43,16 @@ class Layout extends Model
             'sortOrder' => $this->sortOrder,
         ];
     }
+
+
+    // Protected Methods
+    // =========================================================================
+
+    protected function defineRules(): array
+    {
+        return [
+            [['name'], 'required'],
+            [['name'], 'string', 'max' => 255],
+        ];
+    }
 }

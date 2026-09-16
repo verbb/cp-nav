@@ -20,7 +20,14 @@
 - Plugin items with different routes or case-sensitive submenu handles no longer overwrite each other; existing beta customizations migrate to the distinct keys.
 - Moved sidebar items now retain their active state and expand their new parent on the current page.
 - Provider link attributes and accessible labels are preserved using the current user’s metadata.
+- Layout drafts survive Escape and outside clicks during a pending save and remain available to retry after errors.
+- Layout creation, editing, duplication, deletion, and reordering now support keyboard controls.
+- Layout actions now use consistently sized and spaced icons with hover colours, and duplication uses the latest saved layout name.
+- Layout forms now recover from loading failures and prevent repeated submissions while saving or duplicating a layout.
+- Default layouts can no longer be deleted or lose their default status when their metadata is edited.
+- Invalid navigation and layout payloads, duplicate reorder keys, unsupported item types and unknown layout IDs now return a validation error.
 - SVG preview responses now prevent active document content from executing.
+- Layout editing always renders the plugin's layout form.
 - Manual URL and boolean validation now behaves consistently when creating and editing items.
 - Reduced resolver processing for layouts without saved customizations and layouts with sparse overrides.
 - Navigation source caches no longer reuse stale items after cache eviction or simultaneous refreshes.
@@ -28,6 +35,7 @@
 - External provider links now retain protocol-relative URLs and trailing slashes.
 - Navigation now retains provider items available only to the current user, in their native order.
 - Provider submenu handles, font and child icons, and HTML IDs are now preserved.
+- Deleted layouts are removed from cached lookups immediately.
 - Children of items with a zero-valued numeric display ID now appear only once in the builder.
 - Menu deletion and parent attachment now use canonical keys, preventing numeric ID collisions from affecting another item.
 - Preserve item identity, placement, and visibility when upgrading customized v5 navigation trees.

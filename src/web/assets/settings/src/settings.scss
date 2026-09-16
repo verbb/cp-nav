@@ -164,11 +164,91 @@ body.rtl {
         gap: 5px;
     }
 
+    button.edit-layout {
+        padding: 0;
+        border: 0;
+        background: transparent;
+        color: inherit;
+        font: inherit;
+        cursor: pointer;
+
+        &:focus-visible {
+            outline: 2px solid var(--link-color);
+            outline-offset: 2px;
+        }
+    }
+
     .edit-layout .spinner {
         color: #999;
     }
+
+    .layout-sort-cell {
+        padding-inline-end: 4px;
+    }
+
+    .layout-actions-cell {
+        padding-inline-start: 0;
+    }
+
+    .layout-actions {
+        display: grid;
+        // Reserve the delete slot so the default layout aligns with the other rows.
+        grid-template-columns: repeat(2, 24px);
+        gap: 4px;
+        align-items: center;
+    }
+
+    .layout-control {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+        width: 24px;
+        height: 24px;
+        margin: 0;
+        padding: 0;
+        border: 0;
+        border-radius: 4px;
+        background: transparent;
+        color: var(--ui-control-color);
+        font-size: 14px;
+        line-height: 1;
+        vertical-align: middle;
+        text-decoration: none;
+        cursor: pointer;
+
+        &::before {
+            color: inherit;
+            font-size: inherit;
+            line-height: 1;
+        }
+
+        &:is(:hover, :focus-visible):not(:disabled, .disabled) {
+            color: var(--text-color);
+        }
+
+        &.duplicate:is(:hover, :focus-visible):not(:disabled, .disabled) {
+            color: var(--link-color);
+        }
+
+        &.delete:is(:hover, :focus-visible):not(.disabled) {
+            color: var(--fg-error);
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--link-color);
+            outline-offset: 2px;
+        }
+
+        &.move:not(.disabled) {
+            cursor: grab;
+        }
+
+        &:disabled,
+        &.disabled {
+            opacity: 0.4;
+            cursor: default;
+        }
+    }
 }
-
-
-
 

@@ -22,10 +22,10 @@
 
 {% block actionButton %}
     <div class="buttons right">
-        <a class="btn submit add icon add-new-layout">
+        <button type="button" class="btn submit add icon add-new-layout">
             <div class="label">{{ 'New layout' | t('cp-nav') }}</div>
             <div class="spinner spinner-absolute"></div>
-        </a>
+        </button>
     </div>
 {% endblock %}
 
@@ -47,23 +47,25 @@
                 <tr class="layout-item" data-id="{{ layout.id }}" data-name="{{ layout.name }}">
                     <td>
                         {% if not layout.isDefault %}
-                            <a class="edit-layout"><strong>{{ layout.name }}</strong></a>
+                            <button type="button" class="edit-layout"><strong>{{ layout.name }}</strong></button>
                         {% else %}
                             <span class="edit-layout"><strong>{{ layout.name }}</strong></span>
                         {% endif %}
                     </td>
 
                     {% if canSort %}
-                        <td class="thin">
-                            <a class="move icon" title="{{ 'Reorder' | t('app') }}" role="button"></a>
+                        <td class="thin layout-sort-cell">
+                            <button type="button" class="move icon layout-control" aria-label="{{ 'Reorder' | t('app') }}" title="{{ 'Reorder (Up/Down arrow keys)' | t('cp-nav') }}"></button>
                         </td>
                     {% endif %}
 
-                    <td class="thin">
-                        <a class="duplicate icon" title="{{ 'Duplicate' | t('app') }}" role="button"></a>
-                        {% if not layout.isDefault %}
-                            <a class="delete icon" title="{{ 'Delete' | t('app') }}" role="button"></a>
-                        {% endif %}
+                    <td class="thin layout-actions-cell">
+                        <div class="layout-actions">
+                            <button type="button" class="duplicate icon layout-control" data-icon="files" title="{{ 'Duplicate' | t('app') }}" aria-label="{{ 'Duplicate' | t('app') }}"></button>
+                            {% if not layout.isDefault %}
+                                <button type="button" class="delete icon layout-control" title="{{ 'Delete' | t('app') }}" aria-label="{{ 'Delete' | t('app') }}"></button>
+                            {% endif %}
+                        </div>
                     </td>
                 </tr>
             {% endfor %}
