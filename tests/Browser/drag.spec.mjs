@@ -42,12 +42,16 @@ test('drags a child into a parent and reorders the collapsed subtree without los
   await expect.poll(() => structure(page)).toEqual(expectedNested);
   await page.reload();
   await expect.poll(() => structure(page)).toEqual(expectedNested);
-  await parent.locator('button[aria-expanded]').click();
+  await expect(parent.locator('button[aria-expanded]')).toHaveAccessibleName('Collapse Drag parent');
+  await parent.getByRole('button', { name: 'Collapse Drag parent', exact: true }).focus();
+  await page.keyboard.press('Enter');
   await expect(child).toHaveCount(0);
+  await expect(parent.locator('button[aria-expanded]')).toHaveAccessibleName('Expand Drag parent');
   const reordered = waitAction(page, 'api/reorder-nodes');
   await drag(page, parent, page.locator('[data-key="craft:dashboard"]'), 'top');
   expect((await reordered).status()).toBe(200);
-  await parent.locator('button[aria-expanded]').click();
+  await parent.getByRole('button', { name: 'Expand Drag parent', exact: true }).focus();
+  await page.keyboard.press('Space');
   const expectedMoved = [[parentKey, '1'], [childKey, '2'], ...before.filter(([key]) => key !== parentKey && key !== childKey)];
   await expect.poll(() => structure(page)).toEqual(expectedMoved);
   await page.reload();

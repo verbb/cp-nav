@@ -50,6 +50,8 @@ return [
   'Select an Icon' => 'Select an Icon',
   'Select which user groups should have this layout assigned to them.' => 'Select which user groups should have this layout assigned to them.',
   'Show' => 'Show',
+  'Expand {title}' => 'Expand {title}',
+  'Collapse {title}' => 'Collapse {title}',
   'Solo Account' => 'Solo Account',
   'Select an SVG…' => 'Select an SVG…',
   'No SVG files found in the icons folder.' => 'No SVG files found in the icons folder.',

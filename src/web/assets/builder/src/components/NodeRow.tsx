@@ -111,6 +111,7 @@ export function NodeRow({
               type="button"
               data-no-row-select
               className="absolute top-1/2 left-1/2 flex size-6 -translate-x-1/2 -translate-y-1/2 cursor-pointer items-center justify-center rounded bg-transparent text-gray-400 hover:bg-transparent hover:text-gray-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-600/40"
+              aria-label={t(isCollapsed ? 'Expand {title}' : 'Collapse {title}', { title })}
               aria-expanded={!isCollapsed}
               onClick={(event) => {
                 event.stopPropagation();
