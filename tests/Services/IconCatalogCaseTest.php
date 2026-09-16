@@ -18,10 +18,11 @@ it('offers supported SVG extension casing and preserves the selected icon', func
     expect($node['customIcon'])->toBe($filename);
     expect($node['customIconPreview']['url'])->not->toBeNull();
 
+    Craft::$app->set('response', new \craft\web\Response());
     Craft::$app->getRequest()->setQueryParams(['file' => $filename]);
     $controller = new \verbb\cpnav\controllers\StaticIconsController('static-icons', CpNav::$plugin);
     $response = $controller->runAction('view');
     rewind($response->stream[0]);
     expect(stream_get_contents($response->stream[0]))->toBe($svg);
     fclose($response->stream[0]);
-})->with(['logo.SVG', 'brand/mark.SvG']);
+})->with(['logo.SVG', 'brand/alternate.SvG']);
