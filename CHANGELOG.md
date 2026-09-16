@@ -18,6 +18,7 @@
 - Frontend Plugin Kit deps back on npm (`@verbb/plugin-kit-*` ^2.0.16); dropped local `file:` checkouts.
 
 ### Fixed
+- Display-only navigation event changes no longer overwrite saved customizations during unrelated builder edits.
 - Moving Users under another item now preserves its active sidebar state on My Account pages.
 - Rejected layout moves now preserve the displayed priority of layouts added while saving.
 - Failed custom icon loads now show an error with a retry action instead of reporting an empty icons folder.

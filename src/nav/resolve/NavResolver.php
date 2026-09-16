@@ -21,8 +21,8 @@ class NavResolver extends Component
     // Public Methods
     // =========================================================================
 
-    /** Resolve a registry tree and its customization overlay into ordered nav nodes. */
-    public function resolve(array $registryTree, array $overlayByKey = [], ?string $layoutUid = null): array
+    /** Resolve ordered nodes; configuration editors can omit transient display events. */
+    public function resolve(array $registryTree, array $overlayByKey = [], ?string $layoutUid = null, bool $applyEvents = true): array
     {
         $registryIndex = $this->_indexRegistry($registryTree);
         // Missing registry keys get a resolve-time sort between Craft’s default neighbours,
@@ -69,7 +69,7 @@ class NavResolver extends Component
         $resolved = $this->_forceDividersTopLevel($resolved);
         $resolved = $this->_sortTree($resolved);
 
-        if ($this->hasEventHandlers(self::EVENT_MODIFY_RESOLVED_NAV)) {
+        if ($applyEvents && $this->hasEventHandlers(self::EVENT_MODIFY_RESOLVED_NAV)) {
             $event = new ModifyResolvedNavEvent([
                 'resolvedNodes' => $resolved,
                 'layoutUid' => $layoutUid,

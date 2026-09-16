@@ -40,6 +40,8 @@ Event::on(NavResolver::class, NavResolver::EVENT_MODIFY_RESOLVED_NAV, function(M
 
 The node's properties are readonly, so the handler creates a replacement node and assigns it back to the event's array. It preserves the destination, position, visibility, and icon. This changes the resolved menu without saving a new label to Project Config, and takes precedence over a label entered in the builder.
 
+The Navigation builder shows saved configuration before this event is applied. Editing a menu item does not save the event's display changes to its configuration.
+
 Reload the control panel with an account that can see Dashboard. Its link should read Workspace and still open Dashboard. Remove the handler and reload to return to the configured label. A hidden or unavailable Dashboard remains hidden; this event does not grant access.
 
 Use [Node Keys](/developers/node-keys) to identify other items. To limit an adjustment to one layout, compare `$event->layoutUid` with that layout's UID before changing the array. Avoid writing customisations from this handler: it runs while navigation is being resolved, including during ordinary page views.

@@ -500,7 +500,8 @@ class NavBuilderService extends Component
     {
         $registryTree = CpNav::$plugin->getNavSources()->getTree();
         $overlay = CpNav::$plugin->getNavCustomization()->getCustomizationForLayout($layout->uid);
-        $resolved = CpNav::$plugin->getNavResolver()->resolve($registryTree, $overlay, $layout->uid);
+        // Edit saved configuration, so unrelated saves cannot persist display-event overrides.
+        $resolved = CpNav::$plugin->getNavResolver()->resolve($registryTree, $overlay, $layout->uid, applyEvents: false);
         $registryIndex = $this->_indexRegistry($registryTree);
         $navigations = [];
         $byKey = [];
@@ -531,7 +532,7 @@ class NavBuilderService extends Component
     private function _maxTopLevelResolvedSort(Layout $layout, array $overlay): int
     {
         $registryTree = CpNav::$plugin->getNavSources()->getTree();
-        $resolved = CpNav::$plugin->getNavResolver()->resolve($registryTree, $overlay, $layout->uid);
+        $resolved = CpNav::$plugin->getNavResolver()->resolve($registryTree, $overlay, $layout->uid, applyEvents: false);
         $maxSort = 0;
 
         foreach ($resolved as $node) {
