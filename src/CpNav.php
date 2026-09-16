@@ -5,8 +5,8 @@ use verbb\cpnav\base\PluginTrait;
 use verbb\cpnav\helpers\Plugin as CpNavPluginHelper;
 use verbb\cpnav\helpers\ProjectConfigData;
 use verbb\cpnav\models\Settings;
-use verbb\cpnav\services\Layouts;
 use verbb\cpnav\nav\sources\NavSourcesInvalidator;
+use verbb\cpnav\services\Layouts;
 
 use Craft;
 use craft\base\Plugin;
@@ -59,7 +59,7 @@ class CpNav extends Plugin
 
     public function getSettingsResponse(): mixed
     {
-        return Craft::$app->getResponse()->redirect(UrlHelper::cpUrl('cp-nav/settings'));
+        return Craft::$app->getResponse()->redirect(UrlHelper::cpUrl('cp-nav'));
     }
 
 

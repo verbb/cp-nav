@@ -7,7 +7,7 @@
 - Manual URL scheme allowlist: relative paths plus `http`/`https`/`mailto`/`tel`.
 
 ### Changed
-- Normalize CP General Settings to the shared `verbb-base` settings layout (`pageTabs` / `pageTitle` / `pageAction` helpers; Settings → Plugins → Control Panel Nav crumbs).
+- General Settings now shares Control Panel Nav's page title, horizontal tabs, and breadcrumbs without a separate sidebar.
 - Raised the Craft CMS requirement to **5.9+** (matches nav sources/`ElementSources::getPages()`).
 - `cp-nav/migrate-customizations` skips nonempty v6 layouts by default; use `--force` to replace. Layouts with no legacy rows are never cleared.
 - Nav sources cache uses a generation key for shared eviction and includes CP language in the fingerprint.
@@ -22,6 +22,8 @@
 - Provider link attributes and accessible labels are preserved using the current user’s metadata.
 - Layout drafts survive Escape and outside clicks during a pending save and remain available to retry after errors.
 - Layout creation, editing, duplication, deletion, and reordering now support keyboard controls.
+- Opening Control Panel Nav from Craft's Settings now shows the navigation builder, and the General Settings breadcrumb returns to it.
+- Restored the Settings tab across the navigation builder, Layouts, and General Settings pages.
 - Layout actions now use consistently sized and spaced icons with hover colours, and duplication uses the latest saved layout name.
 - Layout forms now recover from loading failures and prevent repeated submissions while saving or duplicating a layout.
 - Default layouts can no longer be deleted or lose their default status when their metadata is edited.

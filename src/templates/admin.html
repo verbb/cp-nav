@@ -1,21 +1,10 @@
 {% set bodyClass = 'body-cpnav-builder' %}
 
-{# Extend Craft CP directly so title/actions sit in #header-container, not content-pane. #}
-{% extends '_layouts/cp' %}
+{# Keep the builder's title/actions in the Craft header, with shared page tabs. #}
+{% extends 'cp-nav/_layouts/cp' %}
 
 {% set title = 'Control Panel Nav' | t('cp-nav') %}
 {% set selectedTab = 'navigation' %}
-
-{# Regular Craft CP page tabs (links), not Plugin Kit / React tabs. #}
-{% set tabs = {
-    navigation: { label: 'Navigation' | t('cp-nav'), url: url('cp-nav') },
-} %}
-
-{% if craft.app.getEditionName() != 'Solo' %}
-    {% set tabs = tabs | merge({
-        layouts: { label: 'Layouts' | t('cp-nav'), url: url('cp-nav/layouts') },
-    }) %}
-{% endif %}
 
 {% set crumbs = [
     { label: 'Control Panel Nav' | t('cp-nav'), url: url('cp-nav') },

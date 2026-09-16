@@ -18,24 +18,11 @@ use verbb\cpnav\web\assets\builder\BuilderAsset;
 use craft\helpers\App;
 
 use nystudio107\pluginvite\services\VitePluginService;
-
-use verbb\base\LogTrait;
 use verbb\base\helpers\Plugin;
+use verbb\base\LogTrait;
 
 trait PluginTrait
 {
-    // Traits
-    // =========================================================================
-
-    use LogTrait;
-
-
-    // Properties
-    // =========================================================================
-
-    public static ?CpNav $plugin = null;
-
-
     // Static Methods
     // =========================================================================
 
@@ -71,6 +58,18 @@ trait PluginTrait
             ],
         ];
     }
+
+
+    // Traits
+    // =========================================================================
+
+    use LogTrait;
+
+
+    // Properties
+    // =========================================================================
+
+    public static ?CpNav $plugin = null;
 
 
     // Public Methods

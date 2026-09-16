@@ -1,0 +1,16 @@
+{% extends '_layouts/cp' %}
+
+{# Keep the page tabs shared across the builder, layouts, and plugin settings. #}
+{% set tabs = {
+    navigation: { label: 'Navigation' | t('cp-nav'), url: url('cp-nav') },
+} %}
+
+{% if craft.app.getEditionName() != 'Solo' %}
+    {% set tabs = tabs | merge({
+        layouts: { label: 'Layouts' | t('cp-nav'), url: url('cp-nav/layouts') },
+    }) %}
+{% endif %}
+
+{% set tabs = tabs | merge({
+    settings: { label: 'Settings' | t('cp-nav'), url: url('cp-nav/settings') },
+}) %}
