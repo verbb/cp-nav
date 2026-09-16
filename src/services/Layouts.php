@@ -165,14 +165,13 @@ class Layouts extends Component
             $layout->id = Db::idByUid('{{%cpnav_layout}}', $layout->uid);
             CpNav::$plugin->getNavCustomization()->acknowledgeCurrentRegistry($layout->uid);
         } else {
-            // Metadata only — replacing the whole layout path would wipe nested customizations.
-            foreach ($config as $key => $value) {
-                $projectConfig->set(
-                    "{$configPath}.{$key}",
-                    $value,
-                    "Saving layout “{$layout->name}” {$key}",
-                );
-            }
+            // Craft applies this layout's config handler once per request, so every
+            // metadata change must arrive together while retaining nested customizations.
+            $projectConfig->set(
+                $configPath,
+                array_merge($projectConfig->get($configPath) ?? [], $config),
+                "Saving layout “{$layout->name}”",
+            );
         }
 
         return true;

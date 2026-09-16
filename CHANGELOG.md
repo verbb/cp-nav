@@ -60,7 +60,7 @@
 - Removing older customization data now clears legacy paths without deleting another item's settings.
 - Preserve completed navigation imports and intentional layout resets across migration reruns and project-config rebuilds.
 - CP sidebar divider styles now key off the server-rendered `nav-divider-*` id so labels no longer flash as normal nav items before sidebar JS runs.
-- Renaming or editing layout metadata no longer wipes nested navigation customizations.
+- Renaming or editing layout metadata now persists all changed fields together without wiping nested navigation customizations.
 - Editing a manual link URL now persists the new URL (previously reported success while keeping the old value).
 - Editing or reordering a Craft/plugin item no longer freezes its live URL, icon, or new-window behavior into the layout's customizations.
 - Outdenting a native Craft/plugin child to the root now survives project-config round-trips (`parent: ""` sentinel vs inherit).
