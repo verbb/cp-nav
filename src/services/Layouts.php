@@ -163,6 +163,7 @@ class Layouts extends Component
             // New layouts have no customization subtree yet.
             $projectConfig->set($configPath, $config, "Saving layout “{$layout->name}”");
             $layout->id = Db::idByUid('{{%cpnav_layout}}', $layout->uid);
+            CpNav::$plugin->getNavCustomization()->acknowledgeCurrentRegistry($layout->uid);
         } else {
             // Metadata only — replacing the whole layout path would wipe nested customizations.
             foreach ($config as $key => $value) {
