@@ -48,3 +48,13 @@ node_modules
 
 # Docs screenshot disposable Craft installs
 .cache/docs-screenshots/
+
+/.cache/
+
+/.ddev/docker-compose.tests-local.yaml
+
+/.phpunit.result.cache
+
+# Browser test diagnostics
+/playwright-report/
+/test-results/

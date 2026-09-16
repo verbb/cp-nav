@@ -6,6 +6,7 @@
     "docs"
   ],
   "scripts": {
+    "test": "node --test tests/Frontend/*.test.mjs",
     "dev": "vite",
     "dev:settings": "vite --config vite.settings.config.ts --port 4022",
     "dev:sidebar": "vite --config vite.sidebar.config.ts --port 4023",
@@ -14,7 +15,8 @@
     "build:settings": "vite build --config vite.settings.config.ts",
     "build:sidebar": "vite build --config vite.sidebar.config.ts",
     "dev:plugin-docs": "npm run docs:dev --prefix docs",
-    "docs:screenshots": "npm --prefix docs run docs:screenshots --"
+    "docs:screenshots": "npm --prefix docs run docs:screenshots --",
+    "test:browser": "ddev exec php tests/runtime/browser-seed.php && playwright test"
   },
   "dependencies": {
     "@headless-tree/core": "^1.7.0",
@@ -31,6 +33,7 @@
     "zustand": "^5.0.12"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "@tailwindcss/vite": "^4.2.4",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",

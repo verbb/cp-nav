@@ -57,9 +57,9 @@
         }
     },
     "scripts": {
-        "test": "./vendor/bin/pest --bootstrap tests/bootstrap-craft.php -c phpunit.craft.xml tests",
-        "test:setup": "@php tests/bin/test-setup.php",
-        "test:all": "./vendor/bin/pest --bootstrap tests/bootstrap-craft.php -c phpunit.craft.xml tests"
+        "test": "ddev test",
+        "test:all": "ddev test --suite=all",
+        "test:perf": "ddev test --suite=performance"
     },
     "extra": {
         "name": "Control Panel Nav",

@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+## Description: Rebuild an isolated Craft installation and run Pest.
+## Usage: test [Pest arguments]
+## HostExecution: true
+set -euo pipefail
+cd "$DDEV_APPROOT"
+# The browser docroot must exist before the first container start in a fresh checkout.
+for path in .cache .cache/verbb-tests .cache/verbb-tests/app .cache/verbb-tests/app/web; do
+    if [[ -L "$path" ]]; then
+        echo "Refusing a symlinked test runtime: $path" >&2
+        exit 1
+    fi
+done
+mkdir -p .cache/verbb-tests/app/web
+# Starting also verifies that this project name belongs to the current checkout.
+ddev start
+exec ddev exec --raw -- php tests/runtime/run.php "$@"

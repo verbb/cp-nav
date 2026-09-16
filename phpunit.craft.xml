@@ -5,9 +5,8 @@
          colors="true"
 >
     <testsuites>
-        <testsuite name="Cp Nav Craft Integration Suite">
-            <directory suffix="Test.php">./tests/Unit</directory>
-            <directory suffix="Test.php">./tests/Services</directory>
+        <testsuite name="Craft Integration Suite">
+            <directory suffix="Test.php">./tests</directory>
         </testsuite>
     </testsuites>
     <source>
