@@ -18,6 +18,7 @@
 - Frontend Plugin Kit deps back on npm (`@verbb/plugin-kit-*` ^2.0.16); dropped local `file:` checkouts.
 
 ### Fixed
+- Failed custom icon loads now show an error with a retry action instead of reporting an empty icons folder.
 - Dragging a parent with children onto another item now preserves the two-level navigation limit.
 - New-item notices now track additions to new and upgraded layouts without requiring a navigation reset.
 - The custom icon picker now includes SVG files with uppercase or mixed-case extensions and excludes files that cannot be saved or previewed.

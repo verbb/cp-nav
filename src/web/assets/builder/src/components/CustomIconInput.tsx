@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import {
+  Button,
   ImageBrowser,
   type PkImageBrowserItem,
 } from '@verbb/plugin-kit-react/components';
@@ -29,9 +30,14 @@ type CustomIconInputProps = {
  */
 export function CustomIconInput({ value, preview, onChange, onOpenChange, disabled }: CustomIconInputProps) {
   const [items, setItems] = useState<PkImageBrowserItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
+    setLoading(true);
+    setLoadError(false);
 
     void (async () => {
       try {
@@ -52,7 +58,11 @@ export function CustomIconInput({ value, preview, onChange, onOpenChange, disabl
         );
       } catch {
         if (!cancelled) {
-          setItems([]);
+          setLoadError(true);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
         }
       }
     })();
@@ -60,48 +70,59 @@ export function CustomIconInput({ value, preview, onChange, onOpenChange, disabl
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [attempt]);
 
   return (
-    <ImageBrowser
-      disabled={disabled}
-      value={value ?? ''}
-      mode="icon"
-      width="full"
-      withClear
-      items={items}
-      selectedLabel={value ?? ''}
-      selectedPreview={preview?.url ?? ''}
-      placeholder={t('Select an SVG…')}
-      emptyMessage={t('No SVG files found in the icons folder.')}
-      searchPlaceholder={t('Search icons…')}
-      aria-label={t('Custom Icon')}
-      onChange={(next) => {
-        const path = next.trim();
+    <>
+      <ImageBrowser
+        disabled={disabled}
+        loading={loading}
+        value={value ?? ''}
+        mode="icon"
+        width="full"
+        withClear
+        items={items}
+        selectedLabel={value ?? ''}
+        selectedPreview={preview?.url ?? ''}
+        placeholder={t('Select an SVG…')}
+        emptyMessage={loadError ? t('Couldn’t load custom icons.') : t('No SVG files found in the icons folder.')}
+        searchPlaceholder={t('Search icons…')}
+        aria-label={t('Custom Icon')}
+        onChange={(next) => {
+          const path = next.trim();
 
-        if (!path) {
-          onChange(null, null);
-          return;
-        }
+          if (!path) {
+            onChange(null, null);
+            return;
+          }
 
-        const match = items.find((item) => item.value === path);
-        const previewUrl =
-          typeof match?.preview === 'string' && !match.preview.trim().startsWith('<')
-            ? match.preview
-            : preview?.path === path
-              ? preview.url
-              : null;
+          const match = items.find((item) => item.value === path);
+          const previewUrl =
+            typeof match?.preview === 'string' && !match.preview.trim().startsWith('<')
+              ? match.preview
+              : preview?.path === path
+                ? preview.url
+                : null;
 
-        onChange(path, {
-          path,
-          url: previewUrl,
-          label: match?.label ?? path,
-        });
-      }}
-      onPkClear={() => onChange(null, null)}
-      onPkShow={() => onOpenChange?.(true)}
-      onPkHide={() => onOpenChange?.(false)}
-      onPkAfterHide={() => onOpenChange?.(false)}
-    />
+          onChange(path, {
+            path,
+            url: previewUrl,
+            label: match?.label ?? path,
+          });
+        }}
+        onPkClear={() => onChange(null, null)}
+        onPkShow={() => onOpenChange?.(true)}
+        onPkHide={() => onOpenChange?.(false)}
+        onPkAfterHide={() => onOpenChange?.(false)}
+      />
+      {loadError && (
+        <div className="mt-2 flex items-center gap-2" role="alert">
+          <span>{t('Couldn’t load custom icons.')}</span>
+          <Button type="button" size="sm" disabled={disabled || loading} onClick={() => setAttempt((value) => value + 1)}>
+            {t('Retry')}
+          </Button>
+        </div>
+      )}
+    </>
   );
 }
