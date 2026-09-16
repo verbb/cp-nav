@@ -31,10 +31,12 @@ class ProjectConfigData
             $overlayNodes = $navCustomization->getCustomizationForLayout($layout->uid);
             $acknowledged = $navCustomization->getAcknowledgedRegistryKeys($layout->uid);
             $customizations = [];
-            // Keep intentional empty layouts completed through a project-config rebuild.
-            $migrationVersion = Craft::$app->getProjectConfig()->get("cp-nav.layouts.{$layout->uid}.customizations.migrationVersion");
-            if ($migrationVersion !== null) {
-                $customizations['migrationVersion'] = $migrationVersion;
+            // Keep completion and identity versions so deployment never reinterprets current nodes as legacy data.
+            foreach (['migrationVersion', 'providerKeyVersion'] as $versionKey) {
+                $version = Craft::$app->getProjectConfig()->get("cp-nav.layouts.{$layout->uid}.customizations.{$versionKey}");
+                if ($version !== null) {
+                    $customizations[$versionKey] = $version;
+                }
             }
 
             if ($overlayNodes !== []) {

@@ -18,7 +18,7 @@
 - Frontend Plugin Kit deps back on npm (`@verbb/plugin-kit-*` ^2.0.16); dropped local `file:` checkouts.
 
 ### Fixed
-- Plugin items with different routes or case-sensitive submenu handles no longer overwrite each other; existing beta customizations migrate to the distinct keys.
+- Plugin items with different routes or case-sensitive submenu handles no longer overwrite each other; existing beta customizations migrate to the distinct keys, and Project Config rebuilds preserve their migration state.
 - Moved sidebar items now retain their active state and expand their new parent on the current page.
 - Provider link attributes and accessible labels are preserved using the current user’s metadata.
 - Leaving the builder through tabs or other page links waits for queued saves; closing or reloading warns while saves are pending.
