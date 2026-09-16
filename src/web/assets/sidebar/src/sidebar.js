@@ -50,7 +50,12 @@ Craft.CpNav.decorateNav = function($nav) {
     // when the current destination now lives beneath a different sidebar item.
     const current = new URL(window.location.href);
     const routePath = (url) => (url.searchParams.get('p') || url.pathname).replace(/^\/+|\/+$/g, '');
-    const currentPath = routePath(current);
+    const currentPaths = [routePath(current)];
+    const accountPath = routePath(new URL(Craft.getCpUrl('myaccount'), current));
+    // Craft selects Users for My Account and its subpages, even after Users moves.
+    if (currentPaths[0] === accountPath || currentPaths[0].startsWith(accountPath + '/')) {
+        currentPaths.push(routePath(new URL(Craft.getCpUrl('users'), current)));
+    }
     let selected = null;
     let longestPath = -1;
     $nav.find('a[href]').each(function() {
@@ -59,7 +64,7 @@ Craft.CpNav.decorateNav = function($nav) {
             return;
         }
         const path = routePath(url);
-        if (!path || (currentPath !== path && !currentPath.startsWith(path + '/'))) {
+        if (!path || !currentPaths.some((currentPath) => currentPath === path || currentPath.startsWith(path + '/'))) {
             return;
         }
         if ([...url.searchParams].some(([key, value]) => key !== 'p' && current.searchParams.get(key) !== value)) {
