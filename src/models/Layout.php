@@ -9,6 +9,12 @@ use DateTime;
 
 class Layout extends Model
 {
+    // Constants
+    // =========================================================================
+
+    public const MAX_NAME_LENGTH = 255;
+
+
     // Properties
     // =========================================================================
 
@@ -52,7 +58,7 @@ class Layout extends Model
     {
         return [
             [['name'], 'required'],
-            [['name'], 'string', 'max' => 255],
+            [['name'], 'string', 'max' => self::MAX_NAME_LENGTH],
         ];
     }
 }

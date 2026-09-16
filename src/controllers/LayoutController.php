@@ -167,8 +167,11 @@ class LayoutController extends Controller
             return $this->asFailure(Craft::t('cp-nav', 'No layout model found.'));
         }
 
+        // Reserve room for the translated copy label without changing the source name.
+        $copySuffix = Craft::t('cp-nav', '{name} copy', ['name' => '']);
+        $sourceName = mb_substr((string)$source->name, 0, max(0, Layout::MAX_NAME_LENGTH - mb_strlen($copySuffix)));
         $name = $this->_name(Craft::t('cp-nav', '{name} copy', [
-            'name' => $source->name,
+            'name' => $sourceName,
         ]));
 
         $layout = CpNav::$plugin->getLayouts()->duplicateLayout($source, $name);

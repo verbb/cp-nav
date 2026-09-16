@@ -19,6 +19,7 @@
 
 ### Fixed
 - Display-only navigation event changes no longer overwrite saved customizations during unrelated builder edits.
+- Layouts with maximum-length names can now be duplicated.
 - Moving Users under another item now preserves its active sidebar state on My Account pages.
 - Rejected layout moves now preserve the displayed priority of layouts added while saving.
 - Failed custom icon loads now show an error with a retry action instead of reporting an empty icons folder.

@@ -125,12 +125,10 @@ $(document).on('click', 'tr.layout-item .duplicate', function(e) {
 
     var $row = $(this).closest('tr.layout-item');
     var id = $row.data('id');
-    var name = $row.data('name');
 
     Craft.sendActionRequest('POST', 'cp-nav/layout/duplicate', {
         data: {
             id: id,
-            name: Craft.t('cp-nav', '{name} copy', { name: name }),
         },
     })
         .then((response) => {
