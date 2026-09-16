@@ -3,6 +3,7 @@ namespace verbb\cpnav\nav\render;
 
 use verbb\cpnav\CpNav;
 use verbb\cpnav\helpers\CustomIcon;
+use verbb\cpnav\helpers\ManualUrl;
 use verbb\cpnav\nav\resolve\ResolvedNavNode;
 use verbb\cpnav\nav\sources\NavSourceBuilder;
 use verbb\cpnav\nav\sources\NodeKey;
@@ -63,18 +64,18 @@ final class NavRenderer extends Component
         // Badge counts are request-dynamic — harvest from Craft's own nav before we replace it.
         $badgeCounts = $this->_badgeCountsFromCraftNav($event->navItems);
 
-        $registryTree = CpNav::$plugin->getNavSources()->getTree();
+        $registryTree = CpNav::$plugin->getNavSourceBuilder()->withLiveMetadata(
+            CpNav::$plugin->getNavSources()->getTree(),
+            $event->navItems,
+        );
         $customizations = CpNav::$plugin->getNavCustomization()->getCustomizationForLayout($layout->uid);
         $resolved = CpNav::$plugin->getNavResolver()->resolve($registryTree, $customizations, $layout->uid);
-        $resolved = CpNav::$plugin->getNavPermissions()->filter($resolved, $registryTree);
+        $resolved = CpNav::$plugin->getNavPermissions()->filter($resolved, $registryTree, $event->navItems);
 
         $event->navItems = $this->toCraftNavItems($registryTree, $resolved, $badgeCounts);
     }
 
-    /**
-     * @param ResolvedNavNode[] $resolvedNodes
-     * @param array<string, int> $badgeCounts keyed by node key
-     */
+    /** Convert resolved nodes to Craft nav items, applying badge counts by node key. */
     public function toCraftNavItems(array $registryTree, array $resolvedNodes, array $badgeCounts = []): array
     {
         $registryIndex = $this->_indexRegistry($registryTree);
@@ -158,12 +159,48 @@ final class NavRenderer extends Component
         // User-uploaded SVG overrides any Craft/plugin icon (font or path).
         $customIconPath = $this->_customIconPath($resolved->customIcon);
         $icon = $customIconPath ?: ($resolved->icon ?? $registry?->icon);
-        $url = $this->resolveUrl($resolved->url);
+        $url = $this->_relativeUrl($this->resolveUrl($resolved->url));
+        // Check the final href, including expanded aliases and stripped CP path prefixes.
+        $allowedUrl = ManualUrl::isAllowed($url);
 
         $item = [
             'label' => $resolved->label,
-            'url' => $this->_relativeUrl($url),
+            'url' => $allowedUrl ? $url : '#',
         ];
+
+        $linkAttributes = $registry?->linkAttributes ?? [];
+        if ($registry && $resolved->url !== $registry->defaultUrl) {
+            unset($linkAttributes['href']);
+        }
+        if ($registry && $resolved->newWindow !== $registry->defaultExternal) {
+            unset($linkAttributes['target']);
+        }
+        // Provider href overrides must pass the same final-URL checks as saved URLs.
+        if (isset($linkAttributes['href']) && $linkAttributes['href'] !== false) {
+            $href = $linkAttributes['href'];
+            $linkAttributes['href'] = is_string($href) && ManualUrl::isAllowed($href) ? $href : false;
+        }
+        if ($registry?->ariaLabel !== null) {
+            $item['ariaLabel'] = $registry->ariaLabel;
+        }
+
+        // Craft chooses root selection after this event and cannot see a moved
+        // descendant. Mark relocated items for the sidebar's native selection update.
+        if (($registry && $resolved->parentKey !== $registry->parentKey) || (NodeKey::isManual($resolved->key) && $resolved->parentKey !== null)) {
+            $linkAttributes['data-cpnav-relocated'] = true;
+        }
+
+        if ($registry?->htmlId !== null) {
+            $item['id'] = $registry->htmlId;
+        }
+
+        if (!$allowedUrl) {
+            // Retain a parent label and its valid children without emitting an unsafe link.
+            $linkAttributes['href'] = false;
+        }
+        if ($linkAttributes !== []) {
+            $item['linkAttributes'] = $linkAttributes;
+        }
 
         if ($icon) {
             $this->_applyIcon($item, $icon, (bool)$customIconPath);
@@ -220,9 +257,7 @@ final class NavRenderer extends Component
         ];
     }
 
-    /**
-     * @return array<string, int>
-     */
+    /** Index Craft badge counts by canonical node key. */
     private function _badgeCountsFromCraftNav(array $navItems, ?string $parentKey = null): array
     {
         $counts = [];
@@ -232,7 +267,7 @@ final class NavRenderer extends Component
                 continue;
             }
 
-            $key = NodeKey::fromNavItem($item, $parentKey, is_string($handle) ? $handle : null);
+            $key = NodeKey::fromNavItem($item, $parentKey, (string)$handle);
             $badge = $item['badgeCount'] ?? null;
 
             if (is_numeric($badge) && (int)$badge > 0) {
@@ -268,7 +303,7 @@ final class NavRenderer extends Component
     private function _relativeUrl(string $url): string
     {
         // External / absolute URLs pass through after site-token substitution.
-        if (str_starts_with($url, 'http://') || str_starts_with($url, 'https://') || str_starts_with($url, '//')) {
+        if (str_starts_with($url, '//') || preg_match('/^[a-z][a-z0-9+.-]*:/i', $url)) {
             return $url;
         }
 
@@ -285,7 +320,7 @@ final class NavRenderer extends Component
     {
         $registry = $registryIndex[$resolved->key] ?? null;
 
-        if ($registry?->subHandle) {
+        if ($registry?->subHandle !== null && $registry->subHandle !== '') {
             return (string)$registry->subHandle;
         }
 

@@ -17,7 +17,7 @@ final class NavSources extends Component
     // =========================================================================
 
     private const CACHE_GENERATION_KEY = 'cpnav:sources:generation';
-    /** v6 — distinct plugin routes and literal submenu handles. */
+    /** v6 — literal plugin routes and submenu handles. Live link attributes are never cached. */
     private const CACHE_KEY_PREFIX = 'cpnav:sources:v6:';
 
 
@@ -26,7 +26,7 @@ final class NavSources extends Component
 
     private ?string $_fingerprint = null;
     private ?array $_tree = null;
-    private ?int $_generation = null;
+    private ?string $_generation = null;
 
 
     // Public Methods
@@ -71,25 +71,26 @@ final class NavSources extends Component
         $this->_generation = null;
 
         $cache = Craft::$app->getCache();
-        $next = ((int)$cache->get(self::CACHE_GENERATION_KEY)) + 1;
-        $cache->set(self::CACHE_GENERATION_KEY, $next);
+        // Opaque tokens cannot reuse an old catalog after eviction or lose a
+        // concurrent invalidation through a read/increment/write race.
+        $cache->set(self::CACHE_GENERATION_KEY, bin2hex(random_bytes(16)));
     }
 
 
     // Private Methods
     // =========================================================================
 
-    private function _cacheGeneration(): int
+    private function _cacheGeneration(): string
     {
         if ($this->_generation !== null) {
             return $this->_generation;
         }
 
         $cache = Craft::$app->getCache();
-        $generation = (int)$cache->get(self::CACHE_GENERATION_KEY);
+        $generation = $cache->get(self::CACHE_GENERATION_KEY);
 
-        if ($generation < 1) {
-            $generation = 1;
+        if (!is_string($generation) || $generation === '') {
+            $generation = bin2hex(random_bytes(16));
             $cache->set(self::CACHE_GENERATION_KEY, $generation);
         }
 
@@ -113,6 +114,7 @@ final class NavSources extends Component
             'parentKey' => $node->parentKey,
             'subHandle' => $node->subHandle,
             'defaultExternal' => $node->defaultExternal,
+            'htmlId' => $node->htmlId,
             'children' => array_map(fn(NavNode $child) => $this->_dehydrateNode($child), $node->children),
         ];
     }
@@ -137,6 +139,7 @@ final class NavSources extends Component
             children: $children,
             subHandle: $data['subHandle'] ?? null,
             defaultExternal: (bool)($data['defaultExternal'] ?? false),
+            htmlId: $data['htmlId'] ?? null,
         );
     }
 }

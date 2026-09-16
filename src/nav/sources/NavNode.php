@@ -20,6 +20,9 @@ final class NavNode
     public readonly ?string $subHandle;
     /** Craft/plugin `external` — e.g. GraphiQL opens in a new window. */
     public readonly bool $defaultExternal;
+    public readonly ?string $htmlId;
+    public readonly array $linkAttributes;
+    public readonly ?string $ariaLabel;
 
 
     // Public Methods
@@ -36,6 +39,9 @@ final class NavNode
         array $children = [],
         ?string $subHandle = null,
         bool $defaultExternal = false,
+        ?string $htmlId = null,
+        array $linkAttributes = [],
+        ?string $ariaLabel = null,
     ) {
         $this->key = $key;
         $this->source = $source;
@@ -47,6 +53,9 @@ final class NavNode
         $this->children = $children;
         $this->subHandle = $subHandle;
         $this->defaultExternal = $defaultExternal;
+        $this->htmlId = $htmlId;
+        $this->linkAttributes = $linkAttributes;
+        $this->ariaLabel = $ariaLabel;
     }
 
     public function isTopLevel(): bool

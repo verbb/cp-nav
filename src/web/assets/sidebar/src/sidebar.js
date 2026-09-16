@@ -45,6 +45,41 @@ Craft.CpNav.decorateNav = function($nav) {
             e.stopPropagation();
         });
     });
+
+    // Craft's root URL matching runs after the nav event. Restore native selection
+    // when the current destination now lives beneath a different sidebar item.
+    const current = new URL(window.location.href);
+    const routePath = (url) => (url.searchParams.get('p') || url.pathname).replace(/^\/+|\/+$/g, '');
+    const currentPath = routePath(current);
+    let selected = null;
+    let longestPath = -1;
+    $nav.find('a[href]').each(function() {
+        const url = new URL(this.href, current);
+        if (url.origin !== current.origin || this.target === '_blank' || this.getAttribute('href').startsWith('#')) {
+            return;
+        }
+        const path = routePath(url);
+        if (!path || (currentPath !== path && !currentPath.startsWith(path + '/'))) {
+            return;
+        }
+        if ([...url.searchParams].some(([key, value]) => key !== 'p' && current.searchParams.get(key) !== value)) {
+            return;
+        }
+        if (path.length > longestPath) {
+            selected = this;
+            longestPath = path.length;
+        }
+    });
+    if (selected?.hasAttribute('data-cpnav-relocated')) {
+        $nav.find('.sel').removeClass('sel');
+        $nav.find('a[aria-current]').removeAttr('aria-current');
+        selected.setAttribute('aria-current', 'page');
+        const $row = $(selected).closest('li');
+        $row.children('.nav-item').addClass('sel');
+        const $parent = $row.parent('ul').closest('li');
+        $parent.children('.nav-item').addClass('sel');
+        $parent.find('craft-disclosure').first().attr('state', 'expanded');
+    }
 };
 
 Craft.CpNav.InitMenuItems = Garnish.Base.extend({

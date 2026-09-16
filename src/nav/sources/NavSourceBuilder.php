@@ -16,12 +16,6 @@ use yii\base\Event;
  */
 final class NavSourceBuilder
 {
-    // Properties
-    // =========================================================================
-
-    private static bool $_capturing = false;
-
-
     // Static Methods
     // =========================================================================
 
@@ -29,6 +23,12 @@ final class NavSourceBuilder
     {
         return self::$_capturing;
     }
+
+
+    // Properties
+    // =========================================================================
+
+    private static bool $_capturing = false;
 
 
     // Public Methods
@@ -71,6 +71,65 @@ final class NavSourceBuilder
         }
 
         return $keys;
+    }
+
+    /** Merge current-request defaults and additional items without changing the shared catalog. */
+    public function withLiveMetadata(array $registryTree, array $navItems): array
+    {
+        $registryKeys = [];
+        foreach ($registryTree as $node) {
+            foreach ($node->flatten() as $flat) {
+                $registryKeys[$flat->key] = true;
+            }
+        }
+
+        $liveTree = $this->_transformTopLevel($navItems);
+        $liveIndex = [];
+        foreach ($liveTree as $node) {
+            foreach ($node->flatten() as $flat) {
+                $liveIndex[$flat->key] = $flat;
+            }
+        }
+
+        // Provider metadata and native ordering belong to this request. Retain catalog
+        // identities and parentage so saved customizations still resolve consistently.
+        $refresh = function(NavNode $node) use (&$refresh, $liveIndex, $registryKeys): NavNode {
+            $live = $liveIndex[$node->key] ?? $node;
+            $children = array_map($refresh, $node->children);
+            foreach ($live->children as $child) {
+                if (!isset($registryKeys[$child->key])) {
+                    $children[] = $child;
+                }
+            }
+
+            return new NavNode(
+                key: $node->key,
+                source: $node->source,
+                defaultLabel: $live->defaultLabel,
+                defaultUrl: $live->defaultUrl,
+                icon: $live->icon,
+                defaultOrder: $live->defaultOrder,
+                parentKey: $node->parentKey,
+                children: $children,
+                subHandle: $node->subHandle,
+                defaultExternal: $live->defaultExternal,
+                htmlId: $live->htmlId,
+                // These attributes can contain user-specific provider state. Never
+                // inherit them from an administrator's catalog when the live item is absent.
+                linkAttributes: $liveIndex[$node->key]->linkAttributes ?? [],
+                ariaLabel: $liveIndex[$node->key]->ariaLabel ?? null,
+            );
+        };
+
+        $tree = array_map($refresh, $registryTree);
+        // An administrator does not necessarily receive every user-specific provider item.
+        foreach ($liveTree as $node) {
+            if (!isset($registryKeys[$node->key])) {
+                $tree[] = $node;
+            }
+        }
+
+        return $tree;
     }
 
 
@@ -147,11 +206,14 @@ final class NavSourceBuilder
                 source: $this->_guessSource($key),
                 defaultLabel: (string)($item['label'] ?? ''),
                 defaultUrl: $relativeUrl,
-                icon: isset($item['icon']) ? (string)$item['icon'] : null,
+                icon: $this->_iconFromNavItem($item),
                 defaultOrder: $order,
                 parentKey: null,
                 children: $children,
                 defaultExternal: (bool)($item['external'] ?? false),
+                htmlId: isset($item['id']) ? (string)$item['id'] : null,
+                linkAttributes: is_array($item['linkAttributes'] ?? null) ? $item['linkAttributes'] : [],
+                ariaLabel: isset($item['ariaLabel']) ? (string)$item['ariaLabel'] : null,
             );
         }
 
@@ -185,21 +247,39 @@ final class NavSourceBuilder
                 source: $this->_guessSource($key),
                 defaultLabel: (string)($subItem['label'] ?? ''),
                 defaultUrl: $relativeUrl,
-                icon: null,
+                icon: $this->_iconFromNavItem($subItem),
                 defaultOrder: $order,
                 parentKey: $parentKey,
                 children: [],
                 subHandle: (string)$handle,
                 // Craft marks GraphiQL (and any plugin subnav) via `external`.
                 defaultExternal: (bool)($subItem['external'] ?? false),
+                htmlId: isset($subItem['id']) ? (string)$subItem['id'] : null,
+                linkAttributes: is_array($subItem['linkAttributes'] ?? null) ? $subItem['linkAttributes'] : [],
+                ariaLabel: isset($subItem['ariaLabel']) ? (string)$subItem['ariaLabel'] : null,
             );
         }
 
         return $children;
     }
 
+    private function _iconFromNavItem(array $item): ?string
+    {
+        // Craft gives SVG icons precedence over the optional font-icon fallback.
+        if (!empty($item['icon'])) {
+            return (string)$item['icon'];
+        }
+
+        return !empty($item['fontIcon']) ? 'fontIcon:' . $item['fontIcon'] : null;
+    }
+
     private function _normalizeRelativeUrl(string $url, ?string $fallback = null): string
     {
+        // Only CP paths may lose surrounding slashes; external URLs retain their destination exactly.
+        if (str_starts_with($url, '//') || preg_match('/^[a-z][a-z0-9+.-]*:/i', $url)) {
+            return $url;
+        }
+
         $url = trim($url, '/');
 
         return $url !== '' ? $url : ($fallback ?? '');

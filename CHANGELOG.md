@@ -18,13 +18,21 @@
 
 ### Fixed
 - Plugin items with different routes or case-sensitive submenu handles no longer overwrite each other; existing beta customizations migrate to the distinct keys.
+- Moved sidebar items now retain their active state and expand their new parent on the current page.
+- Provider link attributes and accessible labels are preserved using the current user’s metadata.
 - SVG preview responses now prevent active document content from executing.
 - Manual URL and boolean validation now behaves consistently when creating and editing items.
 - Reduced resolver processing for layouts without saved customizations and layouts with sparse overrides.
+- Navigation source caches no longer reuse stale items after cache eviction or simultaneous refreshes.
 - Reduced repeated tree scans when calculating builder move controls for large layouts.
+- External provider links now retain protocol-relative URLs and trailing slashes.
+- Navigation now retains provider items available only to the current user, in their native order.
+- Provider submenu handles, font and child icons, and HTML IDs are now preserved.
 - Children of items with a zero-valued numeric display ID now appear only once in the builder.
 - Menu deletion and parent attachment now use canonical keys, preventing numeric ID collisions from affecting another item.
 - Preserve item identity, placement, and visibility when upgrading customized v5 navigation trees.
+- Fixed an information disclosure vulnerability.
+- Fixed a cross-site scripting vulnerability.
 - Reorder validation now preserves the two-level limit for partial updates and accepts parents promoted in the same update.
 - Removing older customization data now clears legacy paths without deleting another item's settings.
 - Preserve completed navigation imports and intentional layout resets across migration reruns and project-config rebuilds.

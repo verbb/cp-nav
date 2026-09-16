@@ -1,160 +1,69 @@
 <?php
 
-declare(strict_types=1);
-
-use Tests\Support\AdminUser;
-use Tests\Support\CpRequestContext;
+use craft\events\RegisterCpNavItemsEvent;
+use craft\services\Plugins;
 use verbb\cpnav\CpNav;
-use verbb\cpnav\nav\sources\NavFingerprint;
-use verbb\cpnav\nav\sources\NavSourcesInvalidator;
+use verbb\cpnav\nav\sources\NavSourceBuilder;
+use verbb\cpnav\nav\sources\NavSources;
+use yii\base\Event;
 
-describe('NavSources cache', function() {
-    it('stores the built tree in Craft cache keyed by fingerprint', function() {
-        AdminUser::login();
-        CpRequestContext::activate();
-
-        $registry = CpNav::$plugin->getNavSources();
-        $registry->invalidate();
-
-        $fingerprint = (new NavFingerprint())->compute();
-        $tree = $registry->getTree(true);
-        $generation = (int)Craft::$app->getCache()->get('cpnav:sources:generation');
-        $cached = Craft::$app->getCache()->get('cpnav:sources:v3:' . $generation . ':' . $fingerprint);
-
-        expect($tree)->not->toBeEmpty();
-        expect($cached)->toBeArray();
-        expect($cached[0]['key'] ?? null)->toBe($tree[0]->key);
+it('reuses both request and shared caches without losing provider metadata', function() {
+    $calls = 0;
+    $label = 'First label';
+    $this->fixtureProvider(function(RegisterCpNavItemsEvent $event) use (&$calls, &$label) {
+        $calls++;
+        $event->navItems[] = ['label' => $label, 'url' => 'quality-provider', 'icon' => 'gauge', 'external' => true,
+            'subnav' => ['childHandle' => ['label' => 'Child label', 'url' => 'https://example.test/child/', 'external' => true]],
+        ];
     });
+    $sources = CpNav::$plugin->getNavSources();
+    $cold = $sources->getTree();
+    expect($calls)->toBe(1);
+    $memo = $sources->getTree();
+    expect($calls)->toBe(1);
+    expect($memo)->toBe($cold);
+    $warm = (new NavSources())->getTree();
+    expect($calls)->toBe(1);
+    expect($warm)->toEqual($cold);
+    $provider = array_values(array_filter($warm, fn($node) => $node->key === 'craft:quality-provider'))[0];
+    expect([$provider->defaultLabel, $provider->defaultUrl, $provider->icon, $provider->defaultExternal])->toBe(['First label', 'quality-provider', 'gauge', true]);
+    $child = $provider->children[0];
+    expect([$child->key, $child->parentKey, $child->subHandle, $child->defaultLabel, $child->defaultUrl, $child->defaultExternal])
+        ->toBe(['craft:quality-provider/childHandle', 'craft:quality-provider', 'childHandle', 'Child label', 'https://example.test/child/', true]);
 
-    it('reuses cached tree on subsequent getTree calls', function() {
-        AdminUser::login();
-        CpRequestContext::activate();
-
-        $registry = CpNav::$plugin->getNavSources();
-        $registry->invalidate();
-
-        $firstKeys = array_map(fn($n) => $n->key, $registry->getTree(true));
-        $secondKeys = array_map(fn($n) => $n->key, $registry->getTree());
-
-        expect($secondKeys)->toEqual($firstKeys);
-    });
-
-    it('clears in-memory cache when invalidated and bumps shared generation', function() {
-        AdminUser::login();
-        CpRequestContext::activate();
-
-        $registry = CpNav::$plugin->getNavSources();
-        $registry->getTree(true);
-        $generationBefore = (int)Craft::$app->getCache()->get('cpnav:sources:generation');
-
-        (new NavSourcesInvalidator())->invalidateSources();
-
-        $generationAfter = (int)Craft::$app->getCache()->get('cpnav:sources:generation');
-        expect($generationAfter)->toBe($generationBefore + 1);
-
-        // Should still resolve after invalidation (rebuild under new generation).
-        $keys = array_map(fn($n) => $n->key, $registry->getTree());
-        expect($keys)->not->toBeEmpty();
-    });
-
-    it('partitions cache by language', function() {
-        AdminUser::login();
-        CpRequestContext::activate();
-
-        $original = Craft::$app->language;
-        $registry = CpNav::$plugin->getNavSources();
-
-        try {
-            Craft::$app->language = 'en-US';
-            $registry->invalidate();
-            $enFingerprint = (new NavFingerprint())->compute();
-
-            Craft::$app->language = 'fr';
-            $registry->invalidate();
-            $frFingerprint = (new NavFingerprint())->compute();
-
-            expect($frFingerprint)->not->toBe($enFingerprint);
-        } finally {
-            Craft::$app->language = $original;
-            $registry->invalidate();
-        }
-    });
+    $label = 'Updated provider';
+    // Exercise the actual registered lifecycle callback, not a test-only convenience method.
+    Event::trigger(Plugins::class, Plugins::EVENT_AFTER_ENABLE_PLUGIN);
+    $fresh = (new NavSources())->getTree();
+    expect($calls)->toBe(2);
+    expect(array_column($fresh, 'defaultLabel'))->toContain('Updated provider')->not->toContain('First label');
 });
 
-describe('NavFingerprint', function() {
-    it('is stable for unchanged install state', function() {
-        $fingerprint = new NavFingerprint();
-
-        expect($fingerprint->compute())->toBe($fingerprint->compute());
+it('hydrates separate language payloads without rebuilding the first language', function() {
+    $calls = 0;
+    $this->fixtureProvider(function(RegisterCpNavItemsEvent $event) use (&$calls) {
+        $calls++;
+        $event->navItems[] = ['label' => Craft::$app->language, 'url' => 'language-provider'];
     });
-
-    it('changes when install inputs change', function() {
-        $general = Craft::$app->getConfig()->getGeneral();
-        $original = (bool)$general->enableGql;
-
-        try {
-            $before = (new NavFingerprint())->compute();
-            $general->enableGql = !$original;
-            $after = (new NavFingerprint())->compute();
-
-            expect($after)->not->toBe($before);
-        } finally {
-            $general->enableGql = $original;
-        }
-    });
+    Craft::$app->language = 'en-US';
+    $english = (new NavSources())->getTree();
+    Craft::$app->language = 'fr';
+    $french = (new NavSources())->getTree();
+    Craft::$app->language = 'en-US';
+    $again = (new NavSources())->getTree();
+    expect($calls)->toBe(2);
+    expect($again)->toEqual($english);
+    expect(array_column($english, 'defaultLabel'))->toContain('en-US');
+    expect(array_column($french, 'defaultLabel'))->toContain('fr')->not->toContain('en-US');
 });
 
-describe('NavSources fingerprint mismatch', function() {
-    it('re-syncs when in-memory tree is cleared', function() {
-        AdminUser::login();
-        CpRequestContext::activate();
-
-        $registry = CpNav::$plugin->getNavSources();
-        $registry->invalidate();
-        $registry->getTree(true);
-
-        $reflection = new ReflectionClass($registry);
-        $treeProp = $reflection->getProperty('_tree');
-        $treeProp->setAccessible(true);
-        $treeProp->setValue($registry, null);
-
-        $fingerprintProp = $reflection->getProperty('_fingerprint');
-        $fingerprintProp->setAccessible(true);
-        $fingerprintProp->setValue($registry, null);
-
-        $tree = $registry->getTree();
-
-        expect($tree)->not->toBeEmpty();
-        expect($fingerprintProp->getValue($registry))->not->toBeNull();
-    });
-
-    it('writes a new cache entry when fingerprint changes', function() {
-        AdminUser::login();
-        CpRequestContext::activate();
-
-        $general = Craft::$app->getConfig()->getGeneral();
-        $original = (bool)$general->enableGql;
-
-        try {
-            $registry = CpNav::$plugin->getNavSources();
-            $registry->invalidate();
-
-            $fingerprintBefore = (new NavFingerprint())->compute();
-            $registry->getTree(true);
-            $generation = (int)Craft::$app->getCache()->get('cpnav:sources:generation');
-            expect(Craft::$app->getCache()->get('cpnav:sources:v3:' . $generation . ':' . $fingerprintBefore))->toBeArray();
-
-            $general->enableGql = !$original;
-            $registry->invalidate();
-
-            $fingerprintAfter = (new NavFingerprint())->compute();
-            expect($fingerprintAfter)->not->toBe($fingerprintBefore);
-
-            $registry->getTree(true);
-            $generationAfter = (int)Craft::$app->getCache()->get('cpnav:sources:generation');
-            expect(Craft::$app->getCache()->get('cpnav:sources:v3:' . $generationAfter . ':' . $fingerprintAfter))->toBeArray();
-        } finally {
-            $general->enableGql = $original;
-        }
-    });
+it('restores identity request and capture state when a provider throws', function() {
+    $editor = $this->fixtureEditor();
+    Craft::$app->getUser()->setIdentity($editor);
+    $request = Craft::$app->getRequest();
+    $this->fixtureProvider(function() { throw new RuntimeException('Provider failed'); });
+    expect(fn() => (new NavSourceBuilder())->build())->toThrow(RuntimeException::class, 'Provider failed');
+    expect(Craft::$app->getUser()->getIdentity())->toBe($editor);
+    expect(Craft::$app->getRequest())->toBe($request);
+    expect(NavSourceBuilder::isCapturing())->toBeFalse();
 });

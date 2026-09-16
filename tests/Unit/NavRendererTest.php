@@ -54,7 +54,7 @@ describe('NavRenderer', function() {
         expect($items)->toHaveCount(2);
         expect($items[0]['label'])->toBe('Home');
         expect($items[0]['url'])->toBe('dashboard');
-        expect($items[0]['icon'])->toBe('gauge');
+        expect($items[0]['icon'] ?? null)->toBe('gauge');
         expect($items[0])->not->toHaveKey('fontIcon');
         expect($items[1]['icon'])->toBe('graphql');
         expect($items[1])->not->toHaveKey('fontIcon');
@@ -62,7 +62,7 @@ describe('NavRenderer', function() {
         expect($items[1]['subnav']['schemas']['url'])->toBe('graphql/schemas');
     });
 
-    it('maps fontIcon: overrides and prefers custom SVG paths', function() {
+    it('uses a real custom SVG before font icons and restores the default when cleared', function() {
         $registryTree = [
             new NavNode(
                 key: 'craft:dashboard',
@@ -92,6 +92,7 @@ describe('NavRenderer', function() {
         expect($fontItems[0]['fontIcon'] ?? null)->toBe('gauge');
         expect($fontItems[0])->not->toHaveKey('icon');
 
+        $dir = $this->fixtureIcons();
         $customOverride = [
             new ResolvedNavNode(
                 key: 'craft:dashboard',
@@ -102,13 +103,15 @@ describe('NavRenderer', function() {
                 source: 'craft',
                 enabled: true,
                 icon: 'fontIcon:gauge',
-                // Non-existent asset id — path resolves null and falls back to icon.
-                customIcon: null,
+                customIcon: 'brand/mark.svg',
             ),
         ];
 
         $fallbackItems = (new NavRenderer())->toCraftNavItems($registryTree, $customOverride);
-        expect($fallbackItems[0]['fontIcon'] ?? null)->toBe('gauge');
+        expect($fallbackItems[0]['icon'] ?? null)->toBe(realpath($dir . '/brand/mark.svg'));
+        expect($fallbackItems[0])->not->toHaveKey('fontIcon');
+        $cleared = new ResolvedNavNode('craft:dashboard', 'Home', 'dashboard', 10, null, 'craft', true);
+        expect((new NavRenderer())->toCraftNavItems($registryTree, [$cleared])[0]['icon'])->toBe('gauge');
     });
 
     it('emits inert divider items with a stable nav-divider id', function() {
