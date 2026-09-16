@@ -29,7 +29,7 @@
 - Leaving the builder through tabs or other page links waits for queued saves; closing or reloading warns while saves are pending.
 - Creating, deleting, or resetting navigation temporarily disables competing changes that could submit stale node IDs.
 - Layout drafts survive Escape and outside clicks during a pending save, lock their fields until it completes, and remain available to retry after errors.
-- Layout creation, editing, duplication, deletion, and reordering now support keyboard controls.
+- Layout creation, editing, duplication, deletion, and reordering now support keyboard controls; pointer dragging works with the accessible handles, and both reorder methods wait for pending saves.
 - Opening Control Panel Nav from Craft's Settings now shows the navigation builder, and the General Settings breadcrumb returns to it.
 - Restored the Settings tab across the navigation builder, Layouts, and General Settings pages.
 - Layout actions now use consistently sized and spaced icons with hover colours, and duplication uses the latest saved layout name.

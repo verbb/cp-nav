@@ -24,10 +24,48 @@ if ($('#layoutItems').length) {
         deleteAction: 'cp-nav/layout/delete',
         confirmDeleteMessage: Craft.t('cp-nav', 'Are you sure you want to permanently delete this layout and all its settings? This cannot be undone.'),
     });
+
+    if (LayoutAdminTable.sorter) {
+        let previousRows = [];
+        LayoutAdminTable.sorter.setSettings({
+            // Keep native input exclusions while allowing accessible move buttons.
+            ignoreHandleSelector: 'input, textarea, button:not(.move), select, .btn',
+            onBeforeDragStart: () => {
+                previousRows = LayoutAdminTable.$tbody.children('tr').toArray();
+            },
+            onSortChange: () => reorderLayoutRows(previousRows),
+        });
+    }
 }
 
-
-
+function reorderLayoutRows(previousRows) {
+    if (LayoutAdminTable.reordering) {
+        return;
+    }
+    LayoutAdminTable.reordering = true;
+    LayoutAdminTable.sorter?.disable();
+    const $moves = LayoutAdminTable.$tbody.find('.move:enabled');
+    const focusedMove = $moves.filter(':focus')[0];
+    $moves.prop('disabled', true);
+    const ids = LayoutAdminTable.getRowOrder();
+    Craft.sendActionRequest('POST', 'cp-nav/layout/reorder', {data: {ids: JSON.stringify(ids)}})
+        .then(() => {
+            LayoutAdminTable.onReorderItems(ids);
+            Craft.cp.displaySuccess(Craft.t('app', LayoutAdminTable.settings.reorderSuccessMessage));
+        })
+        .catch(() => {
+            previousRows.filter((row) => row.isConnected).forEach((row) => LayoutAdminTable.$tbody.append(row));
+            Craft.cp.displayError(Craft.t('app', LayoutAdminTable.settings.reorderFailMessage));
+        })
+        .finally(() => {
+            LayoutAdminTable.reordering = false;
+            LayoutAdminTable.sorter?.enable();
+            $moves.prop('disabled', false);
+            if (focusedMove?.isConnected && document.activeElement === document.body) {
+                focusedMove.focus();
+            }
+        });
+}
 
 // Guard every HUD dismissal path, including Garnish's Escape and shade handlers.
 Craft.CpNav.LayoutHUD = Garnish.HUD.extend({
@@ -46,33 +84,17 @@ $(document).on('keydown', '#layoutItems .move', function(event) {
     event.preventDefault();
     const $row = $(this).closest('tr');
     const $sibling = event.key === 'ArrowUp' ? $row.prev('tr') : $row.next('tr');
-    if (!$sibling.length || LayoutAdminTable.keyboardReordering) {
+    if (!$sibling.length || LayoutAdminTable.reordering || LayoutAdminTable.sorter?.dragging) {
         return;
     }
     const previousRows = LayoutAdminTable.$tbody.children('tr').toArray();
-    LayoutAdminTable.keyboardReordering = true;
-    LayoutAdminTable.sorter?.disable();
     if (event.key === 'ArrowUp') {
         $row.insertBefore($sibling);
     } else {
         $row.insertAfter($sibling);
     }
     this.focus();
-    const ids = LayoutAdminTable.getRowOrder();
-    Craft.sendActionRequest('POST', 'cp-nav/layout/reorder', {data: {ids: JSON.stringify(ids)}})
-        .then(() => {
-            LayoutAdminTable.onReorderItems(ids);
-            Craft.cp.displaySuccess(Craft.t('app', LayoutAdminTable.settings.reorderSuccessMessage));
-        })
-        .catch(() => {
-            previousRows.filter((row) => row.isConnected).forEach((row) => LayoutAdminTable.$tbody.append(row));
-            this.focus();
-            Craft.cp.displayError(Craft.t('app', LayoutAdminTable.settings.reorderFailMessage));
-        })
-        .finally(() => {
-            LayoutAdminTable.keyboardReordering = false;
-            LayoutAdminTable.sorter?.enable();
-        });
+    reorderLayoutRows(previousRows);
 });
 
 // ----------------------------------------
