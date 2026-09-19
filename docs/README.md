@@ -13,32 +13,14 @@ Open `http://localhost:5490/feature-tour/overview` to preview the docs. The prev
 
 ## Screenshot Automation
 
-Uses **`@verbb/docs-screenshots`**. From plugin root:
+All product captures use the shared **`@verbb/craft-screenshots`** package from the plugin’s top-level **`screenshots/`** directory. Documentation scenarios live under **`screenshots/scenarios/docs/`**, their plugin-specific fixtures live under **`screenshots/support/docs/`**, and generated documentation images live under **`screenshots/output/docs/`**.
+
+From the plugin root:
 
 ```bash
-npm run docs:screenshots -- prepare
-npm run docs:screenshots -- preview --reuse-install last --filter {scenario-id}
-npm run docs:screenshots -- capture --reuse-install last --filter {scenario-id}
+npm run screenshots -- prepare
+npm run screenshots -- preview --reuse-install last --filter docs/feature-tour/overview
+npm run screenshots -- capture --reuse-install last --filter docs/feature-tour/overview
 ```
 
-Feature overview scenarios:
-
-| Scenario id | Output | Size |
-| --- | --- | --- |
-| `feature-tour-overview-builder` | `_screenshots/feature-tour/overview-builder.png` | 924×700 (full CP chrome; sidebar forced on; bold Craft CMS label) |
-
-Requires Docker (compose runtime). Optional: `CRAFT_SCREENSHOT_DB_*` env vars; run `npx playwright install chromium` once.
-
-Filter matches the scenario **file path** (e.g. `--filter overview`), not only the scenario id.
-
-## Layout
-
-- **`*.screenshot.ts`** — colocated with the page it captures
-- **`.screenshots/`** — global profile, plugin bootstrap, fixtures
-- **`_screenshots/`** — generated PNG output
-
-List scenario ids:
-
-```bash
-rg -n "id:" . -g "*.screenshot.ts"
-```
+The filter matches the scenario file path. The shared package owns the disposable Craft installation, Verbb capture identity, retina enforcement, and timeless control-panel cleanup; this repository owns only CP Nav’s scenarios, fixtures, framing, and outputs.

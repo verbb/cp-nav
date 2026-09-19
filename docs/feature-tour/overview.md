@@ -4,7 +4,7 @@ Control Panel Nav lets you organise the Craft control panel sidebar around the w
 
 [Install Control Panel Nav](/get-started/installation-setup), then sign in to the control panel as an administrator and open **Control Panel Nav**. You need administrator access to manage navigation and layouts.
 
-![Control Panel Nav builder with a layout picker, menu items, visibility controls, and actions](/_screenshots/feature-tour/overview-builder.png)
+![Control Panel Nav builder with a layout picker, menu items, visibility controls, and actions](../../screenshots/output/docs/feature-tour/overview-builder.png)
 
 <span id="how-it-works"></span>
 

@@ -1,16 +1,16 @@
-import { defineScreenshotScenario } from '@verbb/docs-screenshots/api';
-import { seedCpNavDocsFixture } from '../.screenshots/cp-nav/fixtures';
+import { defineScreenshotScenario } from '@verbb/craft-screenshots/api';
+import { seedCpNavDocsFixture } from '../../../support/docs/fixtures';
 import {
     cpNavOverviewViewport,
     createCpNavFullCpCleanupStep,
     createCpNavFullCpCropStep,
-} from '../.screenshots/cp-nav/presets';
+} from '../../../support/docs/presets';
 
 let builderRoute = '/admin/cp-nav';
 
 export default defineScreenshotScenario({
     id: 'feature-tour-overview-builder',
-    output: '_screenshots/feature-tour/overview-builder.png',
+    output: 'docs/feature-tour/overview-builder.png',
     route: () => builderRoute,
     // Promo frame 924×700 — width shaved vs classic; height tight under the builder card.
     viewport: cpNavOverviewViewport,

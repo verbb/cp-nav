@@ -15,8 +15,8 @@
     "build:settings": "vite build --config vite.settings.config.ts",
     "build:sidebar": "vite build --config vite.sidebar.config.ts",
     "dev:plugin-docs": "npm run docs:dev --prefix docs",
-    "docs:screenshots": "npm --prefix docs run docs:screenshots --",
-    "test:browser": "ddev exec php tests/runtime/browser-seed.php && playwright test"
+    "test:browser": "ddev exec php tests/runtime/browser-seed.php && playwright test",
+    "screenshots": "npm --prefix screenshots run screenshots --"
   },
   "dependencies": {
     "@headless-tree/core": "^1.7.0",
