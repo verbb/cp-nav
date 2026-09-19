@@ -16,7 +16,7 @@ Control Panel Nav is a Craft CMS plugin to help manage your Control Panel naviga
 - Manage icons of menu items. Choose from existing Craft icons, or upload your own assets.
 - Support for layouts to manage multiple navigations depending on user groups.
 - Project Config support, so your navigations are the same across environments.
-- Full support for your existing user permissions. Menu items for Craft and plugins will only be shown if the users is permitted to view them.
+- Full support for your existing user permissions. Menu items for Craft and plugins will only be shown if the user is permitted to view them.
 - Unlimited use, free forever.
 
 ## Documentation
