@@ -1,134 +1,39 @@
 # Changelog
 
-## 6.0.0-beta.3 - 2026-09-17
+## 6.0.0 - 2026-09-
 
 ### Added
-- Plugin setting **Icons Path** for portable custom SVG icons (relative paths in project config; ImageBrowser picker in the builder).
-- Manual URL scheme allowlist: relative paths plus `http`/`https`/`mailto`/`tel`.
+- Added a new navigation builder with accessible drag-and-drop, keyboard controls, and inline editing for nested menu items.
+- Added live discovery of Craft and plugin navigation items, with default-position insertion, source refresh, and dismissible new-item notices.
+- Added a lightweight Project Config customization overlay that stores only administrator overrides using stable node keys.
+- Added portable custom SVG icons selected from the filesystem folder configured by **Icons Path**.
+- Added support for Craft aliases, environment variables, `{site}`, and `{siteHandle}` in manual URLs, with an allowlist for relative, `http`, `https`, `mailto`, and `tel` URLs. ([#128](https://github.com/verbb/cp-nav/issues/128))
+- Added a **Duplicate** action for layouts, including their permissions and navigation customizations. ([#144](https://github.com/verbb/cp-nav/issues/144))
+- Added `cp-nav/migrate-customizations` and `cp-nav/audit-customizations` console commands for reviewing and managing v5 navigation data.
+- Added events for modifying resolved navigation and responding to individual or complete customization changes.
 
 ### Changed
-- Expanded documentation for navigation setup, permissions, custom icons, and upgrading custom integrations; standardised developer events around focused listener examples.
-- General Settings now shares Control Panel Nav's page title, horizontal tabs, and breadcrumbs without a separate sidebar.
-- Raised the Craft CMS requirement to **5.9+** (matches nav sources/`ElementSources::getPages()`).
-- `cp-nav/migrate-customizations` skips nonempty v6 layouts by default; use `--force` to replace. Layouts with no legacy rows are never cleared.
-- Nav sources cache uses a generation key for shared eviction and includes CP language in the fingerprint.
-- Project-config node path segments use collision-free base64url encoding (legacy underscore paths still read; saves rewrite to the new form).
-- Builder reorder/indent payloads use canonical `key` / `parentKey` (CRC32 `builderId` is display-only).
-- Custom icons no longer use Craft assets — configure a filesystem Icons Path and manually reselect existing custom icons after upgrading.
-- Frontend Plugin Kit deps back on npm (`@verbb/plugin-kit-*` ^2.0.16); dropped local `file:` checkouts.
+- Now requires Craft CMS 5.9 or later.
+- Existing v5 navigation rows are migrated to the new Project Config customization format during upgrade, with safe preview, audit, rerun, and replacement options available through the console commands.
+- Custom icons now use relative SVG paths from **Icons Path** instead of Craft assets. Existing custom icons must be selected again after upgrading.
+- Control Panel pages no longer write Project Config while navigation is being read, and resetting a layout now returns it to the live Craft and plugin menu.
+- Layout selection for users in multiple groups now follows the order of layouts in the plugin. ([#150](https://github.com/verbb/cp-nav/issues/150))
+- General Settings now uses Control Panel Nav's page title, horizontal tabs, and breadcrumbs without a separate sidebar.
+- Updated divider styling for Craft 5 with a muted line-label-line treatment.
 
 ### Fixed
-- Display-only navigation event changes no longer overwrite saved customizations during unrelated builder edits.
-- Layouts with maximum-length names can now be duplicated.
-- Moving Users under another item now preserves its active sidebar state on My Account pages.
-- Rejected layout moves now preserve the displayed priority of layouts added while saving.
-- Failed custom icon loads now show an error with a retry action instead of reporting an empty icons folder.
-- Dragging a parent with children onto another item now preserves the two-level navigation limit.
-- New-item notices now track additions to new and upgraded layouts without requiring a navigation reset.
-- The custom icon picker now includes SVG files with uppercase or mixed-case extensions and excludes files that cannot be saved or previewed.
-- Temporary drag previews no longer accumulate while rearranging navigation.
-- Navigation expand and collapse controls now announce their action and item label to screen readers.
-- Plugin items with different routes or case-sensitive submenu handles no longer overwrite each other; existing beta customizations migrate to the distinct keys, and new edits, copied layouts, and Project Config rebuilds preserve their migration state.
-- Moved sidebar items now retain their active state and expand their new parent on the current page.
-- Provider link attributes and accessible labels are preserved using the current user’s metadata.
-- Leaving the builder through tabs or other page links waits for queued saves; closing or reloading warns while saves are pending.
-- Creating, deleting, or resetting navigation temporarily disables competing changes that could submit stale node IDs.
-- Layout drafts survive Escape and outside clicks during a pending save, lock their fields until it completes, and remain available to retry after errors.
-- Layout creation, editing, duplication, deletion, and reordering now support keyboard controls; pointer dragging works with the accessible handles, and both reorder methods wait for pending saves.
-- Opening Control Panel Nav from Craft's Settings now shows the navigation builder, and the General Settings breadcrumb returns to it.
-- Restored the Settings tab across the navigation builder, Layouts, and General Settings pages.
-- Layout actions now use consistently sized and spaced icons with hover colours, and duplication uses the latest saved layout name.
-- Layout forms now recover from loading failures and prevent repeated submissions while saving or duplicating a layout.
-- Navigation editor drafts are preserved when Escape or outside clicks occur during a pending save, fields are locked until it completes, and opening another draft before the previous editor finishes closing no longer discards it.
-- Default layouts can no longer be deleted or lose their default status when their metadata is edited.
-- Invalid navigation and layout payloads, duplicate reorder keys, unsupported item types and unknown layout IDs now return a validation error.
-- SVG preview responses now prevent active document content from executing.
-- Layout editing always renders the plugin's layout form.
-- Manual URL and boolean validation now behaves consistently when creating and editing items.
-- Reduced resolver processing for layouts without saved customizations and layouts with sparse overrides.
-- Navigation source caches no longer reuse stale items after cache eviction or simultaneous refreshes.
-- Reduced repeated tree scans when calculating builder move controls for large layouts.
-- Row action menus now load on demand to reduce large-tree rendering work.
-- External provider links now retain protocol-relative URLs and trailing slashes.
-- Navigation now retains provider items available only to the current user, in their native order.
-- Provider submenu handles, font and child icons, and HTML IDs are now preserved.
-- Deleted layouts are removed from cached lookups immediately.
-- Completing an older editor save or deletion no longer closes a newer draft.
-- Switching layouts now waits for queued saves and stays on the current layout if a save fails.
-- Children of items with a zero-valued numeric display ID now appear only once in the builder.
-- Menu deletion and parent attachment now use canonical keys, preventing numeric ID collisions from affecting another item.
-- Preserve item identity, placement, and visibility when upgrading customized v5 navigation trees.
 - Fixed an information disclosure vulnerability.
 - Fixed a cross-site scripting vulnerability.
-- Builder saves now persist in order, and failed reorders no longer leave navigation actions disabled.
-- Failed builder actions now reconcile earlier successful changes instead of leaving stale menu items visible.
-- Reorder validation now preserves the two-level limit for partial updates and accepts parents promoted in the same update.
-- Removing older customization data now clears legacy paths without deleting another item's settings.
-- Preserve completed navigation imports and intentional layout resets across migration reruns and project-config rebuilds.
-- CP sidebar divider styles now key off the server-rendered `nav-divider-*` id so labels no longer flash as normal nav items before sidebar JS runs.
-- Renaming or editing layout metadata now persists all changed fields together without wiping nested navigation customizations.
-- Editing a manual link URL now persists the new URL (previously reported success while keeping the old value).
-- Editing or reordering a Craft/plugin item no longer freezes its live URL, icon, or new-window behavior into the layout's customizations.
-- Outdenting a native Craft/plugin child to the root now survives project-config round-trips (`parent: ""` sentinel vs inherit).
-- v5 → v6 upgrade keeps manual/divider labels when `currLabel === prevLabel`, maps craft subnav with parent context (e.g. GraphiQL), and does not undo intentional root outdents via `prevParentId`.
-- Nav source capture now runs after other `EVENT_REGISTER_CP_NAV_ITEMS` handlers so project/plugin additions are included.
-- Refresh sources forces a rebuild after cache invalidation.
-- Non-admin CP users can no longer select another layout via the `layoutId` query param.
-- Plugin visibility respects `getCpNavItem() === null`; Settings remains visible to admins when `allowAdminChanges` is false.
-- Subnav handles prefer registry provider handles; manual siblings with the same URL basename no longer overwrite each other.
-- Builder reorder indexes the layout once per operation.
-
-## 6.0.0-beta.2 - 2026-08-07
-
-### Added
-- Added **Duplicate** control on the Layouts tab (copies permissions + customizations). (#144)
-
-### Changed
-- Softened CP sidebar **divider** styles for Craft 5 — line–label–line with muted hairline/text tokens instead of the solid dark label badge from Craft 3/4.
-- Layout selection for multi-group users now prefers layout table order (`sortOrder`) over Craft’s user-group order. (#150)
-- Manual URLs expand Craft env variables / aliases at render (`App::parseEnv`), then `{site}` / `{siteHandle}` tokens. (#128)
-
-### Fixed
-- New Craft/plugin nav items now insert between their Craft default neighbours when the layout overlay still has frozen sorts from before those items existed (e.g. Entries after adding a section no longer lands after Assets on a key tie-break).
-
-## 6.0.0-beta.1 - 2026-08-07
-
-### Added
-- Added React control panel **nav builder** replacing the legacy Garnish flat-table UI.
-- Added **nav sources** pipeline (`NavSources` / `NavSourceBuilder`) that captures Craft’s live CP nav (`Cp::nav()` / `Cp::EVENT_REGISTER_CP_NAV_ITEMS`) with fingerprint caching.
-- Added **nav customizations** overlay in project config (`customizations.nodes`) — only admin overrides are persisted (order, visibility, labels, icons, manual items, dividers).
-- Added stable **node keys** (`craft:`, `plugin:`, `manual:`, `divider:`) with encoded project config path segments.
-- Added resolve + render stack (`NavResolver`, `NavRenderer`, `NavPermissions`) injecting the resolved tree via Craft’s nav registration event.
-- Added builder APIs for create/update/delete/reorder/indent/outdent/reparent, layout reset, and sources refresh.
-- Added dismissible **new items** notice when registry keys appear that aren’t yet acknowledged.
-- Added custom SVG icon support via asset upload (local filesystem path or remote asset contents).
-- Added `{site}` / `{siteHandle}` token substitution for manual URLs at render.
-- Added console commands `cp-nav/migrate-customizations` and `cp-nav/audit-customizations` (with `--fix`).
-- Added public events `NavResolver::EVENT_MODIFY_RESOLVED_NAV` and `NavCustomization::EVENT_AFTER_SAVE_NODE` / `AFTER_REMOVE_NODE` / `AFTER_SET_NODES`.
-- Added Pest integration test harness covering sources parity, merge/default-position insert, read-only PC safety, builder APIs, and edge cases.
-
-### Changed
-- Frontend assets reorganised under `src/web/assets/{builder,settings,sidebar}` — each owns its `dist/`; builder uses `nystudio107/craft-plugin-vite` + manifest.
-- Control panel page views **never write project config** — sync-on-read / `_checkUpdatedNavItems` behaviour is gone.
-- New Craft/plugin nav items insert at their **default Craft position** among siblings (not append-to-end).
-- Reset layout clears the customization overlay for that layout (returns to live Craft/plugin order) instead of recreating snapshot rows.
-- Project config shape moves layout nav data under `cp-nav.layouts.{uid}.customizations.nodes.{encodedKey}`.
-- Layout priority for users in multiple groups is the first matching layout by ascending `sortOrder`.
-- Nesting depth is capped at **two levels** (Craft sidebar alignment).
-- Plugin settings tab removed — reset lives on the builder header for the selected layout; plugin gear still opens the builder.
-- Craft Icon picker removed from the node editor; override icons only via **Custom Icon** (SVG asset). Registry/migrated `icon` values still render.
-
-### Fixed
-- Fixed custom SVG icons on Craft 5 filesystems (local root path + remote `Asset::getContents()` fallback).
-- Fixed GraphiQL / external Craft items preserving `external` through resolve → render.
-- Fixed orphan `manual:*` / `divider:*` nodes under removed parents reparenting to top level.
 
 ### Removed
-- Removed the `cpnav_navigation` database table (archived as `cpnav_navigation_v5_archive` on upgrade).
-- Removed legacy project config key `cp-nav.navigations`.
-- Removed `prev*` dual-state fields and full nav snapshot persistence.
-- Removed Garnish HUD / flat-table navigation editor.
-- Removed DOM MutationObserver / owned Twig nav swap as the primary render path (Craft event injection is canonical).
+- Removed the legacy Garnish navigation editor and custom Twig/MutationObserver sidebar replacement.
+- Removed the legacy `cp-nav.navigations` Project Config structure and active `cpnav_navigation` table; the table is archived as `cpnav_navigation_v5_archive` during upgrade.
+- Removed the `Navigations` and `Service` integration APIs and their navigation-record events. Use the new navigation builder, customization services, and events instead.
+
+## 5.0.8 - 2026-09-13
+
+### Changed
+- Update Permission Map to allow settings key for Craft 5.6+.
 
 ## 5.0.7 - 2026-03-15
 

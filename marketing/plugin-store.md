@@ -10,4 +10,8 @@ Replace implementation-oriented labels with terms editors recognise, move import
 - **Nested navigation:** Group related destinations and control how child items expand.
 - **Custom links:** Add internal pages, external resources, dividers, and recognisable icons.
 - **Group layouts:** Give different user groups a navigation designed for their work.
+- **Project Config:** Deploy layouts and customisations with the rest of the project while keeping live Craft and plugin navigation as the source of truth.
+- **New-item review:** Surface navigation added by Craft or another plugin so it can be acknowledged and placed deliberately.
+- **Portable destinations:** Use site tokens in manual URLs and project-relative SVG icons without hard-coding environment details.
+- **Migration tools:** Move existing customisations to the current model and audit stale navigation keys from the console.
 - **Navigation for every role:** Build layouts for developers, administrators, and content teams, then assign them by user group. Existing Craft and plugin permissions are still respected, so a tidy menu never grants access a user should not have.
