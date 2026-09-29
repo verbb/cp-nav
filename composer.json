@@ -1,6 +1,6 @@
 {
     "name": "verbb/cp-nav",
-    "description": "Manage the Craft Control Panel navigation.",
+    "description": "A Craft CMS plugin for managing control panel navigation by user group.",
     "type": "craft-plugin",
     "version": "5.0.8",
     "keywords": [
