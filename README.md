@@ -1,23 +1,18 @@
 <p align="center"><img src="https://assets.verbb.io/plugins/cp-nav/cp-nav-icon.svg" width="100" height="100" alt="Control Panel Nav icon"></p>
 <h1 align="center">Control Panel Nav for Craft CMS</h1>
 
-Control Panel Nav is a Craft CMS plugin to help manage your Control Panel navigation. Take control over your Craft CMS control panel navigation with CP Nav. Rename, reorder, hide and show menu items in the control panel. You can even add your own custom menu items for external links, or commonly used URLs within Craft. Divider menu items can also be added to logically group menu items into sections.
+Control Panel Nav is a Craft CMS plugin that reshapes Craft's sidebar around the people using it. Rename, reorder, hide, group, and add navigation items, then deliver the right layout to each user group without bypassing Craft's permissions.
+
+Replace implementation-oriented labels with terms editors recognise, move important destinations to the top, and hide items that add noise. Custom links can point to a specific Craft screen, project documentation, or another useful destination.
 
 ## Features
-- Modify the main sidebar navigation in the Craft control panel.
-- Rename, reorder, remove any existing navigation items - including plugins and modules.
-- Full support for nesting items up to 2 levels deep.
-- Change the behaviour of subnav items:
-    - Only open subnav items when the parent page is active (Craft default behaviour).
-    - Always have subnav items open and visible.
-    - Add a toggle next to each parent menu item to show/hide the subnav items. Will also remember the state!
-- Add new custom URLs. Great for documentation, external links or nested pages.
-- Add divider menu items. Great for grouping pages together or providing a logical gap between groups of different pages.
-- Manage icons of menu items. Choose from existing Craft icons, or upload your own assets.
-- Support for layouts to manage multiple navigations depending on user groups.
-- Project Config support, so your navigations are the same across environments.
-- Full support for your existing user permissions. Menu items for Craft and plugins will only be shown if the user is permitted to view them.
-- Unlimited use, free forever.
+
+- Arrange Craft, plugin, module, and custom items into a useful sequence.
+- Use the terminology that makes sense to the people editing the site.
+- Remove permitted but unnecessary destinations from a layout.
+- Group related destinations and control how child items expand.
+- Add internal pages, external resources, dividers, and recognisable icons.
+- Give different user groups a navigation designed for their work.
 
 ## Documentation
 Visit the [Control Panel Nav Plugin page](https://verbb.io/craft-plugins/cp-nav) for all documentation, guides, pricing and developer resources.
@@ -26,7 +21,7 @@ Visit the [Control Panel Nav Plugin page](https://verbb.io/craft-plugins/cp-nav)
 Get in touch with us via the [Control Panel Nav Support page](https://verbb.io/craft-plugins/cp-nav/support) or by [creating a Github issue](https://github.com/verbb/cp-nav/issues)
 
 ## Sponsor
-Control Panel Nav is licensed under the MIT license, meaning it will always be free and open source – we love free stuff! If you'd like to show your support to the plugin regardless, [Sponsor](https://github.com/sponsors/verbb) development.
+Control Panel Nav is licensed under the MIT license, meaning it will always be free and open source - we love free stuff! If you'd like to show your support to the plugin regardless, [Sponsor](https://github.com/sponsors/verbb) development.
 
 <h2></h2>
 
