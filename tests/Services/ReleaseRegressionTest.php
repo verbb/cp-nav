@@ -22,6 +22,10 @@ beforeEach(function() {
     CpRequestContext::activate();
 });
 
+it('permits direct upgrades from the Craft 4 plugin major', function() {
+    expect(CpNav::$plugin->minVersionRequired)->toBe('4.0.0');
+});
+
 it('invalidates cached layout lookups immediately after deletion', function() {
     $pc = Craft::$app->getProjectConfig();
     $readOnly = $pc->readOnly;

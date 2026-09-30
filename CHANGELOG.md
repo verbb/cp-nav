@@ -2,6 +2,8 @@
 
 ## 6.0.0 - 2026-09-
 
+> {warning} Before upgrading to Control Panel Nav 6, review the [upgrade guide](https://verbb.io/craft-plugins/cp-nav/docs/v6/get-started/upgrading-from-v5) for breaking changes and required migration steps.
+
 ### Added
 - Added a new navigation builder with accessible drag-and-drop, keyboard controls, and inline editing for nested menu items.
 - Added live discovery of Craft and plugin navigation items, with default-position insertion, source refresh, and dismissible new-item notices.
@@ -14,7 +16,7 @@
 
 ### Changed
 - Now requires Craft CMS 5.9 or later.
-- Existing v5 navigation rows are migrated to the new Project Config customization format during upgrade, with safe preview, audit, rerun, and replacement options available through the console commands.
+- Direct upgrades from Control Panel Nav 4 on Craft 4 and Control Panel Nav 5 on Craft 5 are supported. Existing navigation rows are migrated to the new Project Config customization format, with safe preview, audit, rerun, and replacement options available through the console commands.
 - Custom icons now use relative SVG paths from **Icons Path** instead of Craft assets. Existing custom icons must be selected again after upgrading.
 - Control Panel pages no longer write Project Config while navigation is being read, and resetting a layout now returns it to the live Craft and plugin menu.
 - Layout selection for users in multiple groups now follows the order of layouts in the plugin. ([#150](https://github.com/verbb/cp-nav/issues/150))

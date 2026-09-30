@@ -1,6 +1,6 @@
-# Upgrading from v5
+# Upgrading from v4 or v5
 
-This guide covers updating Control Panel Nav 5 to Control Panel Nav 6. Test the upgrade on a staging copy and keep a database and Project Config backup before updating the live site.
+This guide covers updating Control Panel Nav 4 or 5 directly to Control Panel Nav 6. A site upgrading from Craft 4 can update directly from Control Panel Nav 4 to Control Panel Nav 6 after its Craft 5 dependency update; installing Control Panel Nav 5 as an intermediate step is not required. Test the upgrade on a staging copy and keep a database and Project Config backup before updating the live site.
 
 ## Breaking Changes
 
@@ -14,7 +14,7 @@ Custom icons are selected from a filesystem folder configured by **Icons Path**;
 
 Copy the SVG files you want to retain into the folder configured by **Icons Path**. Open each affected item in the navigation builder, select its replacement under **Custom Icon**, and save. For example, an icon stored at `brand/mark.svg` inside that folder is saved using that relative path. Deploy the same folder contents with your project so the icon is available in each environment.
 
-| Control Panel Nav 5 | Control Panel Nav 6 |
+| Control Panel Nav 4 or 5 | Control Panel Nav 6 |
 | --- | --- |
 | Custom icon selected as a Craft asset | Custom icon selected from Icons Path |
 | Stored asset reference | Relative SVG path, such as `brand/mark.svg` |
@@ -30,7 +30,7 @@ Search your custom code for `getNavigations()`, `getService()`, `verbb\cpnav\ser
 For a deliberate reset, the call changes as shown below. These snippets belong in existing custom PHP code with the plugin loaded and `$layoutId` set to the layout you intend to reset. The reset removes manual links, dividers, and other customisations; test with a disposable layout on staging.
 
 ::: code-group
-```php [Control Panel Nav 5]
+```php [Control Panel Nav 4 or 5]
 \verbb\cpnav\CpNav::$plugin->getService()->resetLayout($layoutId);
 ```
 
@@ -39,7 +39,7 @@ For a deliberate reset, the call changes as shown below. These snippets belong i
 ```
 :::
 
-In Control Panel Nav 5, reset deletes and recreates saved navigation rows. In Control Panel Nav 6, it clears the layout's customisations and uses the live Craft and plugin menu. Check that the intended layout returns to its default menu and other layouts remain unchanged.
+In Control Panel Nav 4 and 5, reset deletes and recreates saved navigation rows. In Control Panel Nav 6, it clears the layout's customisations and uses the live Craft and plugin menu. Check that the intended layout returns to its default menu and other layouts remain unchanged.
 
 For read operations, `getNavCustomization()->getCustomizationForLayout($layoutUid)` returns saved overrides keyed by node key, not a complete navigation list. An unchanged item may have no saved override. `getNavBuilder()->getLayoutNavItemsForLayout($layoutId)` returns the builder's items for a layout; it is not a permission-filtered menu for an arbitrary user. Do not substitute either method for an old navigation-record query without reviewing how the result is used.
 
@@ -49,7 +49,7 @@ For rendering adjustments and save notifications, use the complete registrations
 
 ### Layout Priority for Multiple Groups
 
-Control Panel Nav 5 checks a user's groups in Craft's group order and uses the first matching layout it finds. Control Panel Nav 6 uses the first matching layout in the plugin's Layouts list instead.
+Control Panel Nav 4 and 5 check a user's groups in Craft's group order and use the first matching layout found. Control Panel Nav 6 uses the first matching layout in the plugin's Layouts list instead.
 
 If someone belongs to both Editors and Staff, move Editorial above the Staff layout when they should receive Editorial. This needs a review only when people can match multiple layouts. Reorder the Layouts list as needed, then sign in with an affected account and confirm the intended sidebar appears.
 
