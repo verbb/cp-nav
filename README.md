@@ -3,16 +3,6 @@
 
 Control Panel Nav is a Craft CMS plugin that reshapes Craft's sidebar around the people using it. Rename, reorder, hide, group, and add navigation items, then deliver the right layout to each user group without bypassing Craft's permissions.
 
-## What's new in Control Panel Nav 6
-
-- **New nav builder** — [Plugin Kit](https://docs.verbb.io/plugin-kit/overview/) tree builder with drag-and-drop, indent/outdent, and immediate persistence (no Save/Discard session).
-- **Nav sources + customizations** — Live menu items come from Craft’s nav pipeline; you only store overrides (order, visibility, labels, icons, manual items, dividers) in project config.
-- **Stable node keys** — `craft:`, `plugin:`, `manual:`, and `divider:` keys keep customizations aligned as Craft and plugins change.
-- **No sync-on-read** — Control panel page views never write project config. Registry invalidation uses events + fingerprinting.
-- **New items notice** — When Craft or a plugin adds a new nav item, the builder can surface it so you can acknowledge or customise it.
-- **Custom SVG icons** — Point the plugin **Icons Path** setting at a folder of SVGs; pick an icon per item. Paths are portable in project config.
-- **Site tokens** — Manual URLs support `{site}` / `{siteHandle}` substitution at render.
-- **Console tools** — `cp-nav/migrate-customizations` and `cp-nav/audit-customizations` for upgrade and cleanup.
 Replace implementation-oriented labels with terms editors recognise, move important destinations to the top, and hide items that add noise. Custom links can point to a specific Craft screen, project documentation, or another useful destination.
 
 ## Features
