@@ -7,7 +7,7 @@ Take control of Craft’s control panel navigation. Rename, reorder, hide and gr
 
 Turn Craft’s default navigation into a menu that reflects the way the project is actually run. Familiar labels and recognisable icons help editors find the areas they need, while a considered hierarchy keeps day-to-day destinations from getting lost among administrative tools.
 
-![CP Nav showing current and custom control-panel navigation items.](../screenshots/output/feature-tour/cp-nav-builder.png)
+![CP Nav showing current and custom control-panel navigation items.](../screenshots/cp-nav-builder.png)
 <!-- feature-section-end -->
 
 <!-- feature-section -->
