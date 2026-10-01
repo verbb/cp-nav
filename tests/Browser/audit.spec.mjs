@@ -118,7 +118,7 @@ test('measures browser rendering and editor interaction for synthetic large tree
             await trigger.press('Enter');
             const edit = page.getByRole('menuitem', { name: 'Edit', exact: true });
             await expect(edit).toBeVisible();
-            await edit.press('Enter');
+            await edit.click();
             await expect(page.locator('pk-input[name="currLabel"] input')).toBeVisible();
             await page.getByRole('button', { name: 'Cancel', exact: true }).click();
         }
