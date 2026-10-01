@@ -122,7 +122,7 @@ class NavResolver extends Component
 
                     if ($sort === null) {
                         $sort = $indexed['defaultOrder'] * 10;
-                    } else if ($indexed['defaultOrder'] !== $previousOrder) {
+                    } elseif ($indexed['defaultOrder'] !== $previousOrder) {
                         $sort += 10;
                     }
 
@@ -138,6 +138,7 @@ class NavResolver extends Component
         foreach ($byParent as $parentGroup => $siblings) {
             $parentKey = $parentGroup === '' ? null : $parentGroup;
             $orderGroups = [];
+
             foreach ($siblings as $indexed) {
                 $orderGroups[$indexed['defaultOrder']][] = $indexed;
             }
@@ -146,10 +147,13 @@ class NavResolver extends Component
             // an integer gap may shift an anchor before a later insertion reads it.
             $nextKeys = [];
             $nextKey = null;
+
             foreach (array_reverse($orderGroups, true) as $order => $group) {
                 $nextKeys[$order] = $nextKey;
+
                 foreach ($group as $indexed) {
                     $node = $workingOverlay[$indexed['key']] ?? null;
+
                     if ($node && $node->resolvedParent($indexed['defaultParent']) === $parentKey) {
                         $nextKey = $indexed['key'];
                         break;
@@ -158,6 +162,7 @@ class NavResolver extends Component
             }
 
             $previousKey = null;
+
             foreach ($orderGroups as $order => $group) {
                 foreach ($group as $indexed) {
                     $key = $indexed['key'];
@@ -188,6 +193,7 @@ class NavResolver extends Component
                 // Equal default orders are peers, never anchors for each other.
                 foreach ($group as $indexed) {
                     $node = $workingOverlay[$indexed['key']] ?? null;
+
                     if ($node && $node->resolvedParent($indexed['defaultParent']) === $parentKey) {
                         $previousKey = $indexed['key'];
                     }
@@ -268,6 +274,7 @@ class NavResolver extends Component
             }
 
             $defaultParent = $registryIndex[$key]['defaultParent'] ?? null;
+
             if ($node->resolvedParent($defaultParent) !== $parentKey) {
                 continue;
             }
@@ -290,6 +297,7 @@ class NavResolver extends Component
     private function _reparentOrphans(array $resolved): array
     {
         $keys = [];
+
         foreach ($resolved as $node) {
             $keys[$node->key] = true;
         }

@@ -31,6 +31,7 @@ class NavCustomization extends Component
     public function getCustomizationForLayout(string $layoutUid): array
     {
         $nodes = Craft::$app->getProjectConfig()->get($this->nodesPath($layoutUid)) ?? [];
+
         if (!is_array($nodes)) {
             return [];
         }
@@ -102,6 +103,7 @@ class NavCustomization extends Component
         }
 
         $path = $this->nodesPath($layoutUid);
+
         if ($migrationComplete) {
             // Commit conversion and its completion marker as one PC change. A reset
             // is also intentional v6 state, not permission to resurrect archived rows.

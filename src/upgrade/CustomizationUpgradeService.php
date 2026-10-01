@@ -36,6 +36,7 @@ final class CustomizationUpgradeService
 
         foreach ($this->_layouts($layoutUid) as $layout) {
             $existing = CpNav::$plugin->getNavCustomization()->getCustomizationForLayout($layout->uid);
+
             if (!$force && Craft::$app->getProjectConfig()->get("cp-nav.layouts.{$layout->uid}.customizations.migrationVersion")) {
                 $results[] = [
                     'layoutUid' => $layout->uid,
@@ -96,6 +97,7 @@ final class CustomizationUpgradeService
             $customizationKeys = array_keys($customizations);
 
             $stale = [];
+
             foreach ($customizationKeys as $key) {
                 if (NodeKey::isCustomizationOnly($key)) {
                     continue;
@@ -147,6 +149,7 @@ final class CustomizationUpgradeService
         $walk = function(array $nodes) use (&$keys, &$walk): void {
             foreach ($nodes as $node) {
                 $keys[] = $node->key;
+
                 if ($node->children) {
                     $walk($node->children);
                 }

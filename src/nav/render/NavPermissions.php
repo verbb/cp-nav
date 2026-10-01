@@ -39,12 +39,14 @@ final class NavPermissions extends Component
     private function _keysFromNavItems(array $navItems, ?string $parentKey = null): array
     {
         $keys = [];
+
         foreach ($navItems as $handle => $item) {
             if (!is_array($item)) {
                 continue;
             }
             $key = NodeKey::fromNavItem($item, $parentKey, (string)$handle);
             $keys[] = $key;
+
             if (isset($item['subnav']) && is_array($item['subnav'])) {
                 array_push($keys, ...$this->_keysFromNavItems($item['subnav'], $key));
             }

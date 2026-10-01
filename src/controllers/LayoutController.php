@@ -46,6 +46,7 @@ class LayoutController extends Controller
 
         if ($layoutId) {
             $layout = CpNav::$plugin->getLayouts()->getLayoutById($layoutId);
+
             if (!$layout) {
                 throw new BadRequestHttpException('Invalid navigation layout.');
             }
@@ -125,12 +126,15 @@ class LayoutController extends Controller
         $this->requireAcceptsJson();
 
         $layoutIds = Json::decodeIfJson($this->request->getRequiredBodyParam('ids'));
+
         if (!is_array($layoutIds) || !array_is_list($layoutIds)) {
             throw new BadRequestHttpException('Invalid navigation layouts.');
         }
         $seen = [];
+
         foreach ($layoutIds as $id) {
             $id = filter_var($id, FILTER_VALIDATE_INT);
+
             if (!$id || isset($seen[$id]) || !CpNav::$plugin->getLayouts()->getLayoutById($id)) {
                 throw new BadRequestHttpException('Invalid navigation layouts.');
             }
@@ -192,10 +196,12 @@ class LayoutController extends Controller
     private function _id(bool $required = true): ?int
     {
         $value = $required ? $this->request->getRequiredParam('id') : $this->request->getParam('id');
+
         if (!$required && ($value === null || $value === '')) {
             return null;
         }
         $id = filter_var($value, FILTER_VALIDATE_INT);
+
         if (!$id || $id < 1) {
             throw new BadRequestHttpException('Invalid navigation layout.');
         }
@@ -206,6 +212,7 @@ class LayoutController extends Controller
     private function _name(?string $default = null): string
     {
         $name = $default === null ? $this->request->getRequiredParam('name') : $this->request->getParam('name', $default);
+
         if (!is_string($name)) {
             throw new BadRequestHttpException('Invalid layout name.');
         }
@@ -216,9 +223,11 @@ class LayoutController extends Controller
     private function _permissions(): array
     {
         $permissions = $this->request->getParam('permissions') ?: [];
+
         if (!is_array($permissions) || !array_is_list($permissions)) {
             throw new BadRequestHttpException('Invalid layout permissions.');
         }
+
         foreach ($permissions as $permission) {
             if (!is_string($permission)) {
                 throw new BadRequestHttpException('Invalid layout permissions.');

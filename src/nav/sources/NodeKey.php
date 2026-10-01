@@ -53,6 +53,7 @@ final class NodeKey
     {
         if ($subHandle !== null && $parentKey) {
             $parentUrl = self::_parentRelativeUrlFromKey($parentKey);
+
             if (str_starts_with($parentKey, self::NS_PLUGIN . ':')) {
                 return $parentKey . ':' . rawurlencode($subHandle);
             }
@@ -64,6 +65,7 @@ final class NodeKey
 
         // Plugin top-level items typically use their handle as the first URL segment.
         $pluginHandle = self::_guessPluginHandle($relativeUrl);
+
         if ($pluginHandle) {
             return self::plugin($pluginHandle, null, $relativeUrl);
         }
@@ -127,6 +129,7 @@ final class NodeKey
     public static function split(string $key): array
     {
         $pos = strpos($key, ':');
+
         if ($pos === false) {
             return ['', $key];
         }
@@ -181,6 +184,7 @@ final class NodeKey
     {
         $relativeUrl = self::_normalizePath($relativeUrl);
         $segment = preg_split('/[\/?#]/', $relativeUrl)[0] ?? null;
+
         if (!$segment) {
             return null;
         }

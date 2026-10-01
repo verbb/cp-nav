@@ -105,6 +105,7 @@ final class NavRenderer extends Component
     public function resolveUrl(string $url): string
     {
         $parsed = App::parseEnv($url);
+
         if (is_string($parsed)) {
             $url = $parsed;
         }
@@ -169,17 +170,21 @@ final class NavRenderer extends Component
         ];
 
         $linkAttributes = $registry?->linkAttributes ?? [];
+
         if ($registry && $resolved->url !== $registry->defaultUrl) {
             unset($linkAttributes['href']);
         }
+
         if ($registry && $resolved->newWindow !== $registry->defaultExternal) {
             unset($linkAttributes['target']);
         }
+
         // Provider href overrides must pass the same final-URL checks as saved URLs.
         if (isset($linkAttributes['href']) && $linkAttributes['href'] !== false) {
             $href = $linkAttributes['href'];
             $linkAttributes['href'] = is_string($href) && ManualUrl::isAllowed($href) ? $href : false;
         }
+
         if ($registry?->ariaLabel !== null) {
             $item['ariaLabel'] = $registry->ariaLabel;
         }
@@ -198,6 +203,7 @@ final class NavRenderer extends Component
             // Retain a parent label and its valid children without emitting an unsafe link.
             $linkAttributes['href'] = false;
         }
+
         if ($linkAttributes !== []) {
             $item['linkAttributes'] = $linkAttributes;
         }
@@ -289,6 +295,7 @@ final class NavRenderer extends Component
         $walk = function(array $nodes) use (&$index, &$walk): void {
             foreach ($nodes as $node) {
                 $index[$node->key] = $node;
+
                 if ($node->children) {
                     $walk($node->children);
                 }

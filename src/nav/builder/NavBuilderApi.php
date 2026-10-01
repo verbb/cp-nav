@@ -41,6 +41,7 @@ class NavBuilderApi extends Component
 
         // Build flat list first so canIndent / canOutdent see the full sibling context.
         $flatNodes = [];
+
         foreach ($navigations as $navigation) {
             if ($navigation->getParent() !== null) {
                 continue;

@@ -1,6 +1,6 @@
 # Changelog
 
-## 6.0.0 - 2026-09-
+## Unreleased
 
 > {warning} Before upgrading to Control Panel Nav 6, review the [upgrade guide](https://verbb.io/craft-plugins/cp-nav/docs/v6/get-started/upgrading-from-v5) for breaking changes and required migration steps.
 

@@ -24,8 +24,10 @@ class AdminController extends Controller
     public function actionIndex(): Response
     {
         $layoutId = $this->request->getParam('layoutId');
+
         if ($layoutId !== null) {
             $layoutId = filter_var($layoutId, FILTER_VALIDATE_INT);
+
             if (!$layoutId || $layoutId < 1) {
                 throw new BadRequestHttpException('Invalid navigation layout.');
             }

@@ -83,6 +83,7 @@ class Layouts extends Component
             // Is there even a solo account?
             if (User::find()->status(null)->one()) {
                 $match = $this->getLayoutMatchingPermissions(['solo']);
+
                 if ($match) {
                     return $match;
                 }
@@ -91,6 +92,7 @@ class Layouts extends Component
             $groups = Craft::$app->userGroups->getGroupsByUserId($userId);
             $groupUids = array_map(static fn($group) => $group->uid, $groups);
             $match = $this->getLayoutMatchingPermissions($groupUids);
+
             if ($match) {
                 return $match;
             }
@@ -151,7 +153,7 @@ class Layouts extends Component
             $layout->sortOrder = (new Query())
                 ->from(['{{%cpnav_layout}}'])
                 ->max('[[sortOrder]]') + 1;
-        } else if (!$layout->uid) {
+        } elseif (!$layout->uid) {
             $layout->uid = Db::uidById('{{%cpnav_layout}}', $layout->id);
         }
 
@@ -294,6 +296,7 @@ class Layouts extends Component
         CpNav::$plugin->getNavCustomization()->setCustomizationNodes($layout->uid, $nodes);
 
         $acknowledged = CpNav::$plugin->getNavCustomization()->getAcknowledgedRegistryKeys($source->uid);
+
         if ($acknowledged !== null) {
             CpNav::$plugin->getNavCustomization()->setAcknowledgedRegistryKeys($layout->uid, $acknowledged);
         } else {

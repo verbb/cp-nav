@@ -22,6 +22,7 @@ final class CustomizationNode
 
         // Absent parent key → inherit. Present null/'' → explicit root (legacy PC used null).
         $parent = null;
+
         if (array_key_exists('parent', $config)) {
             $raw = $config['parent'];
             $parent = ($raw === null || $raw === '') ? self::PARENT_ROOT : (string)$raw;

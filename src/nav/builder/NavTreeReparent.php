@@ -16,8 +16,10 @@ final class NavTreeReparent
     {
         $keys = [];
         $parents = [];
+
         foreach ($nodes as $node) {
             $keys[$node['key']] = true;
+
             if (!empty($node['parentKey'])) {
                 $parents[$node['parentKey']] = true;
             }
@@ -25,6 +27,7 @@ final class NavTreeReparent
 
         $result = [];
         $previousRoot = null;
+
         foreach ($nodes as $node) {
             $key = $node['key'];
             $parent = $node['parentKey'] ?? null;
@@ -34,6 +37,7 @@ final class NavTreeReparent
                     && !str_starts_with($previousRoot, 'divider:'),
                 'canOutdent' => $parent && isset($keys[$parent]),
             ];
+
             if (!$parent) {
                 $previousRoot = $key;
             }
@@ -91,6 +95,7 @@ final class NavTreeReparent
         $moved = $nodes[$index];
         $moved['parentKey'] = $parentKey;
         $moved['level'] = 2;
+
         // Keep legacy parentId fields in sync when present (builder projection).
         if (array_key_exists('parentId', $moved) && array_key_exists('builderId', $parent)) {
             $moved['parentId'] = (int)$parent['builderId'];
@@ -103,11 +108,13 @@ final class NavTreeReparent
         ));
 
         $insertAt = self::_indexOfKey($without, $parentKey);
+
         if ($insertAt === null) {
             return null;
         }
 
         $insertAt++;
+
         while (
             $insertAt < count($without)
             && ($without[$insertAt]['parentKey'] ?? null) === $parentKey
@@ -145,6 +152,7 @@ final class NavTreeReparent
         $moved = $node;
         $moved['parentKey'] = null;
         $moved['level'] = 1;
+
         if (array_key_exists('parentId', $moved)) {
             $moved['parentId'] = null;
         }
@@ -156,11 +164,13 @@ final class NavTreeReparent
         ));
 
         $insertAt = self::_indexOfKey($without, (string)$parentKey);
+
         if ($insertAt === null) {
             return null;
         }
 
         $insertAt++;
+
         while (
             $insertAt < count($without)
             && ($without[$insertAt]['parentKey'] ?? null) === $parentKey
@@ -186,6 +196,7 @@ final class NavTreeReparent
         }
 
         $submitted = [];
+
         if (!array_is_list($items)) {
             return ['Reorder items must be a list.'];
         }
@@ -196,6 +207,7 @@ final class NavTreeReparent
                 continue;
             }
             $key = $item['key'];
+
             if (isset($submitted[$key]) || !isset($nodesByKey[$key])) {
                 $errors[] = 'Reorder item has a duplicate or unknown key.';
                 continue;
@@ -203,6 +215,7 @@ final class NavTreeReparent
             $submitted[$key] = true;
 
             $parentKey = $item['parentKey'] ?? null;
+
             if ($parentKey !== null && !is_string($parentKey)) {
                 $errors[] = 'Reorder item has an invalid parent key.';
                 continue;
@@ -238,12 +251,14 @@ final class NavTreeReparent
 
             // Parent must itself be a root in the resulting tree (max depth 2).
             $grandParent = $parentByKey[$parentKey] ?? null;
+
             if ($grandParent !== null) {
                 $errors[] = "Node {$key} would nest deeper than " . self::MAX_DEPTH . " levels.";
             }
 
             $seen = [$key => true];
             $cursor = $parentKey;
+
             while ($cursor !== null) {
                 if (isset($seen[$cursor])) {
                     $errors[] = "Node {$key} would create a parent cycle.";

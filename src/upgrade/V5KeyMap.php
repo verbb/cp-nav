@@ -101,6 +101,7 @@ final class V5KeyMap
             $segment = explode('/', $segment)[0] ?? $segment;
 
             $plugin = \Craft::$app->getPlugins()->getPlugin($segment);
+
             if ($plugin) {
                 return $plugin->handle;
             }

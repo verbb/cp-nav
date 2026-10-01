@@ -77,6 +77,7 @@ final class NavSourceBuilder
     public function withLiveMetadata(array $registryTree, array $navItems): array
     {
         $registryKeys = [];
+
         foreach ($registryTree as $node) {
             foreach ($node->flatten() as $flat) {
                 $registryKeys[$flat->key] = true;
@@ -85,6 +86,7 @@ final class NavSourceBuilder
 
         $liveTree = $this->_transformTopLevel($navItems);
         $liveIndex = [];
+
         foreach ($liveTree as $node) {
             foreach ($node->flatten() as $flat) {
                 $liveIndex[$flat->key] = $flat;
@@ -96,6 +98,7 @@ final class NavSourceBuilder
         $refresh = function(NavNode $node) use (&$refresh, $liveIndex, $registryKeys): NavNode {
             $live = $liveIndex[$node->key] ?? $node;
             $children = array_map($refresh, $node->children);
+
             foreach ($live->children as $child) {
                 if (!isset($registryKeys[$child->key])) {
                     $children[] = $child;
@@ -122,6 +125,7 @@ final class NavSourceBuilder
         };
 
         $tree = array_map($refresh, $registryTree);
+
         // An administrator does not necessarily receive every user-specific provider item.
         foreach ($liveTree as $node) {
             if (!isset($registryKeys[$node->key])) {
@@ -179,6 +183,7 @@ final class NavSourceBuilder
         }
 
         $admin = User::find()->admin(true)->status(null)->one();
+
         if (!$admin) {
             throw new \RuntimeException('Cannot build nav sources without an admin user.');
         }
@@ -223,6 +228,7 @@ final class NavSourceBuilder
     private function _transformSubnav(array $parentItem, string $parentKey, string $parentRelativeUrl): array
     {
         $subnav = $parentItem['subnav'] ?? null;
+
         if (!is_array($subnav) || $subnav === []) {
             return [];
         }

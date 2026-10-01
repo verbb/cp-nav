@@ -19,6 +19,7 @@ final class CustomizationUpgrader
         }
 
         $byId = [];
+
         foreach ($navigations as $navigation) {
             if ($navigation->id) {
                 $byId[$navigation->id] = $navigation;
@@ -28,12 +29,15 @@ final class CustomizationUpgrader
         // Identity follows the provider's original tree, even after an item was moved or outdented.
         $keysById = [];
         $keys = [];
+
         foreach ($navigations as $index => $navigation) {
             $originalParent = $byId[$navigation->prevParentId] ?? null;
+
             if ($navigation->prevLevel === null && $navigation->prevParentId === null) {
                 $originalParent = $byId[$navigation->parentId] ?? null;
             }
             $keys[$index] = V5KeyMap::resolveKey($navigation, $originalParent);
+
             if ($navigation->id) {
                 $keysById[$navigation->id] = $keys[$index];
             }
@@ -46,6 +50,7 @@ final class CustomizationUpgrader
             // referenced parent row is missing (orphan recovery) — never when parentId is
             // explicitly null/0 (intentional v5 outdent to root).
             $parent = null;
+
             if ($navigation->parentId) {
                 $parent = $byId[$navigation->parentId] ?? null;
 
@@ -70,6 +75,7 @@ final class CustomizationUpgrader
         }
 
         $groups = [];
+
         foreach ($resolved as $key => $row) {
             $parentKey = $row['parentKey'] ?? '';
             $groups[$parentKey][$key] = $row;
@@ -81,6 +87,7 @@ final class CustomizationUpgrader
             uasort($siblings, fn(array $a, array $b) => ($a['sortOrder'] ?? 0) <=> ($b['sortOrder'] ?? 0));
 
             $sort = 0;
+
             foreach ($siblings as $key => $row) {
                 $sort += 10;
                 $customizations[$key] = $this->_buildCustomizationNode(
@@ -110,6 +117,7 @@ final class CustomizationUpgrader
         // Manuals/dividers always keep their label (v5 often sets currLabel === prevLabel on create).
         // Canonical nodes only store a delta when the label was renamed.
         $label = null;
+
         if ($isCustomizationOnly) {
             $label = $navigation->currLabel;
         } elseif ($navigation->currLabel !== $navigation->prevLabel) {
@@ -117,6 +125,7 @@ final class CustomizationUpgrader
         }
 
         $url = null;
+
         if ($isCustomizationOnly) {
             $url = $navigation->url;
         } elseif (($navigation->url ?? null) !== ($navigation->prevUrl ?? null)) {

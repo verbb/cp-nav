@@ -37,6 +37,7 @@ class StaticIconsController extends Controller
     public function actionView(): Response
     {
         $file = $this->request->getRequiredQueryParam('file');
+
         if (!is_string($file)) {
             throw new NotFoundHttpException('Icon not found.');
         }

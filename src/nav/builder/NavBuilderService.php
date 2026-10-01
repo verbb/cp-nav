@@ -35,6 +35,7 @@ class NavBuilderService extends Component
     public function getLayoutNavItemByBuilderId(int $layoutId, int $builderId): ?LayoutNavItem
     {
         $match = null;
+
         foreach ($this->getLayoutNavItemsForLayout($layoutId) as $navigation) {
             if ($navigation->id === $builderId) {
                 // Numeric IDs are only a legacy projection; refuse an ambiguous lookup.
@@ -133,10 +134,12 @@ class NavBuilderService extends Component
 
         // One layout tree + one overlay load for the whole mutation.
         $nodesByKey = [];
+
         foreach ($this->getLayoutNavItemsForLayout($layoutId) as $navigation) {
             if ($navigation->nodeKey) {
                 $nodesByKey[$navigation->nodeKey] = $navigation;
             }
+
             foreach ($navigation->getChildren() as $child) {
                 if ($child->nodeKey) {
                     $nodesByKey[$child->nodeKey] = $child;
@@ -145,6 +148,7 @@ class NavBuilderService extends Component
         }
 
         $validationIndex = [];
+
         foreach ($nodesByKey as $key => $navigation) {
             $validationIndex[$key] = [
                 'key' => $key,
@@ -265,6 +269,7 @@ class NavBuilderService extends Component
 
         if ($parentKey !== null) {
             $parentIndex = null;
+
             foreach ($nodes as $i => $node) {
                 if (($node['key'] ?? null) === $parentKey) {
                     $parentIndex = $i;
@@ -286,8 +291,10 @@ class NavBuilderService extends Component
 
         $nodes[$index]['parentKey'] = $parentKey;
         $nodes[$index]['level'] = $parentKey ? 2 : 1;
+
         if (array_key_exists('parentId', $nodes[$index])) {
             $nodes[$index]['parentId'] = null;
+
             if ($parentKey !== null) {
                 foreach ($nodes as $node) {
                     if (($node['key'] ?? null) === $parentKey) {
@@ -379,6 +386,7 @@ class NavBuilderService extends Component
 
         if ($type === LayoutNavItem::TYPE_MANUAL) {
             $url = (string)($navigation->url ?? '');
+
             if ($url === '' || !ManualUrl::isAllowed($url)) {
                 return false;
             }
@@ -515,6 +523,7 @@ class NavBuilderService extends Component
         foreach ($resolved as $node) {
             // Attach by canonical identity, never by the potentially colliding display hash.
             $parent = $node->parentKey !== null ? ($byKey[$node->parentKey] ?? null) : null;
+
             if ($parent) {
                 $navigation = $byKey[$node->key];
                 $parent->addChild($navigation);

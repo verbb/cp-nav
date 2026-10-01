@@ -145,6 +145,7 @@ class ApiController extends Controller
         $nodeKey = $this->_nodeKey();
         // Explicit null = promote to root; omit vs empty string handled by request.
         $parentKey = $this->request->getBodyParam('parentKey');
+
         if ($parentKey !== null && !is_string($parentKey)) {
             throw new BadRequestHttpException('Invalid navigation parent.');
         }
@@ -223,6 +224,7 @@ class ApiController extends Controller
     private function _nodeKey(): string
     {
         $key = $this->request->getRequiredParam('key');
+
         if (!is_string($key) || $key === '') {
             throw new BadRequestHttpException('Invalid navigation key.');
         }
