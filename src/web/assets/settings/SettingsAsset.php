@@ -4,7 +4,7 @@ namespace verbb\cpnav\web\assets\settings;
 use craft\web\AssetBundle;
 use craft\web\assets\cp\CpAsset as CraftCpAsset;
 
-use verbb\base\assetbundles\CpAsset as VerbbCpAsset;
+use verbb\base\web\assets\cp\CpAsset as VerbbCpAsset;
 
 /**
  * Layouts settings page — owns `settings/dist` from `vite.settings.config.ts`.

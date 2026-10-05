@@ -4,7 +4,7 @@ namespace verbb\cpnav\web\assets\builder;
 use craft\web\AssetBundle;
 use craft\web\assets\cp\CpAsset as CraftCpAsset;
 
-use verbb\base\assetbundles\CpAsset as VerbbCpAsset;
+use verbb\base\web\assets\cp\CpAsset as VerbbCpAsset;
 
 /**
  * Vite dist owner for all CP Nav CP entries (builder / settings / sidebar).

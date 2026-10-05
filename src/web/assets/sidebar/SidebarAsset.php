@@ -4,7 +4,7 @@ namespace verbb\cpnav\web\assets\sidebar;
 use craft\web\AssetBundle;
 use craft\web\assets\cp\CpAsset as CraftCpAsset;
 
-use verbb\base\assetbundles\CpAsset as VerbbCpAsset;
+use verbb\base\web\assets\cp\CpAsset as VerbbCpAsset;
 
 /**
  * Global CP sidebar chrome — owns `sidebar/dist` from `vite.sidebar.config.ts`.

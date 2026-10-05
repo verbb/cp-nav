@@ -1,6 +1,6 @@
 {% extends parentLayout ?? 'cp-nav/_layouts/cp' %}
 
-{% do view.registerAssetBundle('verbb\\base\\assetbundles\\CpAsset') -%}
+{% do view.registerAssetBundle('verbb\\base\\web\\assets\\cp\\CpAsset') -%}
 
 {% if title is not defined %}
     {% set title = 'Control Panel Nav' | t('cp-nav') %}

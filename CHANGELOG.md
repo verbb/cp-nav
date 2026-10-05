@@ -15,6 +15,7 @@
 - Added events for modifying resolved navigation and responding to individual or complete customization changes.
 
 ### Changed
+- Require Verbb Base 3.0.19 or later for the current control-panel asset bundle namespace.
 - Now requires Craft CMS 5.9 or later.
 - Direct upgrades from Control Panel Nav 4 on Craft 4 and Control Panel Nav 5 on Craft 5 are supported. Existing navigation rows are migrated to the new Project Config customization format, with safe preview, audit, rerun, and replacement options available through the console commands.
 - Custom icons now use relative SVG paths from **Icons Path** instead of Craft assets. Existing custom icons must be selected again after upgrading.
@@ -24,6 +25,7 @@
 - Updated divider styling for Craft 5 with a muted line-label-line treatment.
 
 ### Fixed
+- Avoid Verbb Base deprecation warnings by using its current control-panel asset bundle namespace. ([verbb-base#3](https://github.com/verbb/verbb-base/issues/3))
 - Fixed an information disclosure vulnerability.
 - Fixed a cross-site scripting vulnerability.
 

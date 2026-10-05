@@ -8,7 +8,7 @@
 
 {% requireAdmin %}
 
-{% do view.registerAssetBundle('verbb\\base\\assetbundles\\CpAsset') -%}
+{% do view.registerAssetBundle('verbb\\base\\web\\assets\\cp\\CpAsset') -%}
 
 {% set crumbs = [
     { label: 'Control Panel Nav' | t('cp-nav'), url: url('cp-nav') },
