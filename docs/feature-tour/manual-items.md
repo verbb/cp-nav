@@ -45,3 +45,5 @@ Environment variables and aliases are expanded before site tokens. You can there
 ## Custom Icons
 
 Follow [Configuration](/get-started/configuration#setting-up-custom-icons) to make your SVG files available. Open the item, select a file under **Custom Icon**, and click **Save**. The saved path is relative to the configured folder, so deploy the same icon files alongside your project.
+
+![Team Handbook's menu item editor with the SVG icon picker open and book-open.svg selected](../../screenshots/cp-nav-icon-picker.png)

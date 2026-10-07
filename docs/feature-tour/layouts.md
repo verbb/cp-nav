@@ -26,6 +26,8 @@ If someone belongs to several groups with assigned layouts, the first matching l
 
 The default layout is used when no group assignment matches. It cannot be deleted. An administrator can select another layout in the navigation builder to edit it, but checking that view does not replace testing with the intended editor account.
 
+![Default, Editorial, and Client layouts with reorder, duplicate, and delete controls](../../screenshots/cp-nav-layout.png)
+
 ## Duplicating a Layout
 
 Click **Duplicate** beside a layout to copy its navigation and group assignments. The copy's name ends in `copy`. Open the copy to give it a useful name and adjust its group assignments, then save. Reorder the list if necessary so the intended layout takes priority for people in multiple groups.

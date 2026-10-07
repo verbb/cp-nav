@@ -22,6 +22,8 @@ Visibility is separate from access. Craft and plugin items only appear when they
 
 When Craft or an installed plugin adds a menu item, it appears among its siblings at Craft's default position. The builder displays a notice when there are new items you haven't acknowledged for that layout.
 
+![Navigation builder showing a new-menu-item notice and the Users row marked New](../../screenshots/cp-nav-new-items.png)
+
 Review the new rows and rename, move, or hide them as needed. Click **Got it** to dismiss the notice. Dismissing it acknowledges the available items; it doesn't remove them from the menu.
 
 ## Custom Icons
