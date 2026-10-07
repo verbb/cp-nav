@@ -7,6 +7,7 @@ import { useBuilderStore } from '../store';
 import { t } from '../api';
 import { getNodeRowPaddingLeft, nodeTreeGridClass, nodeTreeSecondaryColumnClass } from '../utils/nodeRowLayout';
 import { shouldSuppressRowSelectionToggle } from '../utils/selection';
+import { nodeEditorId } from '../utils/nodeEditor';
 import { NodeTypeBadge } from './NodeTypeBadge';
 import { NodeRowActionsMenu } from './NodeRowActionsMenu';
 
@@ -30,6 +31,7 @@ export function NodeRow({
   isDropNestTarget = false,
 }: Props) {
   const openEditEditor = useBuilderStore((s) => s.openEditEditor);
+  const editorOpen = useBuilderStore((s) => s.editorSession?.kind === 'edit' && s.editorSession.nodeKey === node.key);
   const changingNodeSet = useBuilderStore((s) => s.changingNodeSet);
   const toggleEnabled = useBuilderStore((s) => s.toggleEnabled);
   const collapsedNodeKeys = useBuilderStore((s) => s.collapsedNodeKeys);
@@ -155,6 +157,8 @@ export function NodeRow({
             type="button"
             data-no-row-select
             data-cpnav-editor-anchor={node.key}
+            aria-expanded={editorOpen}
+            aria-controls={nodeEditorId(node.key)}
             className="flex min-w-0 flex-1 items-center gap-2 bg-transparent p-0 text-left"
             onClick={(event) => {
               event.stopPropagation();
@@ -173,23 +177,27 @@ export function NodeRow({
             <span className="h-px min-w-8 flex-1 bg-gray-300" aria-hidden="true" />
           </button>
         ) : (
-          <a
-            href="#"
+          <button
+            type="button"
             data-no-row-select
             data-cpnav-editor-anchor={node.key}
+            aria-expanded={editorOpen}
+            aria-controls={nodeEditorId(node.key)}
             className={cn(
-              'min-w-0 truncate font-normal text-link no-underline hover:underline',
+              'min-w-0 cursor-pointer truncate bg-transparent p-0 text-left font-normal text-link no-underline hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600',
               !node.enabled && 'text-gray-400',
             )}
             onClick={(event) => {
-              event.preventDefault();
               event.stopPropagation();
               openEditor();
             }}
           >
             {title}
-          </a>
+          </button>
         )}
+
+        {/* Keep the active editor next in both keyboard and reading order. */}
+        <div id={nodeEditorId(node.key)} data-cpnav-editor-mount className="contents" />
 
         {node.type !== 'divider' && defaultLabel && (
           <span className="min-w-0 truncate text-gray-400">({defaultLabel})</span>

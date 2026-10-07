@@ -5,7 +5,7 @@ import {
   DropdownSeparator,
   Icon,
 } from '@verbb/plugin-kit-react/components';
-import { useState, type CSSProperties } from 'react';
+import { useRef, useState, type CSSProperties } from 'react';
 import { flushSync } from 'react-dom';
 import { cn } from '../utils/cn';
 import type { BuilderNode } from '../types';
@@ -24,6 +24,7 @@ type PkSelectDetail = { value?: string };
 
 export function NodeRowActionsMenu({ node, isDragSession = false, className }: Props) {
   const [open, setOpen] = useState(false);
+  const editAfterHide = useRef(false);
   const changingNodeSet = useBuilderStore((s) => s.changingNodeSet);
   const nodes = useBuilderStore((s) => s.nodes);
   const maxLevels = useBuilderStore((s) => s.maxLevels);
@@ -48,7 +49,7 @@ export function NodeRowActionsMenu({ node, isDragSession = false, className }: P
       case 'edit':
         // Avoid menu-dismiss click-through hitting the row/label underneath.
         suppressRowSelectionToggle();
-        openEditEditor(node.key);
+        editAfterHide.current = true;
         return;
       case 'move-up':
         moveNodeUp(node.key);
@@ -80,7 +81,14 @@ export function NodeRowActionsMenu({ node, isDragSession = false, className }: P
         onPkSelect={handleMenuSelect}
         // Mount only the active menu; synchronise before the component moves keyboard focus.
         onPkShow={() => flushSync(() => setOpen(true))}
-        onPkAfterHide={() => setOpen(false)}
+        onPkAfterHide={() => {
+          setOpen(false);
+          // Keep the menu's focus cleanup from stealing the editor's initial focus.
+          if (editAfterHide.current) {
+            editAfterHide.current = false;
+            openEditEditor(node.key);
+          }
+        }}
       >
         <Button
           disabled={changingNodeSet}

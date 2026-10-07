@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed keyboard focus order, button semantics, and focus restoration for navigation item editors. ([#158](https://github.com/verbb/cp-nav/issues/158))
+
 ## 6.0.0 - 2026-10-07
 
 > {warning} Before upgrading to Control Panel Nav 6, review the [upgrade guide](https://verbb.io/craft-plugins/cp-nav/docs/get-started/upgrading-from-v5) for breaking changes and required migration steps.

@@ -46,7 +46,7 @@ for (const dismissal of ['Escape', 'outside click']) {
       expect(response.status()).toBe(200);
       const data = await response.json();
       try {
-        await expect(page.locator('[data-tree-row]').filter({ has: page.getByRole('link', { name: 'Recoverable draft', exact: true }) })).toBeVisible();
+        await expect(page.locator('[data-tree-row]').filter({ has: page.getByRole('button', { name: 'Recoverable draft', exact: true }) })).toBeVisible();
         await expect(label).toHaveCount(0);
       } finally {
         await page.evaluate(({ layoutId, key }) => Craft.sendActionRequest('POST', 'cp-nav/api/delete-node', { data: { layoutId, key } }), { layoutId: data.tree.layout.id, key: data.node.key });

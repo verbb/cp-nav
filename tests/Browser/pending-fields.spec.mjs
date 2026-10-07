@@ -34,7 +34,7 @@ for (const mode of ['create', 'edit']) {
       await page.goto(`/admin/cp-nav?layoutId=${layout.id}`);
       if (mode === 'edit') {
         await addLink(page, 'Existing item');
-        await page.locator('[data-tree-row]').getByRole('link', { name: 'Existing item', exact: true }).click();
+        await page.locator('[data-tree-row]').getByRole('button', { name: 'Existing item', exact: true }).click();
       } else {
         await page.getByRole('button', { name: 'New menu item', exact: true }).click();
       }
@@ -72,7 +72,7 @@ for (const mode of ['create', 'edit']) {
         }
       }
       await page.reload();
-      await expect(page.locator('[data-tree-row]').getByRole('link', { name: 'Retried item', exact: true })).toHaveCount(1);
+      await expect(page.locator('[data-tree-row]').getByRole('button', { name: 'Retried item', exact: true })).toHaveCount(1);
     } finally {
       await page.unrouteAll({ behavior: 'wait' });
       await action(page, 'layout/delete', { id: layout.id });

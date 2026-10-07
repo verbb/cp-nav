@@ -6,6 +6,7 @@ import {
   type CSSProperties,
   type FormEvent,
 } from 'react';
+import { createPortal } from 'react-dom';
 import { Button, Field, Input, Lightswitch, Popover } from '@verbb/plugin-kit-react/components';
 import { useBuilderStore } from '../store';
 import { t } from '../api';
@@ -106,6 +107,7 @@ export function NodeEditorPopover() {
   const popoverRef = useRef<HTMLElement | null>(null);
   const fieldsRef = useRef(fields);
   const iconBrowserOpenRef = useRef(false);
+  const returnFocusRef = useRef(false);
 
   const saveRef = useRef<() => Promise<void>>(async () => {});
 
@@ -126,6 +128,7 @@ export function NodeEditorPopover() {
     setAnchor(resolveEditorAnchor(session));
     setErrors({});
     setSaving(false);
+    returnFocusRef.current = false;
 
     if (session.kind === 'create') {
       setFields({ ...emptyCreateForm(session.type), customIcon: null, customIconPreview: null });
@@ -191,6 +194,37 @@ export function NodeEditorPopover() {
     };
   }, [session, visibleSession, anchor, fieldMountKey]);
 
+  useEffect(() => {
+    if (!open || !visibleSession || !anchor) {
+      return;
+    }
+
+    // The controlled popup and slotted Lit fields finish rendering separately.
+    // The popup stays visibility:hidden until positioned, so layout alone is not enough.
+    let frame: number;
+    const focusEditor = () => {
+      if (useBuilderStore.getState().editorSession !== visibleSession) {
+        return;
+      }
+
+      // Menu selections hand focus back to their menu button first. Row edits
+      // resume at the adjacent disclosure; creation enters the non-modal form.
+      const target = visibleSession.kind === 'create'
+        ? formRef.current?.querySelector<HTMLElement>('pk-input[name="currLabel"]')
+        : anchor;
+      if (!(target instanceof HTMLElement) || !target.getClientRects().length
+        || window.getComputedStyle(target).visibility !== 'visible') {
+        frame = window.requestAnimationFrame(focusEditor);
+        return;
+      }
+
+      target.focus({ preventScroll: true });
+    };
+    frame = window.requestAnimationFrame(focusEditor);
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [open, visibleSession, anchor]);
+
   const editNode =
     visibleSession?.kind === 'edit'
       ? (nodes.find((node) => node.key === visibleSession.nodeKey) ?? null)
@@ -236,6 +270,12 @@ export function NodeEditorPopover() {
     return null;
   }
 
+  const mount = anchor.nextElementSibling;
+
+  if (visibleSession.kind === 'edit' && !mount?.hasAttribute('data-cpnav-editor-mount')) {
+    return null;
+  }
+
   const editorType =
     visibleSession.kind === 'create' ? visibleSession.type : (editNode?.type ?? 'manual');
   const isDivider = editorType === 'divider';
@@ -264,12 +304,25 @@ export function NodeEditorPopover() {
       && (saving || activeSaveRef.current === visibleSession);
     if (savingCurrentSession || iconBrowserOpenRef.current) {
       event.preventDefault();
+      return;
+    }
+
+    if ((event as CustomEvent<{ source: string }>).detail?.source === 'escape') {
+      returnFocusRef.current = true;
     }
   };
 
   const handleAfterHide = (event: Event) => {
     if (event.target !== popoverRef.current || !popoverRef.current?.isConnected) {
       return;
+    }
+    // A previous editor's exit must not steal focus from a newly opened session.
+    const currentSession = useBuilderStore.getState().editorSession;
+    if (returnFocusRef.current && (!currentSession || currentSession === visibleSession)) {
+      const target = anchor.isConnected ? anchor : resolveEditorAnchor({ kind: 'create', type: 'manual' });
+      if (target instanceof HTMLElement) {
+        target.focus({ preventScroll: true });
+      }
     }
     setVisibleSession(null);
     setAnchor(null);
@@ -336,6 +389,9 @@ export function NodeEditorPopover() {
       }
 
       if (ok) {
+        if (useBuilderStore.getState().editorSession === savingSession) {
+          returnFocusRef.current = true;
+        }
         closeEditor(savingSession);
       }
     } finally {
@@ -357,9 +413,8 @@ export function NodeEditorPopover() {
     void save();
   };
 
-  return (
-    // Keep the host out of the builder’s block flow — pk-popover is inline-block, and
-    // mounting it after the tree was expanding the pane by ~panel height while open.
+  const editor = (
+    // Keep the positioned host out of its row/header layout without changing tab order.
     //
     // After leaving the native top layer (positionMethod=fixed), stay under Craft
     // modals/shades (z-index 100). pk-popup defaults to --pk-popup-z-index: 1000.
@@ -396,6 +451,8 @@ export function NodeEditorPopover() {
         */}
         <form
           ref={formRef}
+          role="dialog"
+          aria-label={visibleSession.kind === 'create' ? t('New menu item') : t('Edit menu item')}
           className="flex max-w-[calc(100vw-2rem)] min-w-0 flex-col overflow-hidden rounded-[var(--pk-radius-md)]"
           style={{ width: POPOVER_WIDTH }}
           onSubmit={handleSubmit}
@@ -494,7 +551,10 @@ export function NodeEditorPopover() {
           </div>
 
           <div className="flex shrink-0 items-center justify-end gap-2 border-t border-gray-150 bg-gray-50 px-4 py-3">
-            <Button type="button" variant="default" disabled={saving} onClick={() => closeEditor()}>
+            <Button type="button" variant="default" disabled={saving} onClick={() => {
+              returnFocusRef.current = true;
+              closeEditor();
+            }}>
               {t('Cancel')}
             </Button>
             <Button type="submit" variant="primary" loading={saving} disabled={saving}>
@@ -508,4 +568,8 @@ export function NodeEditorPopover() {
       </Popover>
     </div>
   );
+
+  // Craft's header stacks below the content pane; keep creation outside that
+  // stacking context and move focus into it explicitly instead of using DOM adjacency.
+  return visibleSession.kind === 'edit' && mount ? createPortal(editor, mount) : editor;
 }

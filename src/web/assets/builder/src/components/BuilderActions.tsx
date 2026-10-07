@@ -6,6 +6,7 @@ import {
   DropdownMenu,
   Icon,
 } from '@verbb/plugin-kit-react/components';
+import { useRef } from 'react';
 import { useBuilderStore } from '../store';
 import { t } from '../api';
 
@@ -20,6 +21,7 @@ export function BuilderActions() {
   const reordering = useBuilderStore((s) => s.reordering);
   const resetLayout = useBuilderStore((s) => s.resetLayout);
   const openCreateEditor = useBuilderStore((s) => s.openCreateEditor);
+  const createDividerAfterHide = useRef(false);
 
   if (loading || error) {
     return null;
@@ -31,7 +33,7 @@ export function BuilderActions() {
     const value = (event as CustomEvent<PkSelectDetail>).detail?.value;
 
     if (value === 'divider') {
-      openCreateEditor('divider');
+      createDividerAfterHide.current = true;
     }
   };
 
@@ -71,7 +73,17 @@ export function BuilderActions() {
           {t('New menu item')}
         </Button>
         <ButtonGroupSeparator />
-        <DropdownMenu placement="bottom-end" onPkSelect={handleMenuSelect}>
+        <DropdownMenu
+          placement="bottom-end"
+          onPkSelect={handleMenuSelect}
+          onPkAfterHide={() => {
+            // Let the menu finish managing focus before the editor takes over.
+            if (createDividerAfterHide.current) {
+              createDividerAfterHide.current = false;
+              openCreateEditor('divider');
+            }
+          }}
+        >
           <Button
             slot="trigger"
             type="button"

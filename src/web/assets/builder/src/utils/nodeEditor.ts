@@ -59,6 +59,10 @@ export function hasFieldErrors(errors: NodeEditorFieldErrors): boolean {
   return Boolean(errors.currLabel || errors.url);
 }
 
+export function nodeEditorId(key: string): string {
+  return `cpnav-editor-${encodeURIComponent(key)}`;
+}
+
 /** Resolve the HUD anchor across Craft chrome / builder shadow roots. */
 export function resolveEditorAnchor(session: EditorSession): Element | null {
   if (session.kind === 'create') {

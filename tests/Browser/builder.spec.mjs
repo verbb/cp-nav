@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-const rowFor = (page, name) => page.locator('[data-tree-row]').filter({ has: page.getByRole('link', { name, exact: true }) });
+const rowFor = (page, name) => page.locator('[data-tree-row]').filter({ has: page.getByRole('button', { name, exact: true }) });
 const waitAction = (page, action) => page.waitForResponse(response => decodeURIComponent(response.url()).includes(`cp-nav/api/${action}`) && response.request().method() === 'POST');
 async function switchLayout(page, name) {
   await page.locator('#cpnav-builder-toolbar').getByRole('button').click();
@@ -34,14 +34,14 @@ test('persists edits moves and visibility, isolates layouts, and recovers a reje
   await page.locator('pk-input[name="url"] input').fill('https://example.test/docs');
   await page.getByRole('button', { name: 'Save', exact: true }).click();
   await expect(rowFor(page, 'Browser docs')).toBeVisible();
-  await rowFor(page, 'Browser docs').getByRole('link', { name: 'Browser docs', exact: true }).click();
+  await rowFor(page, 'Browser docs').getByRole('button', { name: 'Browser docs', exact: true }).click();
   await page.locator('pk-input[name="currLabel"] input').fill('Edited browser docs');
   await page.locator('pk-input[name="url"] input').fill('https://example.test/edited');
   await page.locator('pk-image-browser').getByRole('button', { name: /Custom Icon/ }).click();
   await page.getByRole('option', { name: 'mark.svg', exact: true }).click();
   await page.getByRole('button', { name: 'Save', exact: true }).click();
   await expect(rowFor(page, 'Edited browser docs')).toContainText('https://example.test/edited');
-  await rowFor(page, 'Edited browser docs').getByRole('link', { name: 'Edited browser docs', exact: true }).click();
+  await rowFor(page, 'Edited browser docs').getByRole('button', { name: 'Edited browser docs', exact: true }).click();
   await expect(page.locator('pk-image-browser')).toContainText('mark.svg');
   await page.getByRole('button', { name: 'Cancel', exact: true }).click();
   const rows = page.locator('[data-tree-row]');
