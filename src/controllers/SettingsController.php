@@ -4,19 +4,24 @@ namespace verbb\cpnav\controllers;
 use verbb\cpnav\CpNav;
 use verbb\cpnav\models\Settings;
 
-use craft\web\Controller;
-
 use yii\web\Response;
 
-class SettingsController extends Controller
+use verbb\base\controllers\SettingsController as BaseSettingsController;
+
+class SettingsController extends BaseSettingsController
 {
     // Public Methods
     // =========================================================================
 
-    public function actionIndex(): Response
+    public function beforeAction($action): bool
     {
         $this->requireAdmin();
 
+        return parent::beforeAction($action);
+    }
+
+    public function actionIndex(): Response
+    {
         /* @var Settings $settings */
         $settings = CpNav::$plugin->getSettings();
 

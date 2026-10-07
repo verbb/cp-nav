@@ -82,7 +82,8 @@ it('keeps default metadata and reports a rejected default deletion through the c
     expect(CpNav::$plugin->getLayouts()->getLayoutById($default->id))->not->toBeNull();
 });
 
-it('requires an admin for the actual settings action', function() {
+it('requires an admin for the actual settings actions', function() {
     Craft::$app->getUser()->setIdentity($this->fixtureEditor());
     expect(fn() => \Tests\Support\ActionRequest::dispatch('settings/index', [], 'GET'))->toThrow(\yii\web\ForbiddenHttpException::class);
+    expect(fn() => \Tests\Support\ActionRequest::dispatch('settings/save-settings', ['settings' => ['iconsPath' => '@root/icons']]))->toThrow(\yii\web\ForbiddenHttpException::class);
 });

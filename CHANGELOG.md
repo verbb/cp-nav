@@ -29,6 +29,16 @@
 - Removed the legacy `cp-nav.navigations` Project Config structure and active `cpnav_navigation` table; the table is archived as `cpnav_navigation_v5_archive` during upgrade.
 - Removed the `Navigations` and `Service` integration APIs and their navigation-record events. Use the new navigation builder, customization services, and events instead.
 
+## 5.0.10 - 2026-10-02
+
+### Changed
+- Updated the required version of `verbb/base` to 3.0.19.
+
+## 5.0.9 - 2026-09-30
+
+### Changed
+- Route plugin settings through the plugin’s authorized settings controller.
+
 ## 5.0.8 - 2026-09-13
 
 ### Changed
