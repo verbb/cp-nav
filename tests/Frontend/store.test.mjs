@@ -96,6 +96,28 @@ test('rapid toggles persist in intent order, including writes queued after a fai
     assert.equal(tree().nodes[0].enabled, store.getState().nodes[0].enabled);
 });
 
+test('initial load exposes a recoverable error and clears it on retry', async t => {
+    const { store, pending, fail, succeed } = await fixture(t);
+    const first = store.getState().init(1, []);
+    assert.equal(store.getState().loading, true);
+    await flush();
+    assert.equal(pending.length, 1);
+    await fail();
+    await first;
+    assert.equal(store.getState().loading, false);
+    assert.equal(store.getState().error?.message, 'Request failed');
+
+    const retry = store.getState().init(1, []);
+    assert.equal(store.getState().loading, true);
+    assert.equal(store.getState().error, null);
+    await flush();
+    await succeed();
+    await retry;
+    assert.equal(store.getState().loading, false);
+    assert.equal(store.getState().error, null);
+    assert.equal(store.getState().nodes.length, 1);
+});
+
 const orderedFixture = () => [
     { key: 'manual:a', parentKey: null, enabled: true, level: 1, builderId: 11 },
     { key: 'manual:child', parentKey: 'manual:a', enabled: true, level: 2, builderId: 12 },

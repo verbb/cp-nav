@@ -6,6 +6,7 @@ import {
   type ItemInstance,
 } from '@headless-tree/core';
 import { useTree } from '@headless-tree/react';
+import { StatePanel } from '@verbb/plugin-kit-react/components';
 import { cn } from '../utils/cn';
 import { useBuilderStore } from '../store';
 import { t } from '../api';
@@ -223,9 +224,13 @@ export function NodeTree() {
 
   if (!allNodes.length) {
     return (
-      <div className="flex min-h-[320px] items-center justify-center border border-dashed border-gray-200 p-12 text-sm text-gray-500">
-        <p>{t('No navigation items yet. Use the sidebar to add a manual link or divider.')}</p>
-      </div>
+      <StatePanel
+        variant="empty"
+        heading={t('No navigation items yet')}
+        className="[--pk-state-panel-min-height:20rem]"
+      >
+        <span>{t('Use New menu item above to add a manual link or divider.')}</span>
+      </StatePanel>
     );
   }
 

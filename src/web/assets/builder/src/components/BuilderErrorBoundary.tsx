@@ -9,19 +9,26 @@ type Props = {
   children: ReactNode;
 };
 
-/** Thin labels wrapper around kit AppErrorBoundary (Formie FormBuilderErrorBoundary shape). */
+/** Supply plugin translations and recovery copy to the shared application boundary. */
 export function BuilderErrorBoundary({ children }: Props) {
   return (
     <AppErrorBoundary
       consoleLabel="CP Nav builder crashed:"
-      title={Craft.t('cp-nav', 'Something went wrong')}
+      heading={Craft.t('cp-nav', 'Something went wrong')}
       message={Craft.t(
         'cp-nav',
         'The navigation builder failed to load. Please refresh the page or try again.',
       )}
       detailsLabel={Craft.t('cp-nav', 'Show error details')}
+      copyLabel={Craft.t('cp-nav', 'Copy error details')}
+      copiedLabel={Craft.t('cp-nav', 'Error details copied.')}
+      copyErrorLabel={Craft.t(
+        'cp-nav',
+        'Copy failed. Select the details and copy them manually.',
+      )}
       reloadLabel={Craft.t('cp-nav', 'Reload')}
-      containerClassName="flex flex-1 items-center justify-center py-12"
+      size="lg"
+      className="[--pk-state-panel-min-height:20rem]"
     >
       {children}
     </AppErrorBoundary>

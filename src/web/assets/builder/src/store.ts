@@ -41,7 +41,7 @@ type BuilderStore = {
   reordering: boolean;
   resettingLayout: boolean;
   changingNodeSet: boolean;
-  error: string | null;
+  error: Error | null;
 
   nodes: BuilderNode[];
   newItemCount: number;
@@ -227,9 +227,11 @@ export const useBuilderStore = create<BuilderStore>((set, get) => {
           loading: false,
         });
       } catch (error) {
-        displayError(error);
         if (epoch === treeEpoch && get().layoutId === layoutId) {
-          set({ loading: false, error: t('Couldn’t load navigation.') });
+          set({
+            loading: false,
+            error: error instanceof Error ? error : new Error('Navigation request failed.'),
+          });
         }
       }
     },

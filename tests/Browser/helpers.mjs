@@ -2,6 +2,9 @@ import { expect } from '@playwright/test';
 
 export async function login(page) {
   await page.goto('/admin/login');
+  if (!new URL(page.url()).pathname.endsWith('/login')) {
+    return;
+  }
   await page.getByRole('textbox', { name: 'Username or Email' }).fill('admin');
   await page.getByRole('textbox', { name: 'Password', exact: true }).fill('testing-only-password');
   await page.getByRole('button', { name: 'Sign in', exact: true }).click();

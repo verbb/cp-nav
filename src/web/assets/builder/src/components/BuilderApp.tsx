@@ -1,5 +1,7 @@
 import { useEffect } from 'react';
+import { ErrorState } from '@verbb/plugin-kit-react/utils';
 import { useBuilderStore } from '../store';
+import { t } from '../api';
 import { NodeTree } from './NodeTree';
 import { NewItemsBanner } from './NewItemsBanner';
 import { NodeEditorPopover } from './NodeEditorPopover';
@@ -24,7 +26,20 @@ export function BuilderApp({ layoutId, layouts }: Props) {
   }
 
   if (error) {
-    return <div className="rounded border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</div>;
+    return (
+      <ErrorState
+        error={error}
+        heading={t('Couldn’t load navigation.')}
+        message={t('The navigation builder could not be loaded. Retry the request or refresh the page.')}
+        detailsLabel={t('Show error details')}
+        copyLabel={t('Copy error details')}
+        copiedLabel={t('Error details copied.')}
+        copyErrorLabel={t('Copy failed. Select the details and copy them manually.')}
+        actionLabel={t('Retry')}
+        onAction={() => void init(layoutId, layouts)}
+        className="[--pk-state-panel-min-height:20rem]"
+      />
+    );
   }
 
   // Sit inside Craft’s content-pane (no second card) so page tabs join the white surface.

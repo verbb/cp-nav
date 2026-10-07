@@ -25,7 +25,8 @@ test('reports a failed icon catalog and retries without losing the editor draft 
     const label = page.locator('pk-input[name="currLabel"] input');
     const picker = page.locator('pk-image-browser');
     await label.fill('Draft survives icon retry');
-    await expect(page.getByRole('alert')).toContainText('Couldn’t load custom icons.');
+    const loadError = page.locator('pk-alert[variant="error"]');
+    await expect(loadError).toContainText('Couldn’t load custom icons.');
     await expect(picker).toHaveJSProperty('value', 'mark.svg');
     await picker.getByRole('button', { name: /Custom Icon/ }).click();
     await expect(page.getByText('No SVG files found in the icons folder.')).toHaveCount(0);
@@ -39,7 +40,7 @@ test('reports a failed icon catalog and retries without losing the editor draft 
     await expect(picker).toHaveJSProperty('value', 'mark.svg');
     release();
     await expect(picker).toHaveJSProperty('loading', false);
-    await expect(page.getByRole('alert')).toHaveCount(0);
+    await expect(loadError).toHaveCount(0);
     await picker.getByRole('button', { name: /Custom Icon/ }).click();
     await expect(page.getByRole('option', { name: 'mark.svg', exact: true })).toHaveAttribute('aria-selected', 'true');
     await page.keyboard.press('Escape');

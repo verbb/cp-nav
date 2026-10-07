@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import {
+  Alert,
   Button,
   ImageBrowser,
   type PkImageBrowserItem,
@@ -116,12 +117,23 @@ export function CustomIconInput({ value, preview, onChange, onOpenChange, disabl
         onPkAfterHide={() => onOpenChange?.(false)}
       />
       {loadError && (
-        <div className="mt-2 flex items-center gap-2" role="alert">
+        <Alert
+          className="mt-2"
+          variant="error"
+          appearance="filled-outlined"
+          size="sm"
+          announce="polite"
+        >
           <span>{t('Couldn’t load custom icons.')}</span>
-          <Button type="button" size="sm" disabled={disabled || loading} onClick={() => setAttempt((value) => value + 1)}>
+          <Button
+            slot="actions"
+            type="button"
+            disabled={disabled || loading}
+            onClick={() => setAttempt((value) => value + 1)}
+          >
             {t('Retry')}
           </Button>
-        </div>
+        </Alert>
       )}
     </>
   );
