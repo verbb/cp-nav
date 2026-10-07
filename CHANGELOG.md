@@ -1,8 +1,8 @@
 # Changelog
 
-## Unreleased
+## 6.0.0 - 2026-10-07
 
-> {warning} Before upgrading to Control Panel Nav 6, review the [upgrade guide](https://verbb.io/craft-plugins/cp-nav/docs/v6/get-started/upgrading-from-v5) for breaking changes and required migration steps.
+> {warning} Before upgrading to Control Panel Nav 6, review the [upgrade guide](https://verbb.io/craft-plugins/cp-nav/docs/get-started/upgrading-from-v5) for breaking changes and required migration steps.
 
 ### Added
 - Added a new navigation builder with accessible drag-and-drop, keyboard controls, and inline editing for nested menu items.
@@ -15,20 +15,14 @@
 - Added events for modifying resolved navigation and responding to individual or complete customization changes.
 
 ### Changed
-- Require Verbb Base 3.0.20 or later so shared control-panel layouts use the current asset bundle namespace. ([verbb-base#3](https://github.com/verbb/verbb-base/issues/3))
-- Now requires Craft CMS 5.9 or later.
-- Builder empty states, load failures, and custom-icon errors now use the shared Plugin Kit feedback components with consistent recovery actions.
 - Direct upgrades from Control Panel Nav 4 on Craft 4 and Control Panel Nav 5 on Craft 5 are supported. Existing navigation rows are migrated to the new Project Config customization format, with safe preview, audit, rerun, and replacement options available through the console commands.
+- Now requires Craft CMS 5.9 or later.
+- Now requires Verbb Base 3.0.20 or later to use the current control-panel asset bundle namespace without deprecation warnings. ([verbb-base#3](https://github.com/verbb/verbb-base/issues/3))
 - Custom icons now use relative SVG paths from **Icons Path** instead of Craft assets. Existing custom icons must be selected again after upgrading.
 - Control Panel pages no longer write Project Config while navigation is being read, and resetting a layout now returns it to the live Craft and plugin menu.
 - Layout selection for users in multiple groups now follows the order of layouts in the plugin. ([#150](https://github.com/verbb/cp-nav/issues/150))
 - General Settings now uses Control Panel Nav's page title, horizontal tabs, and breadcrumbs without a separate sidebar.
 - Updated divider styling for Craft 5 with a muted line-label-line treatment.
-
-### Fixed
-- Avoid Verbb Base deprecation warnings by using its current control-panel asset bundle namespace. ([verbb-base#3](https://github.com/verbb/verbb-base/issues/3))
-- Fixed an information disclosure vulnerability.
-- Fixed a cross-site scripting vulnerability.
 
 ### Removed
 - Removed the legacy Garnish navigation editor and custom Twig/MutationObserver sidebar replacement.
