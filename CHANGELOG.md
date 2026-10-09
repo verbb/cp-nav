@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 6.0.1 - 2026-10-09
 
 ### Fixed
 - Fixed keyboard focus order, button semantics, and focus restoration for navigation item editors. ([#158](https://github.com/verbb/cp-nav/issues/158))
