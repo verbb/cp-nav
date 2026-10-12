@@ -7,6 +7,7 @@ use verbb\cpnav\models\Layout;
 
 use Craft;
 use craft\elements\User;
+use craft\enums\CmsEdition;
 use craft\helpers\Json;
 use craft\web\Controller;
 
@@ -58,7 +59,7 @@ class LayoutController extends Controller
             'layout' => $layout,
         ];
 
-        if (Craft::$app->getEdition() === Craft::Solo) {
+        if (Craft::$app->edition === CmsEdition::Solo) {
             $variables['soloAccount'] = User::find()->status(null)->one();
         } else {
             $variables['allGroups'] = Craft::$app->userGroups->getAllGroups();

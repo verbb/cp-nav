@@ -12,6 +12,7 @@ use craft\base\Component;
 use craft\base\MemoizableArray;
 use craft\db\Query;
 use craft\elements\User;
+use craft\enums\CmsEdition;
 use craft\events\ConfigEvent;
 use craft\helpers\Db;
 use craft\helpers\StringHelper;
@@ -79,7 +80,7 @@ class Layouts extends Component
             return $this->getLayoutById((int)$layoutId);
         }
 
-        if (Craft::$app->getEdition() === Craft::Solo) {
+        if (Craft::$app->edition === CmsEdition::Solo) {
             // Is there even a solo account?
             if (User::find()->status(null)->one()) {
                 $match = $this->getLayoutMatchingPermissions(['solo']);
