@@ -105,6 +105,53 @@ describe('CustomizationUpgrader', function() {
         expect($overlay[NodeKey::craft('dashboard')]->label)->toBe('Home');
         expect($overlay[NodeKey::craft('content/entries')]->label)->toBeNull();
     });
+
+    it('does not migrate path-bearing provider icons into project config', function() {
+        $absolutePath = layoutNavItemFixture([
+            'id' => 1,
+            'type' => LayoutNavItem::TYPE_PLUGIN,
+            'prevUrl' => 'navigation',
+            'url' => 'navigation',
+            'handle' => 'navigation',
+            'prevLabel' => 'Navigation',
+            'currLabel' => 'Navigation',
+            'sortOrder' => 1,
+            'level' => 1,
+            'icon' => '/var/www/html/vendor/verbb/navigation/src/icon-mask.svg',
+        ]);
+        $aliasPath = layoutNavItemFixture([
+            'id' => 2,
+            'type' => LayoutNavItem::TYPE_CRAFT,
+            'prevUrl' => 'graphql',
+            'url' => 'graphql',
+            'handle' => 'graphql',
+            'prevLabel' => 'GraphQL',
+            'currLabel' => 'GraphQL',
+            'sortOrder' => 2,
+            'level' => 1,
+            'icon' => '@appicons/graphql.svg',
+        ]);
+        $manual = layoutNavItemFixture([
+            'id' => 3,
+            'uid' => 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee',
+            'type' => LayoutNavItem::TYPE_MANUAL,
+            'prevUrl' => 'manual',
+            'url' => 'manual',
+            'handle' => 'manual',
+            'prevLabel' => 'Manual',
+            'currLabel' => 'Manual',
+            'sortOrder' => 3,
+            'level' => 1,
+            'icon' => '@customIcons/manual.svg',
+        ]);
+
+        $overlay = (new CustomizationUpgrader())->upgradeNavigations([$absolutePath, $aliasPath, $manual]);
+
+        expect($overlay[NodeKey::plugin('navigation')]->icon)->toBeNull();
+        expect($overlay[NodeKey::craft('graphql')]->icon)->toBeNull();
+        expect($overlay[NodeKey::manual('aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee')]->icon)
+            ->toBe('@customIcons/manual.svg');
+    });
 });
 
 /**

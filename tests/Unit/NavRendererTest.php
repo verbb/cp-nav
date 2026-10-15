@@ -114,6 +114,67 @@ describe('NavRenderer', function() {
         expect((new NavRenderer())->toCraftNavItems($registryTree, [$cleared])[0]['icon'])->toBe('gauge');
     });
 
+    it('replaces migrated path-bearing provider icons with the live provider value', function(
+        string $migratedIcon,
+        string $liveIcon,
+    ) {
+        $registryTree = [
+            new NavNode(
+                key: 'plugin:navigation',
+                source: 'plugin',
+                defaultLabel: 'Navigation',
+                defaultUrl: 'navigation',
+                icon: $liveIcon,
+                defaultOrder: 1,
+                parentKey: null,
+            ),
+        ];
+        $resolved = [
+            new ResolvedNavNode(
+                key: 'plugin:navigation',
+                label: 'Navigation',
+                url: 'navigation',
+                sort: 10,
+                parentKey: null,
+                source: 'plugin',
+                enabled: true,
+                icon: $migratedIcon,
+            ),
+        ];
+
+        $items = (new NavRenderer())->toCraftNavItems($registryTree, $resolved);
+
+        expect($items[0]['icon'])->toBe($liveIcon);
+    })->with([
+        'absolute filesystem path' => [
+            '/var/www/html/vendor/verbb/navigation/src/icon-mask.svg',
+            '/home/project/vendor/verbb/navigation/src/icon-mask.svg',
+        ],
+        'Craft alias path' => [
+            '@oldAppIcons/graphql.svg',
+            '@appicons/graphql.svg',
+        ],
+    ]);
+
+    it('preserves a path-bearing icon on a customization-only node', function() {
+        $resolved = [
+            new ResolvedNavNode(
+                key: 'manual:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee',
+                label: 'Manual',
+                url: 'manual',
+                sort: 10,
+                parentKey: null,
+                source: 'manual',
+                enabled: true,
+                icon: '@customIcons/manual.svg',
+            ),
+        ];
+
+        $items = (new NavRenderer())->toCraftNavItems([], $resolved);
+
+        expect($items[0]['icon'])->toBe('@customIcons/manual.svg');
+    });
+
     it('emits inert divider items with a stable nav-divider id', function() {
         $registryTree = [];
         $resolved = [

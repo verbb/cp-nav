@@ -133,6 +133,9 @@ final class CustomizationUpgrader
         }
 
         $type = $isCustomizationOnly ? $navigation->type : null;
+        $icon = $isCustomizationOnly
+            ? ($navigation->icon ?: null)
+            : $this->_migratedCanonicalIcon($navigation->icon);
 
         // Explicit root vs nested — never leave null (inherit) for migrated placement.
         $storedParent = $parentKey === null
@@ -147,9 +150,24 @@ final class CustomizationUpgrader
             label: $label,
             type: $type,
             url: $url,
-            icon: $navigation->icon ?: null,
+            icon: $icon,
             customIcon: $navigation->customIcon ?: null,
             newWindow: (bool)$navigation->newWindow,
         );
+    }
+
+    /**
+     * Do not turn a V5 provider icon into a V6 customization override.
+     *
+     * V5's icon picker only produced bare Craft icon names. Values containing a path separator
+     * came from Craft/plugin nav providers and were refreshed from the original nav item at render time.
+     */
+    private function _migratedCanonicalIcon(?string $icon): ?string
+    {
+        if (!$icon || (!str_contains($icon, '/') && !str_contains($icon, '\\'))) {
+            return $icon ?: null;
+        }
+
+        return null;
     }
 }

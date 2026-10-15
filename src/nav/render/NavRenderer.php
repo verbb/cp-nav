@@ -159,7 +159,7 @@ final class NavRenderer extends Component
         $registry = $registryIndex[$resolved->key] ?? null;
         // User-uploaded SVG overrides any Craft/plugin icon (font or path).
         $customIconPath = $this->_customIconPath($resolved->customIcon);
-        $icon = $customIconPath ?: ($resolved->icon ?? $registry?->icon);
+        $icon = $customIconPath ?: $this->_resolvedIcon($resolved->icon, $registry?->icon, $registry !== null);
         $url = $this->_relativeUrl($this->resolveUrl($resolved->url));
         // Check the final href, including expanded aliases and stripped CP path prefixes.
         $allowedUrl = ManualUrl::isAllowed($url);
@@ -362,6 +362,23 @@ final class NavRenderer extends Component
     private function _customIconPath(?string $customIcon): ?string
     {
         return CustomIcon::resolveSvgSource($customIcon);
+    }
+
+    /**
+     * Keep legacy path-bearing provider icons live instead of treating them as saved overrides.
+     *
+     * V5's icon picker only produced bare Craft icon names. Values containing a path separator
+     * came from Craft/plugin nav providers and V5 refreshed them from the original nav item.
+     */
+    private function _resolvedIcon(?string $resolvedIcon, ?string $registryIcon, bool $hasRegistryNode): ?string
+    {
+        $icon = $resolvedIcon ?? $registryIcon;
+
+        if (!$hasRegistryNode || $icon === null || (!str_contains($icon, '/') && !str_contains($icon, '\\'))) {
+            return $icon;
+        }
+
+        return $registryIcon;
     }
 
     /**
