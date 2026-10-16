@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 6.0.3 - 2026-10-16
 
 ### Fixed
 - Fixed migrated Craft and plugin icons retaining stale provider paths across environments. ([navigation#475](https://github.com/verbb/navigation/issues/475))
