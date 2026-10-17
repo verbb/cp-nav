@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 4.0.14 - 2026-10-17
 
 ### Fixed
 - Fixed error handling when loading font icon options.
