@@ -10051,16 +10051,16 @@
         },
         {
             "name": "verbb/base",
-            "version": "3.0.14",
+            "version": "3.0.20",
             "source": {
                 "type": "git",
                 "url": "https://github.com/verbb/verbb-base.git",
-                "reference": "c847f893fa7278413b6554324447137b815e7d3e"
+                "reference": "0b60c166a79e2762aa968e062dc84ca6c0a9406e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/verbb/verbb-base/zipball/c847f893fa7278413b6554324447137b815e7d3e",
-                "reference": "c847f893fa7278413b6554324447137b815e7d3e",
+                "url": "https://api.github.com/repos/verbb/verbb-base/zipball/0b60c166a79e2762aa968e062dc84ca6c0a9406e",
+                "reference": "0b60c166a79e2762aa968e062dc84ca6c0a9406e",
                 "shasum": ""
             },
             "require": {
@@ -10097,21 +10097,21 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-08-14T11:53:23+00:00"
+            "time": "2026-10-04T21:22:12+00:00"
         },
         {
             "name": "verbb/cp-nav",
-            "version": "6.0.0-beta.2",
+            "version": "6.0.3",
             "dist": {
                 "type": "path",
                 "url": "../../..",
-                "reference": "fdc7a714664eea945372bbfad61c2a312d780212"
+                "reference": "b1cd44352f06c10be68513c7fb0b8f084f09044d"
             },
             "require": {
                 "craftcms/cms": "^5.9",
                 "nystudio107/craft-plugin-vite": "^5.0.0",
                 "php": "^8.2",
-                "verbb/base": "^3.0.0"
+                "verbb/base": "^3.0.20"
             },
             "require-dev": {
                 "craftcms/cms": "^5.9",
@@ -10157,7 +10157,7 @@
                     "homepage": "https://verbb.io"
                 }
             ],
-            "description": "Manage the Craft Control Panel navigation.",
+            "description": "A Craft CMS plugin for managing control panel navigation by user group.",
             "keywords": [
                 "cms",
                 "control panel nav",

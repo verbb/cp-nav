@@ -58,3 +58,4 @@ node_modules
 # Browser test diagnostics
 /playwright-report/
 /test-results/
+/.ddev/config.zz-ci.yaml
