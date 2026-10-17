@@ -1,6 +1,10 @@
 <?php
 namespace verbb\cpnav\models;
 
+use verbb\cpnav\CpNav;
+
+use Throwable;
+
 use Craft;
 use craft\base\Model;
 use craft\helpers\FileHelper;
@@ -41,7 +45,7 @@ class Settings extends Model
 
             try {
                 $view = Craft::$app->getView();
-                $path = FileHelper::normalizePath( __DIR__ . '/../json/craft-font.json');
+                $path = FileHelper::normalizePath(__DIR__ . '/../json/craft-font.json');
                 $json = Json::decode(@file_get_contents($path));
 
                 foreach (($json['icons'] ?? []) as $icon) {
