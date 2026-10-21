@@ -13,7 +13,12 @@
     "@verbb/vitepress-theme": "1.0.0",
     "tailwindcss": "^4.2.4",
     "typescript": "^6.0.3",
-    "vite": "^8.0.10",
+    "vite": "^8.3.4",
     "vitepress": "^1.6.4"
+  },
+  "overrides": {
+    "vitepress": {
+      "vite": "6.4.4"
+    }
   }
 }

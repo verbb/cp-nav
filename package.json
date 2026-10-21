@@ -41,7 +41,12 @@
     "sass": "^1.93.2",
     "tailwindcss": "^4.2.4",
     "typescript": "^5.7.3",
-    "vite": "^8.0.10",
+    "vite": "^8.3.4",
     "vite-plugin-tailwind-shadowdom": "^1.1.1"
+  },
+  "overrides": {
+    "vitepress": {
+      "vite": "6.4.4"
+    }
   }
 }
