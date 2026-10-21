@@ -83,6 +83,8 @@ test('hands Actions → Edit over to the adjacent row editor', async ({ page }) 
   await page.keyboard.press('Enter');
   const edit = page.getByRole('menuitem', { name: 'Edit', exact: true });
   await expect(edit).toBeVisible();
+  // The opening animation finishes by focusing the menu panel.
+  await expect(page.locator('[data-key="craft:dashboard"] pk-dropdown-menu').getByRole('menu')).toBeFocused();
   await page.keyboard.press('ArrowDown');
   await expect(edit.getByRole('button', { name: 'Edit', exact: true })).toBeFocused();
   await page.keyboard.press('Enter');
