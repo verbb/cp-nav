@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 6.0.4 - 2026-10-22
 
 ### Changed
 - Updated Markdown-it to 14.3.3 and the frontend build toolchain to Vite 8.3.4.
