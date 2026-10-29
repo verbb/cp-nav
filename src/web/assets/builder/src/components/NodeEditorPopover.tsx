@@ -424,6 +424,7 @@ export function NodeEditorPopover() {
         key={fieldMountKey}
         ref={popoverRef as never}
         open={open}
+        label={visibleSession.kind === 'create' ? t('New menu item') : t('Edit menu item')}
         anchor={anchor}
         // Center under the trigger (screen1) rather than hard end-align.
         placement="bottom"
@@ -451,7 +452,6 @@ export function NodeEditorPopover() {
         */}
         <form
           ref={formRef}
-          role="dialog"
           aria-label={visibleSession.kind === 'create' ? t('New menu item') : t('Edit menu item')}
           className="flex max-w-[calc(100vw-2rem)] min-w-0 flex-col overflow-hidden rounded-[var(--pk-radius-md)]"
           style={{ width: POPOVER_WIDTH }}

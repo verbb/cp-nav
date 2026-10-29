@@ -20,6 +20,8 @@ test.afterEach(async ({ page }) => {
 });
 
 async function expectAdjacentEditor(page, trigger) {
+  await expect(page.getByRole('dialog')).toHaveCount(1);
+  await expect(page.getByRole('dialog', { name: 'Edit menu item', exact: true })).toBeVisible();
   await expect(labelField(page)).toBeVisible();
   await expect(trigger).toBeFocused();
   await expect(trigger).toHaveAttribute('aria-expanded', 'true');
@@ -107,6 +109,7 @@ for (const type of ['manual', 'divider']) {
       await page.getByRole('menuitem', { name: 'New divider item', exact: true }).press('Enter');
     }
     await expect(labelField(page)).toBeFocused();
+    await expect(page.getByRole('dialog')).toHaveCount(1);
     await expect(page.getByRole('dialog', { name: 'New menu item', exact: true })).toBeVisible();
     await labelField(page).fill(`Keyboard ${type}`);
     if (type === 'manual') await page.locator('pk-input[name="url"] input').fill('https://example.test/keyboard');

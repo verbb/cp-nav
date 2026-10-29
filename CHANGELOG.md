@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed menu item editors exposing duplicate dialogs to assistive technology.
+
 ## 6.0.4 - 2026-10-22
 
 ### Changed
