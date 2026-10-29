@@ -59,3 +59,5 @@ node_modules
 /playwright-report/
 /test-results/
 /.ddev/config.zz-ci.yaml
+
+/.ddev/docker-compose.php-minimum.yaml
