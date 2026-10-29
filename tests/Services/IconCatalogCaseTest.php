@@ -21,7 +21,17 @@ it('offers supported SVG extension casing and preserves the selected icon', func
     Craft::$app->set('response', new \craft\web\Response());
     Craft::$app->getRequest()->setQueryParams(['file' => $filename]);
     $controller = new \verbb\cpnav\controllers\StaticIconsController('static-icons', CpNav::$plugin);
-    $response = $controller->runAction('view');
+    // Craft closes one output buffer when preparing a file download.
+    // Give the response its own buffer so PHPUnit retains ownership of its buffer.
+    $bufferLevel = ob_get_level();
+    ob_start();
+    try {
+        $response = $controller->runAction('view');
+    } finally {
+        while (ob_get_level() > $bufferLevel) {
+            ob_end_clean();
+        }
+    }
     rewind($response->stream[0]);
     expect(stream_get_contents($response->stream[0]))->toBe($svg);
     fclose($response->stream[0]);

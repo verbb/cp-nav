@@ -58,7 +58,17 @@ it('rejects a symlink outside the icon root and serves an allowed icon to a CP u
     $request = Craft::$app->getRequest();
     $request->setQueryParams(['file' => 'brand/mark.svg']);
     $controller = new \verbb\cpnav\controllers\StaticIconsController('static-icons', \verbb\cpnav\CpNav::$plugin);
-    $response = $controller->runAction('view');
+    // Craft closes one output buffer when preparing a file download.
+    // Give the response its own buffer so PHPUnit retains ownership of its buffer.
+    $bufferLevel = ob_get_level();
+    ob_start();
+    try {
+        $response = $controller->runAction('view');
+    } finally {
+        while (ob_get_level() > $bufferLevel) {
+            ob_end_clean();
+        }
+    }
     self::assertSame('image/svg+xml', explode(';', $response->headers->get('Content-Type'))[0], json_encode($response->headers->toArray()));
     rewind($response->stream[0]);
     expect(stream_get_contents($response->stream[0]))->toBe(file_get_contents($dir . '/brand/mark.svg'));
