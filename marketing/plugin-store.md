@@ -13,4 +13,4 @@ Replace implementation-oriented labels with terms editors recognise, move import
 - Deploy layouts and customisations with the rest of the project while keeping live Craft and plugin navigation as the source of truth.
 - Surface navigation added by Craft or another plugin so it can be acknowledged and placed deliberately.
 - Use site tokens in manual URLs and project-relative SVG icons without hard-coding environment details.
-- Move existing customisations to the current model and audit stale navigation keys from the console.
+- Audit stale navigation keys from the console.

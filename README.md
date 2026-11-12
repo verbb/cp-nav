@@ -16,7 +16,7 @@ Replace implementation-oriented labels with terms editors recognise, move import
 - Deploy layouts and customisations with the rest of the project while keeping live Craft and plugin navigation as the source of truth.
 - Surface navigation added by Craft or another plugin so it can be acknowledged and placed deliberately.
 - Use site tokens in manual URLs and project-relative SVG icons without hard-coding environment details.
-- Move existing customisations to the current model and audit stale navigation keys from the console.
+- Audit stale navigation keys from the console.
 
 ## Documentation
 
@@ -24,11 +24,11 @@ Visit the [Control Panel Nav Plugin page](https://verbb.io/craft-plugins/cp-nav)
 
 ## Support
 
-Get in touch with us via the [Control Panel Nav Support page](https://verbb.io/craft-plugins/cp-nav/support) or by [creating a Github issue](https://github.com/verbb/cp-nav/issues)
+Get in touch with us via the [Control Panel Nav Support page](https://verbb.io/craft-plugins/cp-nav/support) or by [creating a GitHub issue](https://github.com/verbb/cp-nav/issues).
 
 ## Sponsor
 
-Control Panel Nav is licensed under the MIT license, meaning it will always be free and open source - we love free stuff! If you'd like to show your support to the plugin regardless, [Sponsor](https://github.com/sponsors/verbb) development.
+Control Panel Nav is licensed under the MIT license, so it will always be free and open source. If you'd like to support it anyway, you can [sponsor its development](https://github.com/sponsors/verbb).
 
 <h2></h2>
 

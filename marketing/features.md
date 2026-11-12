@@ -3,7 +3,7 @@ Take control of Craft’s control panel navigation. Rename, reorder, hide and gr
 <!-- feature-intro-end -->
 
 <!-- feature-section media-size="large" -->
-## Total Control
+## Rename, reorder and group the navigation
 
 Turn Craft’s default navigation into a menu that reflects the way the project is actually run. Familiar labels and recognisable icons help editors find the areas they need, while a considered hierarchy keeps day-to-day destinations from getting lost among administrative tools.
 
@@ -11,7 +11,7 @@ Turn Craft’s default navigation into a menu that reflects the way the project 
 <!-- feature-section-end -->
 
 <!-- feature-media -->
-## Create Your Own Menu Items
+## Create your own menu items
 
 Keep an important entry handy, link to project documentation or add another frequently used destination. Choose a custom SVG icon that makes the link recognisable, and open external links in a new window so the control panel stays close at hand.
 
@@ -19,9 +19,9 @@ Keep an important entry handy, link to project documentation or add another freq
 <!-- feature-media-end -->
 
 <!-- feature-media -->
-## A Menu for Every Team
+## A menu for every team
 
-Your editors need their content tools; your developers need the wider control panel. With Craft Pro, assign layouts to user groups so each team gets a menu suited to its work, while Craft’s existing permissions remain in control.
+Your editors need their content tools, and your developers need the wider control panel. With Craft Pro, assign layouts to user groups so each team gets a menu suited to its work, while Craft’s existing permissions remain in control.
 
 Duplicate a layout when teams share a starting point, then adjust their menus and use the order of the layouts list to set priority for people in more than one group.
 
@@ -29,7 +29,7 @@ Duplicate a layout when teams share a starting point, then adjust their menus an
 <!-- feature-media-end -->
 
 <!-- feature-section media-size="large" -->
-## Keep Your Menu as the Project Grows
+## Keep your menu as the project grows
 
 Craft and plugin updates can add destinations to your control panel. Control Panel Nav discovers them and places them at Craft’s default position without replacing the menu you’ve tailored. A notice in the builder flags the additions so you can decide what your team should see.
 
