@@ -10,7 +10,7 @@ Control Panel Nav requires Craft CMS 5.9 or later. Check the project’s Craft v
 
 ### Custom Icons
 
-Custom icons are selected from a filesystem folder configured by **Icons Path**; see [Configuration](/get-started/configuration#setting-up-custom-icons) for the setting and folder setup. Existing asset-based icons must be selected again after upgrading. The upgrade retains a navigation item’s label, URL, and position, but cannot turn its old asset reference into a relative filesystem path.
+Custom icons are selected from a filesystem folder configured by **Icons Path**; see [Custom Icons](/feature-tour/navigation#custom-icons) for the setting and folder setup. Existing asset-based icons must be selected again after upgrading. The upgrade retains a navigation item’s label, URL, and position, but cannot turn its old asset reference into a relative filesystem path.
 
 Copy the SVG files you want to retain into the folder configured by **Icons Path**. Open each affected item in the navigation builder, select its replacement under **Custom Icon**, and save. For example, an icon stored at `brand/mark.svg` inside that folder is saved using that relative path. Deploy the same folder contents with your project so the icon is available in each environment.
 

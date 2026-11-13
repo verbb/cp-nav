@@ -28,7 +28,13 @@ Review the new rows and rename, move, or hide them as needed. Click **Got it** t
 
 ## Custom Icons
 
-After [configuring your icon folder](/get-started/configuration#setting-up-custom-icons), open an item's editor and choose an SVG under **Custom Icon**, then click **Save**. Leave the custom icon empty to use the Craft or plugin icon. Reload the control panel to check the result in the sidebar.
+Custom icons are SVG files in the folder set by [`iconsPath`](/get-started/configuration#iconspath), which defaults to `@webroot/cpnav-icons/`. Suppose you want a branded icon for your Team Handbook link. With the default path, create a `cpnav-icons` folder inside your project's web root, the folder Craft's `@webroot` alias points to. Add your SVG there, for example at `cpnav-icons/brand/mark.svg`. Icons can be in the folder itself or one subfolder, as in this example. Use filenames containing letters, numbers, dots, underscores, or hyphens. The web server must be able to read the folder and file.
+
+Open **Control Panel Nav → Navigation**, choose the intended layout, and edit the Team Handbook item. Select `brand/mark.svg` under **Custom Icon** and click **Save**. Leave the custom icon empty to use the Craft or plugin icon. Reload the control panel to check the icon beside the link.
+
+The item stores `brand/mark.svg` relative to **Icons Path**. Include the icon folder in your deployment so the same relative file exists in every environment. If each environment uses a different absolute folder, configure **Icons Path** for each environment while keeping the folder contents consistent.
+
+If the picker contains no icons, check that **Icons Path** resolves to the folder containing your SVG files and that the web server can read them. If an icon is missing after deployment, check the saved relative path against the deployed folder, then reload the control panel.
 
 ## Reset
 
