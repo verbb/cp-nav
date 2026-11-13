@@ -25,8 +25,6 @@ Craft and plugin keys are derived from the available menu items. Manual links an
 
 Plugin roots retain their full relative route, excluding query parameters and fragments. For example, `formie/forms` and `formie/settings` have different keys. Submenu handles preserve case: `contentBlocks` and `content-blocks` are distinct. Reserved characters in plugin routes and submenu handles are URL-encoded, while route slashes remain readable.
 
-Upgrading an earlier v6 beta migrates available provider keys, parent references, and acknowledged items to this format. Where an old key collided, its saved customization follows the last provider item, matching the previous catalog behaviour.
-
 ## Project Config Encoding
 
 Project Config stores each node under an encoded path segment. `NodeKey::encodePathKey()` keeps the namespace and encodes the remainder using base64url without padding, prefixed by `__b64_`. For example, `craft:dashboard` becomes `craft__b64_ZGFzaGJvYXJk`. The stored value also contains the canonical `key`.

@@ -1,5 +1,6 @@
 # Events
-Control Panel Nav provides a collection of events for extending its functionality. Modules and plugins can register event listeners, typically in their `init()` methods, to modify Control Panel Nav’s behaviour.
+
+Control Panel Nav provides events for extending its functionality. Modules and plugins can register event listeners, typically in their `init()` methods, to change Control Panel Nav’s behaviour.
 
 ## Navigation Events
 
