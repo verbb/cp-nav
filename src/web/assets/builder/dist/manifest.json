@@ -1,11 +1,23 @@
 {
+  "../../../../node_modules/@verbb/plugin-kit-core/dist/utils/markdown.js": {
+    "file": "assets/markdown-CeXXV6S7.js",
+    "name": "markdown",
+    "src": "../../../../node_modules/@verbb/plugin-kit-core/dist/utils/markdown.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "src/main.tsx"
+    ]
+  },
   "src/main.tsx": {
-    "file": "assets/builder-BdQ2nF_5.js",
+    "file": "assets/builder-B-Vrtw0c.js",
     "name": "builder",
     "src": "src/main.tsx",
     "isEntry": true,
+    "dynamicImports": [
+      "../../../../node_modules/@verbb/plugin-kit-core/dist/utils/markdown.js"
+    ],
     "css": [
-      "assets/builder-3HKrauDt.css"
+      "assets/builder-Yh-lqTwb.css"
     ]
   }
 }
