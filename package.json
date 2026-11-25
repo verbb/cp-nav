@@ -46,7 +46,10 @@
     },
     "overrides": {
         "vitepress": {
-            "vite": "6.4.4"
+            "vite": "6.4.5"
+        },
+        "@tailwindcss/typography": {
+            "postcss-selector-parser": "6.1.5"
         }
     }
 }
