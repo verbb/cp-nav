@@ -1,5 +1,10 @@
 # Changelog
 
+## 6.0.6 - 2026-11-29
+
+### Changed
+- Update Vite and the selector parser for documentation builds.
+
 ## 6.0.5 - 2026-11-01
 
 ### Fixed
